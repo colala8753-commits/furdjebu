@@ -9,13 +9,25 @@ local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "furdjehub"
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
+-- Toggle button (always visible)
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 50, 0, 50)
+toggleBtn.Position = UDim2.new(0, 10, 0, 10)
+toggleBtn.Text = "📂"
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+toggleBtn.BorderSizePixel = 0
+toggleBtn.Parent = screenGui
+toggleBtn.Visible = true
+
 local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 340, 0, 420)
-window.Position = UDim2.new(0.5, -170, 0.5, -210)
+window.Size = UDim2.new(0, 380, 0, 460)
+window.Position = UDim2.new(0.5, -190, 0.5, -230)
 window.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
 window.BackgroundTransparency = 0.05
 window.BorderSizePixel = 0
 window.Parent = screenGui
+window.Visible = true
 
 -- Title bar
 local titleBar = Instance.new("Frame")
@@ -87,6 +99,17 @@ titleBar.InputChanged:Connect(function(input)
 if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
 local delta = input.Position - dragStart
 window.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+end)
+
+-- Toggle button function
+toggleBtn.MouseButton1Click:Connect(function()
+if window.Visible then
+window.Visible = false
+toggleBtn.Text = "📂"
+else
+window.Visible = true
+toggleBtn.Text = "📂"
 end
 end)
 
@@ -184,7 +207,6 @@ local flingActive = false
 local autoShootActive = false
 local gunEspActive = false
 local aimbotActive = false
-local espAllActive = false
 local flyActive = false
 local noclipConnection = nil
 local espHighlights = {}
@@ -549,32 +571,16 @@ end)
 
 -- Close/Minimize toggle
 closeBtn.MouseButton1Click:Connect(function()
-screenGui:Destroy()
-end)
-
-local minimized = false
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 40, 0, 40)
-toggleBtn.Position = UDim2.new(0, 10, 0, 10)
-toggleBtn.Text = "📂"
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-toggleBtn.BorderSizePixel = 0
-toggleBtn.Parent = screenGui
-toggleBtn.Visible = false
-
-toggleBtn.MouseButton1Click:Connect(function()
-window.Visible = true
-toggleBtn.Visible = false
-minimized = false
-minBtn.Text = "─"
+window.Visible = false
+toggleBtn.Visible = true
 end)
 
 minBtn.MouseButton1Click:Connect(function()
-minimized = not minimized
-window.Visible = not minimized
-minBtn.Text = minimized and "□" or "─"
-if minimized then
+if window.Visible then
+window.Visible = false
+toggleBtn.Visible = true
+else
+window.Visible = true
 toggleBtn.Visible = false
 end
 end)
