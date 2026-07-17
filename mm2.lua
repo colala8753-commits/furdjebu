@@ -35,6 +35,7 @@ titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleText.TextXAlignment = Enum.TextXAlignment.Left
 titleText.TextSize = 14
 titleText.BackgroundTransparency = 1
+titleText.Font = Enum.Font.SourceSans
 titleText.Parent = titleBar
 
 -- Buttons
@@ -197,11 +198,10 @@ end
 local espHighlights = {}
 local noclipConnection = nil
 local flyConnection = nil
-local flingTarget = nil
-local flingActive = false
 local flingConnection = nil
-local autoGrabActive = false
 local autoGrabConnection = nil
+local flingActive = false
+local autoGrabActive = false
 
 -- ESP Functions
 local function updateEspMurder(state)
@@ -355,51 +355,6 @@ local function updateAutoGrab(state)
     end
 end
 
--- Fling Target
-local function startFling(target)
-    if flingConnection then
-        flingConnection:Disconnect()
-        flingConnection = nil
-    end
-    if not target or not target.Character or not target.Character:FindFirstChild("HumanoidRootPart") then
-        return
-    end
-    flingActive = true
-    local targetRoot = target.Character.HumanoidRootPart
-    flingConnection = game:GetService("RunService").Heartbeat:Connect(function()
-        if not flingActive or not target or not target.Character or not target.Character:FindFirstChild("HumanoidRootPart") then
-            flingActive = false
-            if flingConnection then
-                flingConnection:Disconnect()
-                flingConnection = nil
-            end
-            print("Таргет вышел или функция выключена")
-            return
-        end
-        local targetRoot = target.Character.HumanoidRootPart
-        targetRoot.Velocity = Vector3.new(0, 150, 0)
-    end)
-end
-
-local function stopFling()
-    flingActive = false
-    if flingConnection then
-        flingConnection:Disconnect()
-        flingConnection = nil
-    end
-end
-
--- Get player list for fling target
-local function getPlayerList()
-    local list = {}
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= player then
-            table.insert(list, v.Name)
-        end
-    end
-    return list
-end
-
 -- Fling Murderer
 local function updateFlingMurderer(state)
     if state then
@@ -471,67 +426,6 @@ y = addSection("═══════ FLING ═══════", y)
 y = addToggle("Fling Murderer", y, updateFlingMurderer)
 y = addToggle("Fling Sheriff", y, updateFlingSheriff)
 
--- Fling Target with player list
-local targetLabel = Instance.new("TextLabel")
-targetLabel.Size = UDim2.new(1, -20, 0, 25)
-targetLabel.Position = UDim2.new(0, 10, 0, y)
-targetLabel.Text = "Fling Target: None"
-targetLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-targetLabel.TextSize = 13
-targetLabel.BackgroundTransparency = 1
-targetLabel.Parent = canvas
-y = y + 30
-
-local targetBtn = Instance.new("TextButton")
-targetBtn.Size = UDim2.new(1, -20, 0, 30)
-targetBtn.Position = UDim2.new(0, 10, 0, y)
-targetBtn.Text = "Select Target"
-targetBtn.BackgroundColor3 = Color3.fromRGB(55, 55, 80)
-targetBtn.TextColor3 = Color3.fromRGB(230, 230, 230)
-targetBtn.TextSize = 13
-targetBtn.BorderSizePixel = 0
-targetBtn.Font = Enum.Font.SourceSans
-targetBtn.Parent = canvas
-
-local selectedTarget = nil
-local targetList = getPlayerList()
-local targetIndex = 1
-
-targetBtn.MouseButton1Click:Connect(function()
-    if #targetList == 0 then
-        targetLabel.Text = "Fling Target: No players"
-        return
-    end
-    local name = targetList[targetIndex]
-    selectedTarget = game.Players:FindFirstChild(name)
-    if selectedTarget then
-        targetLabel.Text = "Fling Target: " .. name
-        startFling(selectedTarget)
-    end
-    targetIndex = targetIndex + 1
-    if targetIndex > #targetList then targetIndex = 1 end
-end)
-
-y = y + 35
-
-local stopFlingBtn = Instance.new("TextButton")
-stopFlingBtn.Size = UDim2.new(1, -20, 0, 30)
-stopFlingBtn.Position = UDim2.new(0, 10, 0, y)
-stopFlingBtn.Text = "Stop Fling Target"
-stopFlingBtn.BackgroundColor3 = Color3.fromRGB(80, 40, 40)
-stopFlingBtn.TextColor3 = Color3.fromRGB(230, 230, 230)
-stopFlingBtn.TextSize = 13
-stopFlingBtn.BorderSizePixel = 0
-stopFlingBtn.Font = Enum.Font.SourceSans
-stopFlingBtn.Parent = canvas
-stopFlingBtn.MouseButton1Click:Connect(function()
-    stopFling()
-    targetLabel.Text = "Fling Target: None"
-    selectedTarget = nil
-end)
-
-y = y + 35
-
 y = addSection("═══════ VISUAL ═══════", y)
 y = addToggle("ESP Murder (Red)", y, updateEspMurder)
 y = addToggle("ESP Sheriff (Blue)", y, updateEspSheriff)
@@ -549,4 +443,4 @@ y = addToggle("Super Jump", y, function(state)
     if state then humanoid.JumpPower = 200 else humanoid.JumpPower = 50 end
 end)
 
-print("furdjehub loaded! (600x450)")
+print("furdjehub loaded!")
