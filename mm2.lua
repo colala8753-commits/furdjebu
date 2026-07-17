@@ -106,12 +106,12 @@ end
 
 local function addToggle(text, y, callback)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 28)
+    btn.Size = UDim2.new(1, -20, 0, 30)
     btn.Position = UDim2.new(0, 10, 0, y)
     btn.Text = text .. ": OFF"
     btn.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
     btn.TextColor3 = Color3.fromRGB(230, 230, 230)
-    btn.TextSize = 12
+    btn.TextSize = 13
     btn.BorderSizePixel = 0
     btn.Font = Enum.Font.SourceSans
     btn.Parent = canvas
@@ -122,7 +122,7 @@ local function addToggle(text, y, callback)
         btn.BackgroundColor3 = state and Color3.fromRGB(0, 130, 0) or Color3.fromRGB(50, 50, 70)
         callback(state)
     end)
-    local newY = y + 32
+    local newY = y + 35
     canvas.Size = UDim2.new(1, 0, 0, newY)
     scrollFrame.CanvasSize = UDim2.new(0, 0, 0, newY)
     return newY
@@ -130,53 +130,17 @@ end
 
 local function addButton(text, y, color, callback)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 28)
+    btn.Size = UDim2.new(1, -20, 0, 30)
     btn.Position = UDim2.new(0, 10, 0, y)
     btn.Text = text
     btn.BackgroundColor3 = color or Color3.fromRGB(55, 55, 80)
     btn.TextColor3 = Color3.fromRGB(230, 230, 230)
-    btn.TextSize = 12
+    btn.TextSize = 13
     btn.BorderSizePixel = 0
     btn.Font = Enum.Font.SourceSans
     btn.Parent = canvas
     btn.MouseButton1Click:Connect(callback)
-    local newY = y + 32
-    canvas.Size = UDim2.new(1, 0, 0, newY)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, newY)
-    return newY
-end
-
-local function addSlider(text, y, min, max, default, callback)
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -20, 0, 18)
-    label.Position = UDim2.new(0, 10, 0, y)
-    label.Text = text .. ": " .. default
-    label.TextColor3 = Color3.fromRGB(200, 200, 200)
-    label.TextSize = 12
-    label.BackgroundTransparency = 1
-    label.Parent = canvas
-    
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 22)
-    btn.Position = UDim2.new(0, 10, 0, y + 20)
-    btn.Text = "◀ " .. default .. " ▶"
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
-    btn.TextColor3 = Color3.fromRGB(230, 230, 230)
-    btn.TextSize = 12
-    btn.BorderSizePixel = 0
-    btn.Font = Enum.Font.SourceSans
-    btn.Parent = canvas
-    
-    local value = default
-    btn.MouseButton1Click:Connect(function()
-        value = value + 2
-        if value > max then value = min end
-        btn.Text = "◀ " .. value .. " ▶"
-        label.Text = text .. ": " .. value
-        callback(value)
-    end)
-    
-    local newY = y + 46
+    local newY = y + 35
     canvas.Size = UDim2.new(1, 0, 0, newY)
     scrollFrame.CanvasSize = UDim2.new(0, 0, 0, newY)
     return newY
@@ -196,9 +160,7 @@ end
 -- ESP variables
 local espHighlights = {}
 local noclipConnection = nil
-local autoGrabConnection = nil
-local oldPosition = nil
-local isGrabbing = false
+local flyConnection = nil
 
 -- ESP Functions
 local function updateEspMurder(state)
@@ -301,45 +263,34 @@ local function updateNoclip(state)
     end
 end
 
--- Auto Grab Gun
-local function updateAutoGrab(state)
-    if autoGrabConnection then
-        autoGrabConnection:Disconnect()
-        autoGrabConnection = nil
+-- Fly
+local function updateFly(state)
+    if flyConnection then
+        flyConnection:Disconnect()
+        flyConnection = nil
     end
     if state then
-        autoGrabConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if state and root and not isGrabbing then
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v:IsA("Part") and v.Name == "Handle" and v.Parent and v.Parent:IsA("Tool") then
-                        local dist = (root.Position - v.Position).Magnitude
-                        if dist < 200 and dist > 5 then
-                            isGrabbing = true
-                            oldPosition = root.CFrame
-                            root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
-                            wait(0.1)
-                            pcall(function()
-                                mm2.Knife:FireServer(v.Parent)
-                            end)
-                            wait(0.1)
-                            if oldPosition then
-                                root.CFrame = oldPosition
-                            end
-                            isGrabbing = false
-                            break
-                        elseif dist <= 5 then
-                            pcall(function()
-                                mm2.Knife:FireServer(v.Parent)
-                            end)
-                        end
-                    end
-                end
+        humanoid.PlatformStand = true
+        flyConnection = game:GetService("RunService").Heartbeat:Connect(function()
+            if root then
+                local move = Vector3.new(0, 0, 0)
+                local input = game:GetService("UserInputService")
+                local cam = workspace.CurrentCamera
+                if input:IsKeyDown(Enum.KeyCode.W) then move = move + cam.CFrame.LookVector * 50 end
+                if input:IsKeyDown(Enum.KeyCode.S) then move = move - cam.CFrame.LookVector * 50 end
+                if input:IsKeyDown(Enum.KeyCode.A) then move = move - cam.CFrame.RightVector * 50 end
+                if input:IsKeyDown(Enum.KeyCode.D) then move = move + cam.CFrame.RightVector * 50 end
+                if input:IsKeyDown(Enum.KeyCode.Space) then move = move + Vector3.new(0, 50, 0) end
+                if input:IsKeyDown(Enum.KeyCode.LeftShift) then move = move - Vector3.new(0, 50, 0) end
+                root.Velocity = move
             end
         end)
+    else
+        humanoid.PlatformStand = false
     end
 end
 
--- Toggle Button (папка)
+-- Toggle Button
 local toggleBtn = Instance.new("TextButton")
 toggleBtn.Size = UDim2.new(0, 50, 0, 50)
 toggleBtn.Position = UDim2.new(0, 15, 0, 15)
@@ -369,7 +320,7 @@ end)
 local y = 5
 y = addSection("═══════ MAIN ═══════", y)
 y = addToggle("No Clip", y, updateNoclip)
-y = addToggle("Auto Grab Gun (TP)", y, updateAutoGrab)
+y = addToggle("Fly (WASD/Space)", y, updateFly)
 
 y = addSection("═══════ VISUAL ═══════", y)
 y = addToggle("ESP Murder (Red)", y, updateEspMurder)
@@ -381,8 +332,11 @@ y = addButton("Teleport to Murderer", y, Color3.fromRGB(80, 40, 40), teleportToM
 y = addButton("Teleport to Sheriff", y, Color3.fromRGB(40, 40, 80), teleportToSheriff)
 
 y = addSection("═══════ EXTRA ═══════", y)
-y = addSlider("Speed Boost", y, 16, 120, 16, function(value)
-    humanoid.WalkSpeed = value
+y = addToggle("Speed Boost", y, function(state)
+    if state then humanoid.WalkSpeed = 40 else humanoid.WalkSpeed = 16 end
+end)
+y = addToggle("Super Jump", y, function(state)
+    if state then humanoid.JumpPower = 200 else humanoid.JumpPower = 50 end
 end)
 
-print("furdjehub loaded! (600x400) - FINAL STABLE VERSION")
+print("furdjehub loaded! (600x400)")
