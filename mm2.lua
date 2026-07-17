@@ -159,48 +159,47 @@ end
 
 -- ESP variables
 local espHighlights = {}
-local espActive = false
+local noclipConnection = nil
+local flyConnection = nil
 
 -- ESP Functions
 local function updateEspMurder(state)
-    if not state then
-        for _, hl in pairs(espHighlights) do pcall(function() hl:Destroy() end) end
-        espHighlights = {}
-        return
-    end
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-            if getPlayerRole(v) == "murderer" then
-                local hl = Instance.new("Highlight")
-                hl.Parent = v.Character
-                hl.Adornee = v.Character
-                hl.FillColor = Color3.fromRGB(255, 0, 0)
-                hl.FillTransparency = 0.3
-                hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                espHighlights[v] = hl
+    for _, hl in pairs(espHighlights) do pcall(function() hl:Destroy() end) end
+    espHighlights = {}
+    if state then
+        for _, v in pairs(game.Players:GetPlayers()) do
+            if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                if getPlayerRole(v) == "murderer" then
+                    local hl = Instance.new("Highlight")
+                    hl.Parent = v.Character
+                    hl.Adornee = v.Character
+                    hl.FillColor = Color3.fromRGB(255, 0, 0)
+                    hl.FillTransparency = 0.3
+                    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    espHighlights[v] = hl
+                end
             end
         end
     end
 end
 
 local function updateEspSheriff(state)
-    if not state then
-        for _, hl in pairs(espHighlights) do pcall(function() hl:Destroy() end) end
-        espHighlights = {}
-        return
-    end
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-            if getPlayerRole(v) == "sheriff" then
-                local hl = Instance.new("Highlight")
-                hl.Parent = v.Character
-                hl.Adornee = v.Character
-                hl.FillColor = Color3.fromRGB(0, 100, 255)
-                hl.FillTransparency = 0.3
-                hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                espHighlights[v] = hl
+    for _, hl in pairs(espHighlights) do pcall(function() hl:Destroy() end) end
+    espHighlights = {}
+    if state then
+        for _, v in pairs(game.Players:GetPlayers()) do
+            if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                if getPlayerRole(v) == "sheriff" then
+                    local hl = Instance.new("Highlight")
+                    hl.Parent = v.Character
+                    hl.Adornee = v.Character
+                    hl.FillColor = Color3.fromRGB(0, 100, 255)
+                    hl.FillTransparency = 0.3
+                    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    espHighlights[v] = hl
+                end
             end
         end
     end
@@ -239,9 +238,13 @@ end
 
 -- Noclip
 local function updateNoclip(state)
+    if noclipConnection then
+        noclipConnection:Disconnect()
+        noclipConnection = nil
+    end
     if state then
-        game:GetService("RunService").Stepped:Connect(function()
-            if state and character and root then
+        noclipConnection = game:GetService("RunService").Stepped:Connect(function()
+            if character and root then
                 for _, part in ipairs(character:GetDescendants()) do
                     if part:IsA("BasePart") then
                         part.CanCollide = false
@@ -262,10 +265,14 @@ end
 
 -- Fly
 local function updateFly(state)
+    if flyConnection then
+        flyConnection:Disconnect()
+        flyConnection = nil
+    end
     if state then
         humanoid.PlatformStand = true
-        game:GetService("RunService").Heartbeat:Connect(function()
-            if state and root then
+        flyConnection = game:GetService("RunService").Heartbeat:Connect(function()
+            if root then
                 local move = Vector3.new(0, 0, 0)
                 local input = game:GetService("UserInputService")
                 local cam = workspace.CurrentCamera
@@ -282,29 +289,6 @@ local function updateFly(state)
         humanoid.PlatformStand = false
     end
 end
-
--- Build GUI
-local y = 5
-y = addSection("═══════ MAIN ═══════", y)
-y = addToggle("No Clip", y, updateNoclip)
-y = addToggle("Fly (WASD/Space)", y, updateFly)
-
-y = addSection("═══════ VISUAL ═══════", y)
-y = addToggle("ESP Murder (Red)", y, updateEspMurder)
-y = addToggle("ESP Sheriff (Blue)", y, updateEspSheriff)
-
-y = addSection("═══════ TELEPORT ═══════", y)
-y = addButton("Teleport to Lobby", y, Color3.fromRGB(40, 60, 80), teleportToSpawn)
-y = addButton("Teleport to Murderer", y, Color3.fromRGB(80, 40, 40), teleportToMurderer)
-y = addButton("Teleport to Sheriff", y, Color3.fromRGB(40, 40, 80), teleportToSheriff)
-
-y = addSection("═══════ EXTRA ═══════", y)
-y = addToggle("Speed Boost", y, function(state)
-    if state then humanoid.WalkSpeed = 40 else humanoid.WalkSpeed = 16 end
-end)
-y = addToggle("Super Jump", y, function(state)
-    if state then humanoid.JumpPower = 200 else humanoid.JumpPower = 50 end
-end)
 
 -- Toggle Button
 local toggleBtn = Instance.new("TextButton")
@@ -330,6 +314,29 @@ end)
 
 minBtn.MouseButton1Click:Connect(function()
     window.Visible = false
+end)
+
+-- Build GUI
+local y = 5
+y = addSection("═══════ MAIN ═══════", y)
+y = addToggle("No Clip", y, updateNoclip)
+y = addToggle("Fly (WASD/Space)", y, updateFly)
+
+y = addSection("═══════ VISUAL ═══════", y)
+y = addToggle("ESP Murder (Red)", y, updateEspMurder)
+y = addToggle("ESP Sheriff (Blue)", y, updateEspSheriff)
+
+y = addSection("═══════ TELEPORT ═══════", y)
+y = addButton("Teleport to Lobby", y, Color3.fromRGB(40, 60, 80), teleportToSpawn)
+y = addButton("Teleport to Murderer", y, Color3.fromRGB(80, 40, 40), teleportToMurderer)
+y = addButton("Teleport to Sheriff", y, Color3.fromRGB(40, 40, 80), teleportToSheriff)
+
+y = addSection("═══════ EXTRA ═══════", y)
+y = addToggle("Speed Boost", y, function(state)
+    if state then humanoid.WalkSpeed = 40 else humanoid.WalkSpeed = 16 end
+end)
+y = addToggle("Super Jump", y, function(state)
+    if state then humanoid.JumpPower = 200 else humanoid.JumpPower = 50 end
 end)
 
 print("furdjehub loaded! (600x400)")
