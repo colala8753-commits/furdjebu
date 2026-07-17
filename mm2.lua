@@ -1,17 +1,17 @@
--- furdjehub - Murder Mystery 2 (упрощённая версия, окно гарантированно видно)
+-- furdjehub - Murder Mystery 2 (Windows 10 Style, fixed toggle button)
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local root = character:WaitForChild("HumanoidRootPart")
 local mm2 = game:GetService("ReplicatedStorage").Remotes
 
--- Создаём ScreenGui
+-- GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "furdjehub"
 screenGui.Parent = player:WaitForChild("PlayerGui")
 screenGui.ResetOnSpawn = false
 
--- Кнопка открытия (перемещаемая)
+-- Кнопка открытия (фиксированная, без перетаскивания)
 local toggleBtn = Instance.new("TextButton")
 toggleBtn.Size = UDim2.new(0, 50, 0, 50)
 toggleBtn.Position = UDim2.new(0, 15, 0, 15)
@@ -24,38 +24,24 @@ toggleBtn.Parent = screenGui
 toggleBtn.Visible = true
 toggleBtn.ResetOnSpawn = false
 
--- Перетаскивание кнопки
-local toggleDragging = false
-local toggleDragStart, toggleStartPos
-
-toggleBtn.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        toggleDragging = true
-        toggleDragStart = input.Position
-        toggleStartPos = toggleBtn.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                toggleDragging = false
-            end
-        end)
-    end
-end)
-
-toggleBtn.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement and toggleDragging then
-        local delta = input.Position - toggleDragStart
-        toggleBtn.Position = UDim2.new(toggleStartPos.X.Scale, toggleStartPos.X.Offset + delta.X, toggleStartPos.Y.Scale, toggleStartPos.Y.Offset + delta.Y)
-    end
-end)
-
 -- Главное окно (600x400)
 local window = Instance.new("Frame")
 window.Size = UDim2.new(0, 600, 0, 400)
 window.Position = UDim2.new(0.5, -300, 0.5, -200)
 window.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+window.BackgroundTransparency = 0
 window.BorderSizePixel = 0
 window.Parent = screenGui
-window.Visible = true  -- Окно будет видно сразу
+window.Visible = true
+
+-- Тень
+local shadow = Instance.new("Frame")
+shadow.Size = UDim2.new(1, 10, 1, 10)
+shadow.Position = UDim2.new(0, -5, 0, -5)
+shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+shadow.BackgroundTransparency = 0.5
+shadow.BorderSizePixel = 0
+shadow.Parent = window
 
 -- Заголовок
 local titleBar = Instance.new("Frame")
@@ -119,7 +105,7 @@ canvas.Size = UDim2.new(1, 0, 0, 0)
 canvas.BackgroundTransparency = 1
 canvas.Parent = scrollFrame
 
--- Вспомогательные функции
+-- Вспомогательные функции GUI
 local function addSection(text, y)
     local lbl = Instance.new("TextLabel")
     lbl.Size = UDim2.new(1, -20, 0, 25)
@@ -137,7 +123,7 @@ local function addSection(text, y)
     return newY
 end
 
-local function addToggle(text, y, flagKey, callback)
+local function addToggle(text, y, callback)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -20, 0, 30)
     btn.Position = UDim2.new(0, 10, 0, y)
@@ -190,7 +176,7 @@ local function getPlayerRole(v)
     end
 end
 
--- Переменные для ESP
+-- Переменные ESP
 local espHighlights = {}
 
 local function updateEspMurder(state)
@@ -266,7 +252,7 @@ local function teleportToSheriff()
     end
 end
 
--- Упрощённые функции для тогглов (без сложных хуков, чтобы не ломать)
+-- Простые функции для тогглов
 local function updateNoclip(state)
     if state then
         game:GetService("RunService").Stepped:Connect(function()
@@ -307,17 +293,17 @@ local function updateFly(state)
     end
 end
 
--- Сборка GUI (короткая версия)
+-- Сборка GUI
 local y = 5
 y = addSection("═══════ MAIN ═══════", y)
-y = addToggle("No Clip", y, "noclip", updateNoclip)
-y = addToggle("Fly (WASD/Space)", y, "fly", updateFly)
-y = addToggle("Auto Fling Sheriff", y, "fling", function(s) end)
-y = addToggle("Auto Shoot Murderer", y, "autoShoot", function(s) end)
+y = addToggle("No Clip", y, updateNoclip)
+y = addToggle("Fly (WASD/Space)", y, updateFly)
+y = addToggle("Auto Fling Sheriff", y, function(s) end) -- заглушка
+y = addToggle("Auto Shoot Murderer", y, function(s) end)
 
 y = addSection("═══════ VISUAL ═══════", y)
-y = addToggle("ESP Murder (Red)", y, "espMurder", updateEspMurder)
-y = addToggle("ESP Sheriff (Blue)", y, "espSheriff", updateEspSheriff)
+y = addToggle("ESP Murder (Red)", y, updateEspMurder)
+y = addToggle("ESP Sheriff (Blue)", y, updateEspSheriff)
 
 y = addSection("═══════ TELEPORT ═══════", y)
 y = addButton("Teleport to Lobby", y, Color3.fromRGB(40, 60, 80), teleportToSpawn)
@@ -325,10 +311,10 @@ y = addButton("Teleport to Murderer", y, Color3.fromRGB(80, 40, 40), teleportToM
 y = addButton("Teleport to Sheriff", y, Color3.fromRGB(40, 40, 80), teleportToSheriff)
 
 y = addSection("═══════ EXTRA ═══════", y)
-y = addToggle("Speed Boost", y, "speedBoost", function(s)
+y = addToggle("Speed Boost", y, function(s)
     if s then humanoid.WalkSpeed = 40 else humanoid.WalkSpeed = 16 end
 end)
-y = addToggle("Infinite Jump", y, "infiniteJump", function(s)
+y = addToggle("Infinite Jump", y, function(s)
     if s then
         game:GetService("UserInputService").JumpRequest:Connect(function()
             if s then
@@ -339,7 +325,7 @@ y = addToggle("Infinite Jump", y, "infiniteJump", function(s)
         end)
     end
 end)
-y = addToggle("Super Jump", y, "superJump", function(s)
+y = addToggle("Super Jump", y, function(s)
     if s then humanoid.JumpPower = 200 else humanoid.JumpPower = 50 end
 end)
 
@@ -364,4 +350,4 @@ toggleBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-print("furdjehub loaded! (simplified)")
+print("furdjehub loaded (fixed toggle button, no drag)")
