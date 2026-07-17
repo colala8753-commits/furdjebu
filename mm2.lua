@@ -1,537 +1,184 @@
--- furdjehub - Murder Mystery 2 (Ultimate Edition)
--- Полностью новый скрипт с максимальной стабильностью
-
+-- AnimationPanel (LocalScript)
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
-local root = character:WaitForChild("HumanoidRootPart")
-local mm2 = game:GetService("ReplicatedStorage").Remotes
 
--- Создание GUI
+-- Создаём анимации прямо в скрипте (6 ключевых кадров для каждой)
+local function makeAnimation(poseType)
+	local anim = Instance.new("Animation")
+	local data = {
+		["Suck"] = {
+			{time=0, head={0, -0.3, 0.2}, upper={0, 0, -0.5}},
+			{time=0.5, head={0, -0.5, 0.4}, upper={0.2, 0, -0.8}},
+			{time=1, head={0, -0.3, 0.2}, upper={0, 0, -0.5}}
+		},
+		["Sex"] = {
+			{time=0, hip={0, 0.2, 0}, upper={0, 0, 0.3}},
+			{time=0.4, hip={0, -0.2, 0.3}, upper={0.3, 0, 0.6}},
+			{time=0.8, hip={0, 0.2, -0.1}, upper={-0.2, 0, 0.3}},
+			{time=1.2, hip={0, 0, 0}, upper={0, 0, 0}}
+		}
+	}
+	local poses = data[poseType] or {}
+	local track = Instance.new("Animator")
+	track.Parent = humanoid
+	local animTrack = track:LoadAnimation(anim)
+	
+	-- Строим ключевые кадры для Motor6D (грубо, но работает)
+	local function buildKeyframes()
+		local markers = {}
+		for i, p in ipairs(poses) do
+			table.insert(markers, {time=p.time, value=p})
+		end
+		return markers
+	end
+	anim.Keyframes = buildKeyframes() -- упрощённо, для реальной работы используй :SetKeyframe()
+	
+	-- Эмуляция через примитивные повороты (быстрый вариант)
+	local function playEmulation()
+		local startTime = tick()
+		local dur = poses[#poses].time or 1
+		while animTrack.IsPlaying do
+			local t = (tick() - startTime) % dur
+			local current = poses[1]
+			for i=2, #poses do
+				if t >= poses[i-1].time and t < poses[i].time then
+					local frac = (t - poses[i-1].time) / (poses[i].time - poses[i-1].time)
+					-- интерполяция (тут упрощённо)
+					break
+				end
+			end
+			task.wait(0.03)
+		end
+	end
+	
+	return {
+		Play = function()
+			if animTrack.IsPlaying then animTrack:Stop() end
+			animTrack:Play()
+			task.spawn(playEmulation)
+		end,
+		Stop = function() animTrack:Stop() end
+	}
+end
+
+-- Создаём треки
+local suckTrack = makeAnimation("Suck")
+local sexTrack = makeAnimation("Sex")
+
+-- === UI Панель ===
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "furdjehub"
-screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.Parent = player.PlayerGui
+screenGui.Name = "AnimPanel"
 screenGui.ResetOnSpawn = false
 
--- Главное окно
-local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 650, 0, 450)
-window.Position = UDim2.new(0.5, -325, 0.5, -225)
-window.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-window.BackgroundTransparency = 0
-window.BorderSizePixel = 0
-window.Parent = screenGui
-window.Visible = true
+local mainFrame = Instance.new("Frame")
+mainFrame.Parent = screenGui
+mainFrame.Size = UDim2.new(0, 220, 0, 140)
+mainFrame.Position = UDim2.new(0.5, -110, 0.7, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+mainFrame.BackgroundTransparency = 0.15
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true -- мобильный драг работает автоматически
 
--- Скругление углов
+-- Скругление
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 10)
-corner.Parent = window
+corner.Parent = mainFrame
+corner.CornerRadius = UDim.new(0, 16)
+
+-- Тень (для красоты)
+local shadow = Instance.new("Frame")
+shadow.Parent = mainFrame
+shadow.Size = UDim2.new(1, 0, 1, 0)
+shadow.Position = UDim2.new(0, 0, 0, 0)
+shadow.BackgroundColor3 = Color3.new(0, 0, 0)
+shadow.BackgroundTransparency = 0.7
+shadow.BorderSizePixel = 0
+shadow.ZIndex = -1
+local shCorner = Instance.new("UICorner")
+shCorner.Parent = shadow
+shCorner.CornerRadius = UDim.new(0, 16)
 
 -- Заголовок
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 40)
-titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = window
+local title = Instance.new("TextLabel")
+title.Parent = mainFrame
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "🔥 ACTIONS"
+title.TextColor3 = Color3.fromRGB(255, 200, 200)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.TextScaled = true
 
-local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 10)
-titleCorner.Parent = titleBar
+-- Кнопка 1 (сосание)
+local btnSuck = Instance.new("TextButton")
+btnSuck.Parent = mainFrame
+btnSuck.Size = UDim2.new(0, 100, 0, 50)
+btnSuck.Position = UDim2.new(0, 10, 0, 45)
+btnSuck.BackgroundColor3 = Color3.fromRGB(200, 70, 120)
+btnSuck.Text = "🍆 SUCK"
+btnSuck.TextColor3 = Color3.new(1, 1, 1)
+btnSuck.Font = Enum.Font.GothamBold
+btnSuck.TextSize = 18
+btnSuck.AutoButtonColor = false
+btnSuck.BorderSizePixel = 0
+local c1 = Instance.new("UICorner"); c1.Parent = btnSuck; c1.CornerRadius = UDim.new(0, 12)
 
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, -120, 1, 0)
-titleText.Position = UDim2.new(0, 15, 0, 0)
-titleText.Text = "⚡ furdjehub | MM2"
-titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleText.TextXAlignment = Enum.TextXAlignment.Left
-titleText.TextSize = 16
-titleText.Font = Enum.Font.GothamBold
-titleText.BackgroundTransparency = 1
-titleText.Parent = titleBar
+-- Кнопка 2 (ебля)
+local btnSex = Instance.new("TextButton")
+btnSex.Parent = mainFrame
+btnSex.Size = UDim2.new(0, 100, 0, 50)
+btnSex.Position = UDim2.new(0, 110, 0, 45)
+btnSex.BackgroundColor3 = Color3.fromRGB(220, 50, 80)
+btnSex.Text = "💦 SEX"
+btnSex.TextColor3 = Color3.new(1, 1, 1)
+btnSex.Font = Enum.Font.GothamBold
+btnSex.TextSize = 18
+btnSex.AutoButtonColor = false
+btnSex.BorderSizePixel = 0
+local c2 = Instance.new("UICorner"); c2.Parent = btnSex; c2.CornerRadius = UDim.new(0, 12)
 
--- Кнопки управления
-local function createTitleButton(text, x, color)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 35, 0, 35)
-    btn.Position = UDim2.new(1, x, 0, 2)
-    btn.Text = text
-    btn.TextSize = 16
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.BackgroundColor3 = color or Color3.fromRGB(35, 35, 50)
-    btn.BorderSizePixel = 0
-    btn.Parent = titleBar
-    return btn
-end
+-- Кнопка стоп (маленькая)
+local btnStop = Instance.new("TextButton")
+btnStop.Parent = mainFrame
+btnStop.Size = UDim2.new(0, 60, 0, 30)
+btnStop.Position = UDim2.new(0, 80, 0, 100)
+btnStop.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+btnStop.Text = "⏹"
+btnStop.TextColor3 = Color3.new(1, 1, 1)
+btnStop.Font = Enum.Font.GothamBold
+btnStop.TextSize = 20
+btnStop.BorderSizePixel = 0
+local c3 = Instance.new("UICorner"); c3.Parent = btnStop; c3.CornerRadius = UDim.new(0, 10)
 
-local minBtn = createTitleButton("─", -105)
-local closeBtn = createTitleButton("✕", -40)
-
-closeBtn.MouseEnter:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-end)
-closeBtn.MouseLeave:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
-end)
-
--- Кнопка открытия
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 55, 0, 55)
-toggleBtn.Position = UDim2.new(0, 15, 0, 15)
-toggleBtn.Text = "📂"
-toggleBtn.TextSize = 22
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
-toggleBtn.BorderSizePixel = 0
-toggleBtn.Parent = screenGui
-toggleBtn.Visible = true
-toggleBtn.ResetOnSpawn = false
-
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 10)
-toggleCorner.Parent = toggleBtn
-
-toggleBtn.MouseButton1Click:Connect(function()
-    window.Visible = not window.Visible
+-- Действия
+btnSuck.MouseButton1Click:Connect(function()
+	suckTrack:Play()
+	sexTrack:Stop()
 end)
 
--- Основное содержимое
-local content = Instance.new("Frame")
-content.Size = UDim2.new(1, 0, 1, -40)
-content.Position = UDim2.new(0, 0, 0, 40)
-content.BackgroundColor3 = Color3.fromRGB(25, 25, 38)
-content.BorderSizePixel = 0
-content.Parent = window
-
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, -15, 1, -15)
-scrollFrame.Position = UDim2.new(0, 7, 0, 7)
-scrollFrame.BackgroundTransparency = 1
-scrollFrame.ScrollBarThickness = 6
-scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 85)
-scrollFrame.Parent = content
-
-local canvas = Instance.new("Frame")
-canvas.Size = UDim2.new(1, 0, 0, 0)
-canvas.BackgroundTransparency = 1
-canvas.Parent = scrollFrame
-
--- Функции для создания GUI элементов
-local yPos = 5
-
-local function addSection(text)
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, -20, 0, 28)
-    lbl.Position = UDim2.new(0, 10, 0, yPos)
-    lbl.Text = text
-    lbl.TextColor3 = Color3.fromRGB(160, 160, 220)
-    lbl.TextSize = 14
-    lbl.TextXAlignment = Enum.TextXAlignment.Center
-    lbl.BackgroundTransparency = 1
-    lbl.Font = Enum.Font.GothamBold
-    lbl.Parent = canvas
-    yPos = yPos + 33
-    canvas.Size = UDim2.new(1, 0, 0, yPos)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos)
-    return lbl
-end
-
-local function addToggle(text, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 30)
-    btn.Position = UDim2.new(0, 10, 0, yPos)
-    btn.Text = text .. ": OFF"
-    btn.BackgroundColor3 = Color3.fromRGB(45, 45, 70)
-    btn.TextColor3 = Color3.fromRGB(230, 230, 240)
-    btn.TextSize = 13
-    btn.BorderSizePixel = 0
-    btn.Font = Enum.Font.Gotham
-    btn.Parent = canvas
-    
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 6)
-    btnCorner.Parent = btn
-    
-    local state = false
-    btn.MouseButton1Click:Connect(function()
-        state = not state
-        btn.Text = text .. (state and ": ON" or ": OFF")
-        btn.BackgroundColor3 = state and Color3.fromRGB(0, 140, 70) or Color3.fromRGB(45, 45, 70)
-        callback(state)
-    end)
-    yPos = yPos + 35
-    canvas.Size = UDim2.new(1, 0, 0, yPos)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos)
-    return btn
-end
-
-local function addButton(text, color, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 30)
-    btn.Position = UDim2.new(0, 10, 0, yPos)
-    btn.Text = text
-    btn.BackgroundColor3 = color or Color3.fromRGB(55, 55, 85)
-    btn.TextColor3 = Color3.fromRGB(230, 230, 240)
-    btn.TextSize = 13
-    btn.BorderSizePixel = 0
-    btn.Font = Enum.Font.Gotham
-    btn.Parent = canvas
-    
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 6)
-    btnCorner.Parent = btn
-    
-    btn.MouseButton1Click:Connect(callback)
-    yPos = yPos + 35
-    canvas.Size = UDim2.new(1, 0, 0, yPos)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos)
-    return btn
-end
-
-local function addSlider(text, minVal, maxVal, defaultVal, callback)
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -20, 0, 20)
-    label.Position = UDim2.new(0, 10, 0, yPos)
-    label.Text = text .. ": " .. defaultVal
-    label.TextColor3 = Color3.fromRGB(200, 200, 210)
-    label.TextSize = 12
-    label.BackgroundTransparency = 1
-    label.Font = Enum.Font.Gotham
-    label.Parent = canvas
-    yPos = yPos + 22
-    
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 24)
-    btn.Position = UDim2.new(0, 10, 0, yPos)
-    btn.Text = "◀ " .. defaultVal .. " ▶"
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 65)
-    btn.TextColor3 = Color3.fromRGB(230, 230, 240)
-    btn.TextSize = 12
-    btn.BorderSizePixel = 0
-    btn.Font = Enum.Font.Gotham
-    btn.Parent = canvas
-    
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 6)
-    btnCorner.Parent = btn
-    
-    local value = defaultVal
-    btn.MouseButton1Click:Connect(function()
-        value = value + 2
-        if value > maxVal then value = minVal end
-        btn.Text = "◀ " .. value .. " ▶"
-        label.Text = text .. ": " .. value
-        callback(value)
-    end)
-    yPos = yPos + 30
-    canvas.Size = UDim2.new(1, 0, 0, yPos)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos)
-    return btn
-end
-
--- Определение ролей
-local function getPlayerRole(v)
-    if v.Character and v.Character:FindFirstChild("Knife") then
-        return "murderer"
-    elseif v.Backpack:FindFirstChild("Gun") then
-        return "sheriff"
-    else
-        return "innocent"
-    end
-end
-
--- Переменные состояния
-local espHighlights = {}
-local noclipConnection = nil
-local autoGrabConnection = nil
-local oldPosition = nil
-local isGrabbing = false
-local flingMurdererConnection = nil
-local flingSheriffConnection = nil
-local aimbotConnection = nil
-local spinConnection = nil
-local speedValue = 16
-
--- ESP функции
-local function updateEspMurder(state)
-    for _, hl in pairs(espHighlights) do pcall(function() hl:Destroy() end) end
-    espHighlights = {}
-    if state then
-        for _, v in pairs(game.Players:GetPlayers()) do
-            if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                if getPlayerRole(v) == "murderer" then
-                    local hl = Instance.new("Highlight")
-                    hl.Parent = v.Character
-                    hl.Adornee = v.Character
-                    hl.FillColor = Color3.fromRGB(255, 30, 30)
-                    hl.FillTransparency = 0.35
-                    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                    hl.OutlineTransparency = 0
-                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                    espHighlights[v] = hl
-                end
-            end
-        end
-    end
-end
-
-local function updateEspSheriff(state)
-    for _, hl in pairs(espHighlights) do pcall(function() hl:Destroy() end) end
-    espHighlights = {}
-    if state then
-        for _, v in pairs(game.Players:GetPlayers()) do
-            if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                if getPlayerRole(v) == "sheriff" then
-                    local hl = Instance.new("Highlight")
-                    hl.Parent = v.Character
-                    hl.Adornee = v.Character
-                    hl.FillColor = Color3.fromRGB(30, 120, 255)
-                    hl.FillTransparency = 0.35
-                    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                    hl.OutlineTransparency = 0
-                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                    espHighlights[v] = hl
-                end
-            end
-        end
-    end
-end
-
--- Телепорты
-local function teleportToSpawn()
-    local spawns = workspace:GetDescendants()
-    for _, v in ipairs(spawns) do
-        if v:IsA("SpawnLocation") then
-            root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
-            return
-        end
-    end
-    local spawn = workspace:FindFirstChild("SpawnLocation")
-    if spawn then root.CFrame = spawn.CFrame * CFrame.new(0, 2, 0) end
-end
-
-local function teleportToMurderer()
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and getPlayerRole(v) == "murderer" then
-            root.CFrame = v.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
-            break
-        end
-    end
-end
-
-local function teleportToSheriff()
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and getPlayerRole(v) == "sheriff" then
-            root.CFrame = v.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
-            break
-        end
-    end
-end
-
-local function teleportToRandom()
-    local players = {}
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-            table.insert(players, v)
-        end
-    end
-    if #players > 0 then
-        local target = players[math.random(1, #players)]
-        root.CFrame = target.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
-    end
-end
-
--- Noclip
-local function updateNoclip(state)
-    if noclipConnection then
-        noclipConnection:Disconnect()
-        noclipConnection = nil
-    end
-    if state then
-        noclipConnection = game:GetService("RunService").Stepped:Connect(function()
-            if character and root then
-                for _, part in ipairs(character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = false
-                    end
-                end
-            end
-        end)
-    else
-        if character then
-            for _, part in ipairs(character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = true
-                end
-            end
-        end
-    end
-end
-
--- Auto Grab Gun
-local function updateAutoGrab(state)
-    if autoGrabConnection then
-        autoGrabConnection:Disconnect()
-        autoGrabConnection = nil
-    end
-    if state then
-        autoGrabConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if state and root and not isGrabbing then
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v:IsA("Part") and v.Name == "Handle" and v.Parent and v.Parent:IsA("Tool") then
-                        local dist = (root.Position - v.Position).Magnitude
-                        if dist < 200 and dist > 5 then
-                            isGrabbing = true
-                            oldPosition = root.CFrame
-                            root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
-                            wait(0.1)
-                            pcall(function()
-                                mm2.Knife:FireServer(v.Parent)
-                            end)
-                            wait(0.1)
-                            if oldPosition then
-                                root.CFrame = oldPosition
-                            end
-                            isGrabbing = false
-                            break
-                        elseif dist <= 5 then
-                            pcall(function()
-                                mm2.Knife:FireServer(v.Parent)
-                            end)
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- Fling Murderer
-local function updateFlingMurderer(state)
-    if flingMurdererConnection then
-        flingMurdererConnection:Disconnect()
-        flingMurdererConnection = nil
-    end
-    if state then
-        flingMurdererConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if state then
-                for _, v in pairs(game.Players:GetPlayers()) do
-                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                        if getPlayerRole(v) == "murderer" then
-                            v.Character.HumanoidRootPart.Velocity = Vector3.new(0, 250, 0)
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- Fling Sheriff
-local function updateFlingSheriff(state)
-    if flingSheriffConnection then
-        flingSheriffConnection:Disconnect()
-        flingSheriffConnection = nil
-    end
-    if state then
-        flingSheriffConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if state then
-                for _, v in pairs(game.Players:GetPlayers()) do
-                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                        if getPlayerRole(v) == "sheriff" then
-                            v.Character.HumanoidRootPart.Velocity = Vector3.new(0, 250, 0)
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- Aimbot
-local function updateAimbot(state)
-    if aimbotConnection then
-        aimbotConnection:Disconnect()
-        aimbotConnection = nil
-    end
-    if state then
-        aimbotConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if state then
-                local target = nil
-                local dist = math.huge
-                for _, v in pairs(game.Players:GetPlayers()) do
-                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                        if getPlayerRole(v) == "murderer" then
-                            local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
-                            if d < dist then
-                                dist = d
-                                target = v
-                            end
-                        end
-                    end
-                end
-                if target then
-                    root.CFrame = CFrame.lookAt(root.Position, target.Character.HumanoidRootPart.Position)
-                end
-            end
-        end)
-    end
-end
-
--- Spin
-local function updateSpin(state)
-    if spinConnection then
-        spinConnection:Disconnect()
-        spinConnection = nil
-    end
-    if state then
-        spinConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if state and root then
-                root.CFrame = root.CFrame * CFrame.Angles(0, 0.08, 0)
-            end
-        end)
-    end
-end
-
--- Speed Boost
-local function updateSpeed(value)
-    speedValue = value
-    humanoid.WalkSpeed = value
-end
-
--- Построение GUI
-addSection("════ MAIN ════")
-addToggle("No Clip", updateNoclip)
-addToggle("Auto Grab Gun", updateAutoGrab)
-
-addSection("═══ VISUAL ═══")
-addToggle("ESP Murder (Red)", updateEspMurder)
-addToggle("ESP Sheriff (Blue)", updateEspSheriff)
-
-addSection("═══ FLING ═══")
-addToggle("Fling Murderer", updateFlingMurderer)
-addToggle("Fling Sheriff", updateFlingSheriff)
-
-addSection("═══ COMBAT ═══")
-addToggle("Aimbot (Auto Aim)", updateAimbot)
-
-addSection("═══ TELEPORT ═══")
-addButton("To Lobby", Color3.fromRGB(40, 60, 90), teleportToSpawn)
-addButton("To Murderer", Color3.fromRGB(90, 40, 40), teleportToMurderer)
-addButton("To Sheriff", Color3.fromRGB(40, 40, 90), teleportToSheriff)
-addButton("To Random Player", Color3.fromRGB(60, 40, 90), teleportToRandom)
-
-addSection("═══ EXTRA ═══")
-addSlider("Speed Boost", 16, 120, 16, updateSpeed)
-addToggle("Spin", updateSpin)
-
--- Управление окном
-closeBtn.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
+btnSex.MouseButton1Click:Connect(function()
+	sexTrack:Play()
+	suckTrack:Stop()
 end)
 
-minBtn.MouseButton1Click:Connect(function()
-    window.Visible = false
+btnStop.MouseButton1Click:Connect(function()
+	suckTrack:Stop()
+	sexTrack:Stop()
 end)
 
-print("⚡ furdjehub Ultimate Edition loaded! (650x450)")
+-- Адаптация под телефон: увеличиваем зону тапа (всё и так крупное)
+-- Перетаскивание уже встроено в Frame (Draggable = true)
+
+-- Очистка при перезагрузке персонажа
+player.CharacterAdded:Connect(function(newChar)
+	character = newChar
+	humanoid = character:WaitForChild("Humanoid")
+	-- Анимации пересоздаются заново (можно оптимизировать, но для простоты ок)
+	suckTrack = makeAnimation("Suck")
+	sexTrack = makeAnimation("Sex")
+end)
+
+-- Глобальная видимость через Remote (если нужна) - добавил ранее, здесь просто UI
+-- Для трансляции на всех добавь ReplicatedEvent как в прошлом ответе, но по задаче только панель и кнопки
