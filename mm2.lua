@@ -12,8 +12,8 @@ screenGui.ResetOnSpawn = false
 
 -- Main Window
 local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 450)
-window.Position = UDim2.new(0.5, -300, 0.5, -225)
+window.Size = UDim2.new(0, 600, 0, 470)
+window.Position = UDim2.new(0.5, -300, 0.5, -235)
 window.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 window.BackgroundTransparency = 0
 window.BorderSizePixel = 0
@@ -35,7 +35,6 @@ titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleText.TextXAlignment = Enum.TextXAlignment.Left
 titleText.TextSize = 14
 titleText.BackgroundTransparency = 1
-titleText.Font = Enum.Font.SourceSans
 titleText.Parent = titleBar
 
 -- Buttons
@@ -198,10 +197,8 @@ end
 local espHighlights = {}
 local noclipConnection = nil
 local flyConnection = nil
-local flingConnection = nil
 local autoGrabConnection = nil
-local flingActive = false
-local autoGrabActive = false
+local flingConnections = {}
 
 -- ESP Functions
 local function updateEspMurder(state)
@@ -333,14 +330,13 @@ end
 
 -- Auto Grab Gun
 local function updateAutoGrab(state)
-    autoGrabActive = state
     if autoGrabConnection then
         autoGrabConnection:Disconnect()
         autoGrabConnection = nil
     end
     if state then
         autoGrabConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if autoGrabActive and root then
+            if state and root then
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v:IsA("Part") and v.Name == "Handle" and v.Parent and v.Parent:IsA("Tool") then
                         if (root.Position - v.Position).Magnitude < 20 then
@@ -357,8 +353,12 @@ end
 
 -- Fling Murderer
 local function updateFlingMurderer(state)
+    if flingConnections.murderer then
+        flingConnections.murderer:Disconnect()
+        flingConnections.murderer = nil
+    end
     if state then
-        game:GetService("RunService").Heartbeat:Connect(function()
+        flingConnections.murderer = game:GetService("RunService").Heartbeat:Connect(function()
             if state then
                 for _, v in pairs(game.Players:GetPlayers()) do
                     if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
@@ -374,8 +374,12 @@ end
 
 -- Fling Sheriff
 local function updateFlingSheriff(state)
+    if flingConnections.sheriff then
+        flingConnections.sheriff:Disconnect()
+        flingConnections.sheriff = nil
+    end
     if state then
-        game:GetService("RunService").Heartbeat:Connect(function()
+        flingConnections.sheriff = game:GetService("RunService").Heartbeat:Connect(function()
             if state then
                 for _, v in pairs(game.Players:GetPlayers()) do
                     if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
@@ -387,6 +391,61 @@ local function updateFlingSheriff(state)
             end
         end)
     end
+end
+
+-- Fling Target
+local flingTargetActive = false
+local flingTargetConnection = nil
+local selectedTarget = nil
+local targetLabel = nil
+local targetList = {}
+
+local function updatePlayerList()
+    targetList = {}
+    for _, v in pairs(game.Players:GetPlayers()) do
+        if v ~= player then
+            table.insert(targetList, v.Name)
+        end
+    end
+end
+
+local function stopFlingTarget()
+    flingTargetActive = false
+    if flingTargetConnection then
+        flingTargetConnection:Disconnect()
+        flingTargetConnection = nil
+    end
+    if targetLabel then
+        targetLabel.Text = "Fling Target: None"
+    end
+    selectedTarget = nil
+end
+
+local function startFlingTarget(targetName)
+    stopFlingTarget()
+    local target = game.Players:FindFirstChild(targetName)
+    if not target then
+        if targetLabel then
+            targetLabel.Text = "Fling Target: Player not found"
+        end
+        return
+    end
+    selectedTarget = target
+    flingTargetActive = true
+    if targetLabel then
+        targetLabel.Text = "Fling Target: " .. targetName
+    end
+    flingTargetConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        if not flingTargetActive or not selectedTarget or not selectedTarget.Character or not selectedTarget.Character:FindFirstChild("HumanoidRootPart") then
+            stopFlingTarget()
+            if targetLabel then
+                targetLabel.Text = "Таргет вышел!"
+            end
+            return
+        end
+        local targetRoot = selectedTarget.Character.HumanoidRootPart
+        targetRoot.Velocity = Vector3.new(0, 200, 0)
+    end)
 end
 
 -- Toggle Button
@@ -426,6 +485,60 @@ y = addSection("═══════ FLING ═══════", y)
 y = addToggle("Fling Murderer", y, updateFlingMurderer)
 y = addToggle("Fling Sheriff", y, updateFlingSheriff)
 
+-- Fling Target UI
+targetLabel = Instance.new("TextLabel")
+targetLabel.Size = UDim2.new(1, -20, 0, 25)
+targetLabel.Position = UDim2.new(0, 10, 0, y)
+targetLabel.Text = "Fling Target: None"
+targetLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+targetLabel.TextSize = 13
+targetLabel.BackgroundTransparency = 1
+targetLabel.Parent = canvas
+y = y + 30
+
+local targetBtn = Instance.new("TextButton")
+targetBtn.Size = UDim2.new(1, -20, 0, 30)
+targetBtn.Position = UDim2.new(0, 10, 0, y)
+targetBtn.Text = "Select Target (Next Player)"
+targetBtn.BackgroundColor3 = Color3.fromRGB(55, 55, 80)
+targetBtn.TextColor3 = Color3.fromRGB(230, 230, 230)
+targetBtn.TextSize = 13
+targetBtn.BorderSizePixel = 0
+targetBtn.Font = Enum.Font.SourceSans
+targetBtn.Parent = canvas
+
+local targetIndex = 1
+targetBtn.MouseButton1Click:Connect(function()
+    updatePlayerList()
+    if #targetList == 0 then
+        targetLabel.Text = "Fling Target: No players"
+        return
+    end
+    if targetIndex > #targetList then targetIndex = 1 end
+    local name = targetList[targetIndex]
+    startFlingTarget(name)
+    targetIndex = targetIndex + 1
+    if targetIndex > #targetList then targetIndex = 1 end
+end)
+
+y = y + 35
+
+local stopFlingBtn = Instance.new("TextButton")
+stopFlingBtn.Size = UDim2.new(1, -20, 0, 30)
+stopFlingBtn.Position = UDim2.new(0, 10, 0, y)
+stopFlingBtn.Text = "Stop Fling Target"
+stopFlingBtn.BackgroundColor3 = Color3.fromRGB(80, 40, 40)
+stopFlingBtn.TextColor3 = Color3.fromRGB(230, 230, 230)
+stopFlingBtn.TextSize = 13
+stopFlingBtn.BorderSizePixel = 0
+stopFlingBtn.Font = Enum.Font.SourceSans
+stopFlingBtn.Parent = canvas
+stopFlingBtn.MouseButton1Click:Connect(function()
+    stopFlingTarget()
+    targetLabel.Text = "Fling Target: Stopped"
+end)
+y = y + 35
+
 y = addSection("═══════ VISUAL ═══════", y)
 y = addToggle("ESP Murder (Red)", y, updateEspMurder)
 y = addToggle("ESP Sheriff (Blue)", y, updateEspSheriff)
@@ -443,4 +556,4 @@ y = addToggle("Super Jump", y, function(state)
     if state then humanoid.JumpPower = 200 else humanoid.JumpPower = 50 end
 end)
 
-print("furdjehub loaded!")
+print("furdjehub loaded! (600x470)")
