@@ -10,10 +10,10 @@ screenGui.Name = "furdjehub"
 screenGui.Parent = player:WaitForChild("PlayerGui")
 screenGui.ResetOnSpawn = false
 
--- Main Window (шире и короче)
+-- Main Window (шире, короче)
 local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 520, 0, 460)
-window.Position = UDim2.new(0.5, -260, 0.5, -230)
+window.Size = UDim2.new(0, 600, 0, 400)
+window.Position = UDim2.new(0.5, -300, 0.5, -200)
 window.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
 window.BackgroundTransparency = 0
 window.BorderSizePixel = 0
@@ -79,7 +79,7 @@ content.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
 content.BorderSizePixel = 0
 content.Parent = window
 
--- Scrolling Frame (исправлено: задаём правильные размеры)
+-- Scrolling Frame
 local scrollFrame = Instance.new("ScrollingFrame")
 scrollFrame.Size = UDim2.new(1, -10, 1, -10)
 scrollFrame.Position = UDim2.new(0, 5, 0, 5)
@@ -171,17 +171,17 @@ local maximized = false
 maxBtn.MouseButton1Click:Connect(function()
     maximized = not maximized
     if maximized then
-        window.Size = UDim2.new(0, 700, 0, 600)
-        window.Position = UDim2.new(0.5, -350, 0.5, -300)
+        window.Size = UDim2.new(0, 800, 0, 500)
+        window.Position = UDim2.new(0.5, -400, 0.5, -250)
         maxBtn.Text = "❐"
     else
-        window.Size = UDim2.new(0, 520, 0, 460)
-        window.Position = UDim2.new(0.5, -260, 0.5, -230)
+        window.Size = UDim2.new(0, 600, 0, 400)
+        window.Position = UDim2.new(0.5, -300, 0.5, -200)
         maxBtn.Text = "□"
     end
 end)
 
--- Helper functions to add elements (упрощённые, с явными отступами)
+-- Helper functions to add elements (с явным увеличением canvas)
 local function addSection(text, y)
     local lbl = Instance.new("TextLabel")
     lbl.Size = UDim2.new(1, -20, 0, 25)
@@ -388,7 +388,7 @@ local function updateFly(state)
     end
 end
 
--- Teleport functions (исправлен спавн)
+-- Teleport functions
 local function teleportToSpawn()
     local spawns = workspace:GetDescendants()
     for _, v in ipairs(spawns) do
@@ -397,7 +397,6 @@ local function teleportToSpawn()
             return
         end
     end
-    -- fallback
     local spawn = workspace:FindFirstChild("SpawnLocation")
     if spawn then root.CFrame = spawn.CFrame * CFrame.new(0, 2, 0) end
 end
@@ -488,7 +487,7 @@ game:GetService("RunService").Heartbeat:Connect(function()
     end
 end)
 
--- Build GUI (исправлено: теперь элементы точно будут видны)
+-- Build GUI
 local y = 5
 y = addSection("═══════ MAIN ═══════", y)
 y = addToggle("No Clip", y, updateNoclip)
@@ -580,4 +579,4 @@ game:GetService("RunService").Heartbeat:Connect(function()
     end
 end)
 
-print("furdjehub loaded!")
+print("furdjehub loaded! Width 600, Height 400")
