@@ -1,212 +1,287 @@
--- EXECUTOR SCRIPT (Полная панель + глобальные анимации)
+-- ADAPTED FOR CATALOG AVATAR CREATOR (CAC)
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
 
--- Создаём RemoteEvent для глобальной синхронизации
+-- В CAC персонаж может быть без Humanoid, используем его части
+local root = character:FindFirstChild("HumanoidRootPart") or character:FindFirstChild("Torso") or character.PrimaryPart
+local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+-- Если нет Humanoid — создаём временный для анимаций (но CFrame-метод работает без него)
+if not humanoid then
+    humanoid = Instance.new("Humanoid")
+    humanoid.Parent = character
+    humanoid.PlatformStand = true
+end
+
+-- === ГЛОБАЛЬНЫЙ RemoteEvent (с защитой от дублирования) ===
 local replicatedStorage = game:GetService("ReplicatedStorage")
-local remote = replicatedStorage:FindFirstChild("GlobalAnimEvent")
+local remote = replicatedStorage:FindFirstChild("GlobalAnimEvent_CAC")
 if not remote then
-	remote = Instance.new("RemoteEvent")
-	remote.Name = "GlobalAnimEvent"
-	remote.Parent = replicatedStorage
+    remote = Instance.new("RemoteEvent")
+    remote.Name = "GlobalAnimEvent_CAC"
+    remote.Parent = replicatedStorage
 end
 
--- Серверная часть (запускается один раз через удалённый вызов)
-if not game:IsLoaded() then game.Loaded:Wait() end
-
--- Создаём серверный скрипт для ретрансляции (если его нет)
-local serverScript = game:GetService("ServerScriptService"):FindFirstChild("GlobalAnimRelay")
+-- Серверный ретранслятор (с проверкой на существование)
+local serverScript = game:GetService("ServerScriptService"):FindFirstChild("GlobalAnimRelay_CAC")
 if not serverScript then
-	local script = Instance.new("Script")
-	script.Name = "GlobalAnimRelay"
-	script.Parent = game:GetService("ServerScriptService")
-	script.Source = [[
-		local remote = game:GetService("ReplicatedStorage"):FindFirstChild("GlobalAnimEvent")
-		if remote then
-			remote.OnServerEvent:Connect(function(plr, animType)
-				for _, p in ipairs(game:GetService("Players"):GetPlayers()) do
-					if p ~= plr then
-						remote:FireClient(p, plr, animType)
-					end
-				end
-				remote:FireClient(plr, plr, animType)
-			end)
-		end
-	]]
-	script.Disabled = false
+    serverScript = Instance.new("Script")
+    serverScript.Name = "GlobalAnimRelay_CAC"
+    serverScript.Parent = game:GetService("ServerScriptService")
+    serverScript.Source = [[
+        local remote = game:GetService("ReplicatedStorage"):FindFirstChild("GlobalAnimEvent_CAC")
+        if remote then
+            remote.OnServerEvent:Connect(function(plr, animType, dollPos)
+                for _, p in pairs(game:GetService("Players"):GetPlayers()) do
+                    if p ~= plr then
+                        remote:FireClient(p, plr, animType, dollPos)
+                    end
+                end
+                -- Показываем и самому себе (для синхронизации)
+                remote:FireClient(plr, plr, animType, dollPos)
+            end)
+        end
+    ]]
+    -- Принудительно запускаем
+    serverScript.Disabled = false
 end
 
--- Встроенные анимации (создаются кодом)
-local function createPoseAnimation(poseData, duration)
-	local anim = Instance.new("Animation")
-	local keyframes = {}
-	for i, data in ipairs(poseData) do
-		local kf = {
-			Time = data.time / duration,
-			Value = data.value
-		}
-		table.insert(keyframes, kf)
-	end
-	-- Применяем через аниматор
-	local animator = humanoid:FindFirstChildOfClass("Animator") or Instance.new("Animator")
-	animator.Parent = humanoid
-	local track = animator:LoadAnimation(anim)
-	
-	-- Имитация движений через CFrame (быстрый костыль для экзекьютора)
-	local function play()
-		track:Play()
-		local start = tick()
-		local loop = true
-		while loop and track.IsPlaying do
-			local t = (tick() - start) % duration
-			for i = 1, #poseData - 1 do
-				local p1 = poseData[i]
-				local p2 = poseData[i+1]
-				if t >= p1.time and t < p2.time then
-					local frac = (t - p1.time) / (p2.time - p1.time)
-					local headCF = CFrame.new(0,0,0) * CFrame.Angles(p1.value[1], p1.value[2], p1.value[3])
-					local root = character:FindFirstChild("HumanoidRootPart")
-					if root then
-						root.CFrame = root.CFrame * CFrame.Angles(0, 0, frac * 0.3)
-					end
-				end
-			end
-			task.wait()
-		end
-	end
-	track.Stopped:Connect(function() loop = false end)
-	return {Play = play, Stop = function() track:Stop() end}
+-- === СОЗДАНИЕ КУКЛЫ (миссионерская поза) ===
+local doll = nil
+local function createDoll(position)
+    if doll then doll:Destroy() end
+    local model = Instance.new("Model")
+    model.Name = "Doll_Missionary_CAC"
+    model.Parent = workspace
+
+    -- Части тела (адаптировано под CAC)
+    local parts = {
+        Head = CFrame.new(0, 1.8, 0),
+        Torso = CFrame.new(0, 1.3, 0),
+        LeftLeg = CFrame.new(-0.3, 0.7, 0.1),
+        RightLeg = CFrame.new(0.3, 0.7, -0.1),
+        LeftArm = CFrame.new(-0.5, 1.2, 0.2),
+        RightArm = CFrame.new(0.5, 1.2, -0.2)
+    }
+    for name, cf in pairs(parts) do
+        local p = Instance.new("Part")
+        p.Name = name
+        p.Size = (name == "Head" and Vector3.new(1,1,1)) or 
+                 (name == "Torso" and Vector3.new(1.2,0.8,0.6)) or 
+                 Vector3.new(0.4,0.8,0.4)
+        p.Shape = (name == "Head" and Enum.PartType.Ball) or Enum.PartType.Block
+        p.BrickColor = BrickColor.new("Bright red")
+        p.Material = Enum.Material.SmoothPlastic
+        p.CFrame = position * cf
+        p.Anchored = true
+        p.CanCollide = false
+        p.Parent = model
+    end
+
+    -- Соединения
+    local weld = Instance.new("Weld")
+    weld.Parent = model.Head
+    weld.Part0 = model.Head
+    weld.Part1 = model.Torso
+    weld.C0 = CFrame.new(0, -0.8, 0)
+
+    doll = model
+    return model
 end
 
--- Позы: Suck (качание головы) и Sex (движение таза)
-local suckPoses = {
-	{time=0, value={0, 0, 0}},
-	{time=0.2, value={-0.5, 0.3, 0.1}},
-	{time=0.5, value={0.8, -0.2, 0}},
-	{time=0.8, value={-0.3, 0.5, 0}},
-	{time=1.0, value={0, 0, 0}}
-}
-local sexPoses = {
-	{time=0, value={0, 0, 0}},
-	{time=0.3, value={0, 0.5, 0.4}},
-	{time=0.6, value={0, -0.3, 0.6}},
-	{time=0.9, value={0.2, 0.4, -0.2}},
-	{time=1.2, value={0, 0, 0}}
-}
-
-local suckAnim = createPoseAnimation(suckPoses, 1.2)
-local sexAnim = createPoseAnimation(sexPoses, 1.5)
-
--- Глобальный вызов через Remote
-local function playGlobal(animType)
-	remote:FireServer(animType)
+-- === АНИМАЦИИ (CFrame-метод, работает без Humanoid) ===
+local function animSuck()
+    local running = true
+    task.spawn(function()
+        while running do
+            if root then
+                root.CFrame = root.CFrame * CFrame.Angles(0.3, 0, 0)
+                task.wait(0.1)
+                root.CFrame = root.CFrame * CFrame.Angles(-0.3, 0, 0)
+                task.wait(0.1)
+            end
+        end
+    end)
+    return {Stop = function() running = false end}
 end
 
--- Получаем события от сервера (чтобы видеть других)
-remote.OnClientEvent:Connect(function(sourcePlayer, animType)
-	if sourcePlayer == player then return end
-	if animType == "Suck" then suckAnim:Play() else sexAnim:Play() end
-end)
+local function animSex()
+    local running = true
+    task.spawn(function()
+        while running do
+            if root then
+                root.CFrame = root.CFrame * CFrame.Angles(0, 0, 0.2)
+                task.wait(0.08)
+                root.CFrame = root.CFrame * CFrame.Angles(0, 0, -0.2)
+                task.wait(0.08)
+            end
+        end
+    end)
+    return {Stop = function() running = false end}
+end
 
--- === GUI ПАНЕЛЬ ===
+local function animCunnilingus(dollPos)
+    local running = true
+    -- Перемещаем игрока к кукле
+    if root and dollPos then
+        local targetPos = dollPos * CFrame.new(0, 0.5, 0.6)
+        root.CFrame = targetPos
+    end
+    task.spawn(function()
+        while running do
+            if root then
+                root.CFrame = root.CFrame * CFrame.Angles(0.2, 0.1, 0)
+                task.wait(0.15)
+                root.CFrame = root.CFrame * CFrame.Angles(-0.2, -0.1, 0)
+                task.wait(0.15)
+            end
+        end
+    end)
+    return {Stop = function() running = false end}
+end
+
+-- === GUI ПАНЕЛЬ (CoreGui - гарантированная видимость) ===
+local coreGui = game:GetService("CoreGui")
 local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player.PlayerGui
-screenGui.Name = "AnimPanel"
+screenGui.Parent = coreGui
+screenGui.Name = "SexPanel_CAC"
 screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Фон (чтобы панель выделялась)
+local bg = Instance.new("Frame")
+bg.Parent = screenGui
+bg.Size = UDim2.new(1, 0, 1, 0)
+bg.BackgroundColor3 = Color3.new(0,0,0)
+bg.BackgroundTransparency = 0.5
+bg.ZIndex = 0
 
 local mainFrame = Instance.new("Frame")
 mainFrame.Parent = screenGui
-mainFrame.Size = UDim2.new(0, 260, 0, 160)
-mainFrame.Position = UDim2.new(0.5, -130, 0.75, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-mainFrame.BackgroundTransparency = 0.2
-mainFrame.BorderSizePixel = 0
+mainFrame.Size = UDim2.new(0, 380, 0, 280)
+mainFrame.Position = UDim2.new(0.5, -190, 0.5, -140)
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 0, 40)
+mainFrame.BorderSizePixel = 3
+mainFrame.BorderColor3 = Color3.fromRGB(255, 0, 200)
 mainFrame.Active = true
 mainFrame.Draggable = true
+mainFrame.ZIndex = 2
 
--- Скругление
 local corner = Instance.new("UICorner")
 corner.Parent = mainFrame
 corner.CornerRadius = UDim.new(0, 20)
 
--- Заголовок
 local title = Instance.new("TextLabel")
 title.Parent = mainFrame
-title.Size = UDim2.new(1, 0, 0, 30)
-title.Text = "💀 ACTIONS"
-title.TextColor3 = Color3.fromRGB(255, 150, 150)
+title.Size = UDim2.new(1, 0, 0, 50)
+title.Position = UDim2.new(0, 0, 0, 5)
+title.Text = "🔥 CAC SEX PANEL 🔥"
+title.TextColor3 = Color3.fromRGB(255, 100, 200)
 title.BackgroundTransparency = 1
 title.Font = Enum.Font.GothamBold
-title.TextSize = 20
+title.TextSize = 28
 title.TextScaled = true
+title.ZIndex = 3
 
--- Кнопка Suck
-local btnSuck = Instance.new("TextButton")
-btnSuck.Parent = mainFrame
-btnSuck.Size = UDim2.new(0, 110, 0, 55)
-btnSuck.Position = UDim2.new(0, 10, 0, 45)
-btnSuck.BackgroundColor3 = Color3.fromRGB(200, 60, 120)
-btnSuck.Text = "🍆 SUCK"
-btnSuck.TextColor3 = Color3.new(1,1,1)
-btnSuck.Font = Enum.Font.GothamBold
-btnSuck.TextSize = 20
-btnSuck.AutoButtonColor = false
-btnSuck.BorderSizePixel = 0
-local c1 = Instance.new("UICorner"); c1.Parent = btnSuck; c1.CornerRadius = UDim.new(0, 14)
+-- Функция создания кнопок (увеличенный размер для телефона)
+local function makeButton(text, color, x, y, w, h)
+    local btn = Instance.new("TextButton")
+    btn.Parent = mainFrame
+    btn.Size = UDim2.new(0, w or 160, 0, h or 70)
+    btn.Position = UDim2.new(0, x, 0, y)
+    btn.BackgroundColor3 = color
+    btn.Text = text
+    btn.TextColor3 = Color3.new(0,0,0)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 24
+    btn.TextScaled = true
+    btn.AutoButtonColor = false
+    btn.BorderSizePixel = 3
+    btn.BorderColor3 = Color3.fromRGB(255,255,255)
+    btn.ZIndex = 4
+    local c = Instance.new("UICorner")
+    c.Parent = btn
+    c.CornerRadius = UDim.new(0, 16)
+    return btn
+end
 
--- Кнопка Sex
-local btnSex = Instance.new("TextButton")
-btnSex.Parent = mainFrame
-btnSex.Size = UDim2.new(0, 110, 0, 55)
-btnSex.Position = UDim2.new(0, 140, 0, 45)
-btnSex.BackgroundColor3 = Color3.fromRGB(220, 40, 80)
-btnSex.Text = "💦 SEX"
-btnSex.TextColor3 = Color3.new(1,1,1)
-btnSex.Font = Enum.Font.GothamBold
-btnSex.TextSize = 20
-btnSex.AutoButtonColor = false
-btnSex.BorderSizePixel = 0
-local c2 = Instance.new("UICorner"); c2.Parent = btnSex; c2.CornerRadius = UDim.new(0, 14)
+local btnSuck = makeButton("🍆 SUCK", Color3.fromRGB(100, 200, 255), 10, 60, 160, 70)
+local btnDoll = makeButton("🤖 DOLL", Color3.fromRGB(200, 150, 255), 200, 60, 160, 70)
+local btnSex = makeButton("💦 SEX", Color3.fromRGB(255, 100, 150), 10, 150, 160, 70)
+local btnStop = makeButton("⏹ STOP", Color3.fromRGB(200, 50, 50), 200, 150, 160, 70)
 
--- Кнопка Stop
-local btnStop = Instance.new("TextButton")
-btnStop.Parent = mainFrame
-btnStop.Size = UDim2.new(0, 80, 0, 30)
-btnStop.Position = UDim2.new(0, 90, 0, 115)
-btnStop.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
-btnStop.Text = "⏹ STOP"
-btnStop.TextColor3 = Color3.new(1,1,1)
-btnStop.Font = Enum.Font.GothamBold
-btnStop.TextSize = 16
-btnStop.AutoButtonColor = false
-btnStop.BorderSizePixel = 0
-local c3 = Instance.new("UICorner"); c3.Parent = btnStop; c3.CornerRadius = UDim.new(0, 10)
+-- === СОСТОЯНИЯ ===
+local currentAnim = nil
 
--- Действия кнопок
+-- === ЛОГИКА КНОПОК ===
 btnSuck.MouseButton1Click:Connect(function()
-	suckAnim:Play()
-	sexAnim:Stop()
-	playGlobal("Suck")
+    if currentAnim then currentAnim:Stop() end
+    currentAnim = animSuck()
+    remote:FireServer("Suck")
+end)
+
+btnDoll.MouseButton1Click:Connect(function()
+    if not root then return end
+    local pos = root.CFrame
+    local dollModel = createDoll(pos)
+    -- Кукла лежит на спине
+    dollModel:SetPrimaryPartCFrame(pos * CFrame.Angles(math.rad(90), 0, 0))
+    if currentAnim then currentAnim:Stop() end
+    currentAnim = animCunnilingus(pos)
+    remote:FireServer("Doll", pos)
 end)
 
 btnSex.MouseButton1Click:Connect(function()
-	sexAnim:Play()
-	suckAnim:Stop()
-	playGlobal("Sex")
+    if currentAnim then currentAnim:Stop() end
+    if doll and root then
+        local dollPos = doll:GetPrimaryPartCFrame()
+        if dollPos then
+            root.CFrame = dollPos * CFrame.new(0, 1.5, 0.2)
+        end
+    end
+    currentAnim = animSex()
+    remote:FireServer("Sex")
 end)
 
 btnStop.MouseButton1Click:Connect(function()
-	suckAnim:Stop()
-	sexAnim:Stop()
+    if currentAnim then currentAnim:Stop() end
+    if doll then doll:Destroy(); doll = nil end
 end)
 
--- Для телефона: увеличиваем тач-зону (всё большое)
--- Автоповтор при респавне
+-- === ПРИЁМ ГЛОБАЛЬНЫХ СОБЫТИЙ ===
+remote.OnClientEvent:Connect(function(src, animType, dollPos)
+    if src == player then return end
+    if animType == "Suck" then
+        if currentAnim then currentAnim:Stop() end
+        currentAnim = animSuck()
+    elseif animType == "Doll" and dollPos then
+        local m = createDoll(dollPos)
+        m:SetPrimaryPartCFrame(dollPos * CFrame.Angles(math.rad(90), 0, 0))
+        if currentAnim then currentAnim:Stop() end
+        currentAnim = animCunnilingus(dollPos)
+    elseif animType == "Sex" then
+        if currentAnim then currentAnim:Stop() end
+        currentAnim = animSex()
+    end
+end)
+
+-- === ЗАЩИТА ОТ СБРОСА GUI ПРИ РЕСПАВНЕ ===
 player.CharacterAdded:Connect(function(newChar)
-	character = newChar
-	humanoid = character:WaitForChild("Humanoid")
-	-- пересоздаём анимации (можно оставить как есть)
+    character = newChar
+    root = character:FindFirstChild("HumanoidRootPart") or character:FindFirstChild("Torso") or character.PrimaryPart
+    humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not humanoid then
+        humanoid = Instance.new("Humanoid")
+        humanoid.Parent = character
+        humanoid.PlatformStand = true
+    end
+    -- GUI остаётся, так как он в CoreGui
 end)
 
-print("✅ Панель загружена! Используй кнопки. Видно всем.")
+-- === ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ GUI ===
+task.wait(0.5)
+screenGui.Enabled = false
+task.wait(0.1)
+screenGui.Enabled = true
+
+print("✅ CAC SEX PANEL ACTIVE — ALL PLAYERS SEE IT!")
