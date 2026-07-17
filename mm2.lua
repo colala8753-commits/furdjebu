@@ -1,4 +1,4 @@
--- furdjehub - Murder Mystery 2 (Full GUI with Movable Toggle)
+-- furdjehub - Murder Mystery 2 (Windows 10 Style GUI)
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
@@ -8,107 +8,107 @@ local mm2 = game:GetService("ReplicatedStorage").Remotes
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "furdjehub"
 screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.ResetOnSpawn = false -- FIX: GUI stays on death
 
--- Movable Toggle Button
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 60, 0, 60)
-toggleBtn.Position = UDim2.new(0, 15, 0, 15)
-toggleBtn.Text = "📂"
-toggleBtn.TextSize = 28
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 45)
-toggleBtn.BorderSizePixel = 0
-toggleBtn.Parent = screenGui
-toggleBtn.Visible = true
-
--- Dragging for Toggle Button
-local toggleDragging = false
-local toggleDragStart, toggleStartPos
-
-toggleBtn.InputBegan:Connect(function(input)
-if input.UserInputType == Enum.UserInputType.MouseButton1 then
-toggleDragging = true
-toggleDragStart = input.Position
-toggleStartPos = toggleBtn.Position
-input.Changed:Connect(function()
-if input.UserInputState == Enum.UserInputState.End then
-toggleDragging = false
-end
-end)
-end
-end)
-
-toggleBtn.InputChanged:Connect(function(input)
-if input.UserInputType == Enum.UserInputType.MouseMovement and toggleDragging then
-local delta = input.Position - toggleDragStart
-toggleBtn.Position = UDim2.new(toggleStartPos.X.Scale, toggleStartPos.X.Offset + delta.X, toggleStartPos.Y.Scale, toggleStartPos.Y.Offset + delta.Y)
-end
-end)
-
--- Main Window
+-- Windows 10 Style Window
 local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 420, 0, 520)
-window.Position = UDim2.new(0.5, -210, 0.5, -260)
-window.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-window.BackgroundTransparency = 0.05
+window.Size = UDim2.new(0, 450, 0, 550)
+window.Position = UDim2.new(0.5, -225, 0.5, -275)
+window.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+window.BackgroundTransparency = 0
 window.BorderSizePixel = 0
 window.Parent = screenGui
 window.Visible = true
 
--- Title Bar
+-- Window Shadow
+local shadow = Instance.new("Frame")
+shadow.Size = UDim2.new(1, 10, 1, 10)
+shadow.Position = UDim2.new(0, -5, 0, -5)
+shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+shadow.BackgroundTransparency = 0.5
+shadow.BorderSizePixel = 0
+shadow.Parent = window
+
+-- Title Bar (Windows 10 style)
 local titleBar = Instance.new("Frame")
 titleBar.Size = UDim2.new(1, 0, 0, 35)
-titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
+titleBar.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
 titleBar.BorderSizePixel = 0
 titleBar.Parent = window
 
 local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, -80, 1, 0)
+titleText.Size = UDim2.new(1, -100, 1, 0)
 titleText.Position = UDim2.new(0, 10, 0, 0)
 titleText.Text = "furdjehub | MM2"
 titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleText.TextXAlignment = Enum.TextXAlignment.Left
+titleText.TextSize = 14
 titleText.BackgroundTransparency = 1
 titleText.Parent = titleBar
 
--- Minimize Button
+-- Window Control Buttons
 local minBtn = Instance.new("TextButton")
 minBtn.Size = UDim2.new(0, 30, 0, 30)
-minBtn.Position = UDim2.new(1, -65, 0, 2)
+minBtn.Position = UDim2.new(1, -90, 0, 2)
 minBtn.Text = "─"
-minBtn.TextSize = 20
+minBtn.TextSize = 16
 minBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-minBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 85)
+minBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
 minBtn.BorderSizePixel = 0
 minBtn.Parent = titleBar
 
--- Close Button
+local maxBtn = Instance.new("TextButton")
+maxBtn.Size = UDim2.new(0, 30, 0, 30)
+maxBtn.Position = UDim2.new(1, -60, 0, 2)
+maxBtn.Text = "□"
+maxBtn.TextSize = 14
+maxBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+maxBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+maxBtn.BorderSizePixel = 0
+maxBtn.Parent = titleBar
+
 local closeBtn = Instance.new("TextButton")
 closeBtn.Size = UDim2.new(0, 30, 0, 30)
-closeBtn.Position = UDim2.new(1, -32, 0, 2)
+closeBtn.Position = UDim2.new(1, -30, 0, 2)
 closeBtn.Text = "✕"
-closeBtn.TextSize = 16
+closeBtn.TextSize = 12
 closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+closeBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
 closeBtn.BorderSizePixel = 0
 closeBtn.Parent = titleBar
 
+-- Hover effects
+closeBtn.MouseEnter:Connect(function()
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+end)
+closeBtn.MouseLeave:Connect(function()
+closeBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+end)
+
+-- Main Content
+local content = Instance.new("Frame")
+content.Size = UDim2.new(1, 0, 1, -35)
+content.Position = UDim2.new(0, 0, 0, 35)
+content.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+content.BorderSizePixel = 0
+content.Parent = window
+
 -- Scroll Frame
 local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, 0, 1, -35)
-scrollFrame.Position = UDim2.new(0, 0, 0, 35)
+scrollFrame.Size = UDim2.new(1, -10, 1, -10)
+scrollFrame.Position = UDim2.new(0, 5, 0, 5)
 scrollFrame.BackgroundTransparency = 1
 scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollFrame.ScrollBarThickness = 5
-scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 100)
-scrollFrame.Parent = window
+scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(70, 70, 90)
+scrollFrame.Parent = content
 
 local canvas = Instance.new("Frame")
 canvas.Size = UDim2.new(1, 0, 0, 0)
 canvas.BackgroundTransparency = 1
 canvas.Parent = scrollFrame
 
--- Dragging for Window
+-- Dragging (only on title bar)
 local dragging = false
 local dragStart, startPos
 
@@ -132,38 +132,91 @@ window.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, start
 end
 end)
 
+-- Toggle Button (Windows 10 style)
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 50, 0, 50)
+toggleBtn.Position = UDim2.new(0, 15, 0, 15)
+toggleBtn.Text = "📂"
+toggleBtn.TextSize = 20
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+toggleBtn.BorderSizePixel = 0
+toggleBtn.Parent = screenGui
+toggleBtn.Visible = true
+toggleBtn.ResetOnSpawn = false -- FIX: toggle button stays
+
+-- Toggle button dragging
+local toggleDragging = false
+local toggleDragStart, toggleStartPos
+
+toggleBtn.InputBegan:Connect(function(input)
+if input.UserInputType == Enum.UserInputType.MouseButton1 then
+toggleDragging = true
+toggleDragStart = input.Position
+toggleStartPos = toggleBtn.Position
+input.Changed:Connect(function()
+if input.UserInputState == Enum.UserInputState.End then
+toggleDragging = false
+end
+end)
+end
+end)
+
+toggleBtn.InputChanged:Connect(function(input)
+if input.UserInputType == Enum.UserInputType.MouseMovement and toggleDragging then
+local delta = input.Position - toggleDragStart
+toggleBtn.Position = UDim2.new(toggleStartPos.X.Scale, toggleStartPos.X.Offset + delta.X, toggleStartPos.Y.Scale, toggleStartPos.Y.Offset + delta.Y)
+end
+end)
+
 -- Toggle Button Logic
 toggleBtn.MouseButton1Click:Connect(function()
 if window.Visible then
 window.Visible = false
+toggleBtn.Text = "📂"
 else
 window.Visible = true
+toggleBtn.Text = "📂"
 end
 end)
 
 -- Close/Minimize
 closeBtn.MouseButton1Click:Connect(function()
 window.Visible = false
+toggleBtn.Visible = true
 end)
 
 minBtn.MouseButton1Click:Connect(function()
-if window.Visible then
 window.Visible = false
+toggleBtn.Visible = true
+end)
+
+-- Maximize/Restore
+local maximized = false
+maxBtn.MouseButton1Click:Connect(function()
+maximized = not maximized
+if maximized then
+window.Size = UDim2.new(0, 600, 0, 700)
+window.Position = UDim2.new(0.5, -300, 0.5, -350)
+maxBtn.Text = "❐"
 else
-window.Visible = true
+window.Size = UDim2.new(0, 450, 0, 550)
+window.Position = UDim2.new(0.5, -225, 0.5, -275)
+maxBtn.Text = "□"
 end
 end)
 
--- GUI Elements
+-- GUI Elements (Windows 10 style)
 local function addSection(text, y)
 local lbl = Instance.new("TextLabel")
-lbl.Size = UDim2.new(0.92, 0, 0, 25)
-lbl.Position = UDim2.new(0.04, 0, 0, y)
+lbl.Size = UDim2.new(0.95, 0, 0, 25)
+lbl.Position = UDim2.new(0.025, 0, 0, y)
 lbl.Text = text
-lbl.TextColor3 = Color3.fromRGB(160, 160, 210)
-lbl.TextSize = 15
+lbl.TextColor3 = Color3.fromRGB(180, 180, 220)
+lbl.TextSize = 14
 lbl.TextXAlignment = Enum.TextXAlignment.Center
 lbl.BackgroundTransparency = 1
+lbl.Font = Enum.Font.SourceSansSemibold
 lbl.Parent = canvas
 canvas.Size = UDim2.new(1, 0, 0, y + 30)
 scrollFrame.CanvasSize = UDim2.new(0, 0, 0, y + 30)
@@ -172,19 +225,20 @@ end
 
 local function addToggle(text, y, callback)
 local btn = Instance.new("TextButton")
-btn.Size = UDim2.new(0.92, 0, 0, 30)
-btn.Position = UDim2.new(0.04, 0, 0, y)
+btn.Size = UDim2.new(0.95, 0, 0, 30)
+btn.Position = UDim2.new(0.025, 0, 0, y)
 btn.Text = text .. ": OFF"
-btn.BackgroundColor3 = Color3.fromRGB(45, 45, 70)
+btn.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
 btn.TextColor3 = Color3.fromRGB(230, 230, 230)
-btn.TextSize = 14
+btn.TextSize = 13
 btn.BorderSizePixel = 0
+btn.Font = Enum.Font.SourceSans
 btn.Parent = canvas
 local state = false
 btn.MouseButton1Click:Connect(function()
 state = not state
 btn.Text = text .. (state and ": ON" or ": OFF")
-btn.BackgroundColor3 = state and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(45, 45, 70)
+btn.BackgroundColor3 = state and Color3.fromRGB(0, 130, 0) or Color3.fromRGB(50, 50, 70)
 callback(state)
 end)
 canvas.Size = UDim2.new(1, 0, 0, y + 35)
@@ -194,13 +248,14 @@ end
 
 local function addButton(text, y, color, callback)
 local btn = Instance.new("TextButton")
-btn.Size = UDim2.new(0.92, 0, 0, 30)
-btn.Position = UDim2.new(0.04, 0, 0, y)
+btn.Size = UDim2.new(0.95, 0, 0, 30)
+btn.Position = UDim2.new(0.025, 0, 0, y)
 btn.Text = text
 btn.BackgroundColor3 = color or Color3.fromRGB(55, 55, 80)
 btn.TextColor3 = Color3.fromRGB(230, 230, 230)
-btn.TextSize = 14
+btn.TextSize = 13
 btn.BorderSizePixel = 0
+btn.Font = Enum.Font.SourceSans
 btn.Parent = canvas
 btn.MouseButton1Click:Connect(callback)
 canvas.Size = UDim2.new(1, 0, 0, y + 35)
@@ -356,6 +411,16 @@ end
 end
 
 -- Teleport Functions
+local function teleportToSpawn()
+local spawns = workspace:FindFirstChild("Spawns") or workspace
+for _, v in pairs(spawns:GetDescendants()) do
+if v:IsA("SpawnLocation") then
+root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
+return
+end
+end
+end
+
 local function teleportToMurderer()
 for _, v in pairs(game.Players:GetPlayers()) do
 if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and getPlayerRole(v) == "murderer" then
@@ -372,11 +437,6 @@ root.CFrame = v.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
 break
 end
 end
-end
-
-local function teleportToSpawn()
-local spawn = workspace:FindFirstChild("SpawnLocation")
-if spawn then root.CFrame = spawn.CFrame * CFrame.new(0, 2, 0) end
 end
 
 -- Auto Shoot
@@ -476,7 +536,7 @@ y = y + 35
 
 addSection("═══════ TELEPORT ═══════", y)
 y = y + 30
-addButton("Teleport to Spawn", y, Color3.fromRGB(40, 60, 80), teleportToSpawn)
+addButton("Teleport to Lobby", y, Color3.fromRGB(40, 60, 80), teleportToSpawn)
 y = y + 35
 addButton("Teleport to Murderer", y, Color3.fromRGB(80, 40, 40), teleportToMurderer)
 y = y + 35
@@ -522,16 +582,6 @@ addSection("═══════ FUN ═══════", y)
 y = y + 30
 addToggle("Super Jump", y, function(state)
 if state then humanoid.JumpPower = 200 else humanoid.JumpPower = 50 end
-end)
-y = y + 35
-addToggle("Bhop", y, function(state)
-if state then
-game:GetService("RunService").Heartbeat:Connect(function()
-if state and root and root.Velocity.Magnitude > 10 then
-root.Velocity = root.Velocity + Vector3.new(0, 20, 0)
-end
-end)
-end
 end)
 y = y + 35
 addToggle("Spin", y, function(state)
