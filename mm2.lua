@@ -1,4 +1,4 @@
--- furdjehub - Murder Mystery 2 (Working GUI)
+-- furdjehub - Murder Mystery 2 (Stable GUI)
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
@@ -65,7 +65,7 @@ closeBtn.MouseLeave:Connect(function()
     closeBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
 end)
 
--- Content
+-- Content with scrolling
 local content = Instance.new("Frame")
 content.Size = UDim2.new(1, 0, 1, -35)
 content.Position = UDim2.new(0, 0, 0, 35)
@@ -81,40 +81,40 @@ scrollFrame.ScrollBarThickness = 5
 scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(70, 70, 90)
 scrollFrame.Parent = content
 
-local canvas = Instance.new("Frame")
-canvas.Size = UDim2.new(1, 0, 0, 0)
-canvas.BackgroundTransparency = 1
-canvas.Parent = scrollFrame
+-- Use a list layout inside a frame
+local list = Instance.new("Frame")
+list.Size = UDim2.new(1, 0, 0, 0)
+list.BackgroundTransparency = 1
+list.Parent = scrollFrame
 
--- Helper functions
-local function addSection(text, y)
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 4)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Parent = list
+
+local function addSection(text)
     local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, -20, 0, 25)
-    lbl.Position = UDim2.new(0, 10, 0, y)
+    lbl.Size = UDim2.new(1, -10, 0, 25)
     lbl.Text = text
     lbl.TextColor3 = Color3.fromRGB(180, 180, 220)
     lbl.TextSize = 14
     lbl.TextXAlignment = Enum.TextXAlignment.Center
     lbl.BackgroundTransparency = 1
     lbl.Font = Enum.Font.SourceSansSemibold
-    lbl.Parent = canvas
-    local newY = y + 30
-    canvas.Size = UDim2.new(1, 0, 0, newY)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, newY)
-    return newY
+    lbl.Parent = list
+    return lbl
 end
 
-local function addToggle(text, y, callback)
+local function addToggle(text, callback)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 28)
-    btn.Position = UDim2.new(0, 10, 0, y)
+    btn.Size = UDim2.new(1, -10, 0, 28)
     btn.Text = text .. ": OFF"
     btn.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
     btn.TextColor3 = Color3.fromRGB(230, 230, 230)
     btn.TextSize = 12
     btn.BorderSizePixel = 0
     btn.Font = Enum.Font.SourceSans
-    btn.Parent = canvas
+    btn.Parent = list
     local state = false
     btn.MouseButton1Click:Connect(function()
         state = not state
@@ -122,50 +122,41 @@ local function addToggle(text, y, callback)
         btn.BackgroundColor3 = state and Color3.fromRGB(0, 130, 0) or Color3.fromRGB(50, 50, 70)
         callback(state)
     end)
-    local newY = y + 32
-    canvas.Size = UDim2.new(1, 0, 0, newY)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, newY)
-    return newY
+    return btn
 end
 
-local function addButton(text, y, color, callback)
+local function addButton(text, color, callback)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 28)
-    btn.Position = UDim2.new(0, 10, 0, y)
+    btn.Size = UDim2.new(1, -10, 0, 28)
     btn.Text = text
     btn.BackgroundColor3 = color or Color3.fromRGB(55, 55, 80)
     btn.TextColor3 = Color3.fromRGB(230, 230, 230)
     btn.TextSize = 12
     btn.BorderSizePixel = 0
     btn.Font = Enum.Font.SourceSans
-    btn.Parent = canvas
+    btn.Parent = list
     btn.MouseButton1Click:Connect(callback)
-    local newY = y + 32
-    canvas.Size = UDim2.new(1, 0, 0, newY)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, newY)
-    return newY
+    return btn
 end
 
-local function addSlider(text, y, min, max, default, callback)
+local function addSlider(text, min, max, default, callback)
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -20, 0, 18)
-    label.Position = UDim2.new(0, 10, 0, y)
+    label.Size = UDim2.new(1, -10, 0, 18)
     label.Text = text .. ": " .. default
     label.TextColor3 = Color3.fromRGB(200, 200, 200)
     label.TextSize = 12
     label.BackgroundTransparency = 1
-    label.Parent = canvas
+    label.Parent = list
     
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 22)
-    btn.Position = UDim2.new(0, 10, 0, y + 20)
+    btn.Size = UDim2.new(1, -10, 0, 22)
     btn.Text = "◀ " .. default .. " ▶"
     btn.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
     btn.TextColor3 = Color3.fromRGB(230, 230, 230)
     btn.TextSize = 12
     btn.BorderSizePixel = 0
     btn.Font = Enum.Font.SourceSans
-    btn.Parent = canvas
+    btn.Parent = list
     
     local value = default
     btn.MouseButton1Click:Connect(function()
@@ -175,11 +166,19 @@ local function addSlider(text, y, min, max, default, callback)
         label.Text = text .. ": " .. value
         callback(value)
     end)
-    
-    local newY = y + 46
-    canvas.Size = UDim2.new(1, 0, 0, newY)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, newY)
-    return newY
+    return btn
+end
+
+-- Update list height after adding items
+local function updateListHeight()
+    local totalHeight = 0
+    for _, child in ipairs(list:GetChildren()) do
+        if child:IsA("GuiObject") and child.Visible then
+            totalHeight = totalHeight + child.Size.Y.Offset + layout.Padding.Offset
+        end
+    end
+    list.Size = UDim2.new(1, 0, 0, totalHeight)
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
 end
 
 -- Role detection
@@ -365,24 +364,27 @@ minBtn.MouseButton1Click:Connect(function()
     window.Visible = false
 end)
 
--- Build GUI
-local y = 5
-y = addSection("═══════ MAIN ═══════", y)
-y = addToggle("No Clip", y, updateNoclip)
-y = addToggle("Auto Grab Gun (TP)", y, updateAutoGrab)
+-- Build GUI with list
+addSection("═══════ MAIN ═══════")
+addToggle("No Clip", updateNoclip)
+addToggle("Auto Grab Gun (TP)", updateAutoGrab)
 
-y = addSection("═══════ VISUAL ═══════", y)
-y = addToggle("ESP Murder (Red)", y, updateEspMurder)
-y = addToggle("ESP Sheriff (Blue)", y, updateEspSheriff)
+addSection("═══════ VISUAL ═══════")
+addToggle("ESP Murder (Red)", updateEspMurder)
+addToggle("ESP Sheriff (Blue)", updateEspSheriff)
 
-y = addSection("═══════ TELEPORT ═══════", y)
-y = addButton("Teleport to Lobby", y, Color3.fromRGB(40, 60, 80), teleportToSpawn)
-y = addButton("Teleport to Murderer", y, Color3.fromRGB(80, 40, 40), teleportToMurderer)
-y = addButton("Teleport to Sheriff", y, Color3.fromRGB(40, 40, 80), teleportToSheriff)
+addSection("═══════ TELEPORT ═══════")
+addButton("Teleport to Lobby", Color3.fromRGB(40, 60, 80), teleportToSpawn)
+addButton("Teleport to Murderer", Color3.fromRGB(80, 40, 40), teleportToMurderer)
+addButton("Teleport to Sheriff", Color3.fromRGB(40, 40, 80), teleportToSheriff)
 
-y = addSection("═══════ EXTRA ═══════", y)
-y = addSlider("Speed Boost", y, 16, 120, 16, function(value)
+addSection("═══════ EXTRA ═══════")
+addSlider("Speed Boost", 16, 120, 16, function(value)
     humanoid.WalkSpeed = value
 end)
 
-print("furdjehub loaded! (600x400)")
+-- Update list height after building
+task.wait(0.1)
+updateListHeight()
+
+print("furdjehub loaded! (600x400) - Stable GUI with list)")
