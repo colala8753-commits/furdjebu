@@ -1,342 +1,284 @@
--- furdjehub - Murder Mystery 2 (Working GUI)
+--[[
+  GOOD DEAD RAILS MOBILE v2.0
+  - Встроенная кнопка сворачивания (иконка "−" внутри GUI)
+  - Клавиша "_" (работает и на ПК)
+  - Управление пальцем: полёт вверх/вниз + движение в стороны
+  - Выдача предмета тапом по кнопке или по экрану (двойной тап)
+--]]
+
 local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-local root = character:WaitForChild("HumanoidRootPart")
-local mm2 = game:GetService("ReplicatedStorage").Remotes
+local mouse = player:GetMouse()
+local userInput = game:GetService("UserInputService")
+local guiEnabled = true
+local flying = false
+local flySpeed = 50
+local bodyVelocity = nil
+local moveDirection = Vector3.new(0,0,0)
 
+-- Создаём GUI с учётом мобильных пропорций
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "furdjehub"
-screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.Name = "GoodMobileGUI"
 screenGui.ResetOnSpawn = false
+player.PlayerGui:InsertChild(screenGui)
 
--- Main Window
-local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 400)
-window.Position = UDim2.new(0.5, -300, 0.5, -200)
-window.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-window.BackgroundTransparency = 0
-window.BorderSizePixel = 0
-window.Parent = screenGui
-window.Visible = true
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, math.min(350, screenGui.AbsoluteSize.X * 0.9), 0, 480)
+frame.Position = UDim2.new(0.5, -frame.Size.X.Offset/2, 0.5, -240)
+frame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+frame.BackgroundTransparency = 0.15
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
 
--- Title Bar
+-- Заголовок + кнопка сворачивания (внутри GUI)
 local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 35)
-titleBar.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = window
+titleBar.Size = UDim2.new(1, 0, 0, 40)
+titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
+titleBar.Parent = frame
 
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, -100, 1, 0)
-titleText.Position = UDim2.new(0, 10, 0, 0)
-titleText.Text = "furdjehub | MM2"
-titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleText.TextXAlignment = Enum.TextXAlignment.Left
-titleText.TextSize = 14
-titleText.BackgroundTransparency = 1
-titleText.Parent = titleBar
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "GOOD RAILS"
+titleLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextSize = 20
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.Position = UDim2.new(0.05, 0, 0, 0)
+titleLabel.Parent = titleBar
 
--- Buttons
-local minBtn = Instance.new("TextButton")
-minBtn.Size = UDim2.new(0, 30, 0, 30)
-minBtn.Position = UDim2.new(1, -90, 0, 2)
-minBtn.Text = "─"
-minBtn.TextSize = 14
-minBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-minBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-minBtn.BorderSizePixel = 0
-minBtn.Parent = titleBar
+-- Кнопка сворачивания (внутри GUI, всегда видна)
+local collapseBtn = Instance.new("TextButton")
+collapseBtn.Size = UDim2.new(0, 40, 0, 40)
+collapseBtn.Position = UDim2.new(1, -45, 0, 0)
+collapseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+collapseBtn.Text = "−"
+collapseBtn.TextColor3 = Color3.fromRGB(255,255,255)
+collapseBtn.Font = Enum.Font.GothamBold
+collapseBtn.TextSize = 28
+collapseBtn.Parent = titleBar
 
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 30, 0, 30)
-closeBtn.Position = UDim2.new(1, -30, 0, 2)
-closeBtn.Text = "✕"
-closeBtn.TextSize = 14
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-closeBtn.BorderSizePixel = 0
-closeBtn.Parent = titleBar
-
-closeBtn.MouseEnter:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-end)
-closeBtn.MouseLeave:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-end)
-
--- Content
+-- Контейнер для элементов (скролл, если нужно)
 local content = Instance.new("Frame")
-content.Size = UDim2.new(1, 0, 1, -35)
-content.Position = UDim2.new(0, 0, 0, 35)
-content.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-content.BorderSizePixel = 0
-content.Parent = window
+content.Size = UDim2.new(1, -10, 1, -50)
+content.Position = UDim2.new(0, 5, 0, 45)
+content.BackgroundTransparency = 1
+content.Parent = frame
 
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, -10, 1, -10)
-scrollFrame.Position = UDim2.new(0, 5, 0, 5)
-scrollFrame.BackgroundTransparency = 1
-scrollFrame.ScrollBarThickness = 5
-scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(70, 70, 90)
-scrollFrame.Parent = content
+-- === Управление полётом (джойстик для телефона) ===
+local joystickBg = Instance.new("Frame")
+joystickBg.Size = UDim2.new(0, 120, 0, 120)
+joystickBg.Position = UDim2.new(0.5, -60, 0.7, 0)
+joystickBg.BackgroundColor3 = Color3.fromRGB(40,40,60)
+joystickBg.BackgroundTransparency = 0.6
+joystickBg.BorderSizePixel = 2
+joystickBg.BorderColor3 = Color3.fromRGB(200,200,255)
+joystickBg.Parent = content
 
-local canvas = Instance.new("Frame")
-canvas.Size = UDim2.new(1, 0, 0, 0)
-canvas.BackgroundTransparency = 1
-canvas.Parent = scrollFrame
+local joystickKnob = Instance.new("Frame")
+joystickKnob.Size = UDim2.new(0, 50, 0, 50)
+joystickKnob.Position = UDim2.new(0.5, -25, 0.5, -25)
+joystickKnob.BackgroundColor3 = Color3.fromRGB(255, 200, 100)
+joystickKnob.BorderSizePixel = 0
+joystickKnob.Parent = joystickBg
 
--- Helper functions
-local function addSection(text, y)
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, -20, 0, 25)
-    lbl.Position = UDim2.new(0, 10, 0, y)
-    lbl.Text = text
-    lbl.TextColor3 = Color3.fromRGB(180, 180, 220)
-    lbl.TextSize = 14
-    lbl.TextXAlignment = Enum.TextXAlignment.Center
-    lbl.BackgroundTransparency = 1
-    lbl.Font = Enum.Font.SourceSansSemibold
-    lbl.Parent = canvas
-    local newY = y + 30
-    canvas.Size = UDim2.new(1, 0, 0, newY)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, newY)
-    return newY
-end
+-- Переменные для тач-джойстика
+local isTouchingJoystick = false
+local joystickCenter = Vector2.new(60, 60)
 
-local function addToggle(text, y, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 30)
-    btn.Position = UDim2.new(0, 10, 0, y)
-    btn.Text = text .. ": OFF"
-    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-    btn.TextColor3 = Color3.fromRGB(230, 230, 230)
-    btn.TextSize = 13
-    btn.BorderSizePixel = 0
-    btn.Font = Enum.Font.SourceSans
-    btn.Parent = canvas
-    local state = false
-    btn.MouseButton1Click:Connect(function()
-        state = not state
-        btn.Text = text .. (state and ": ON" or ": OFF")
-        btn.BackgroundColor3 = state and Color3.fromRGB(0, 130, 0) or Color3.fromRGB(50, 50, 70)
-        callback(state)
-    end)
-    local newY = y + 35
-    canvas.Size = UDim2.new(1, 0, 0, newY)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, newY)
-    return newY
-end
+-- Скорость (ползунок цифровой)
+local speedLabel = Instance.new("TextLabel")
+speedLabel.Size = UDim2.new(0, 60, 0, 30)
+speedLabel.Position = UDim2.new(0.05, 0, 0.1, 0)
+speedLabel.BackgroundTransparency = 1
+speedLabel.Text = "Speed:"
+speedLabel.TextColor3 = Color3.fromRGB(200,200,200)
+speedLabel.TextSize = 16
+speedLabel.Parent = content
 
-local function addButton(text, y, color, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 30)
-    btn.Position = UDim2.new(0, 10, 0, y)
-    btn.Text = text
-    btn.BackgroundColor3 = color or Color3.fromRGB(55, 55, 80)
-    btn.TextColor3 = Color3.fromRGB(230, 230, 230)
-    btn.TextSize = 13
-    btn.BorderSizePixel = 0
-    btn.Font = Enum.Font.SourceSans
-    btn.Parent = canvas
-    btn.MouseButton1Click:Connect(callback)
-    local newY = y + 35
-    canvas.Size = UDim2.new(1, 0, 0, newY)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, newY)
-    return newY
-end
+local speedBox = Instance.new("TextBox")
+speedBox.Size = UDim2.new(0, 80, 0, 30)
+speedBox.Position = UDim2.new(0.25, 0, 0.1, 0)
+speedBox.BackgroundColor3 = Color3.fromRGB(50,50,70)
+speedBox.Text = "50"
+speedBox.TextColor3 = Color3.fromRGB(255,255,255)
+speedBox.TextSize = 18
+speedBox.ClearTextOnFocus = false
+speedBox.Parent = content
 
--- Role detection
-local function getPlayerRole(v)
-    if v.Character and v.Character:FindFirstChild("Knife") then
-        return "murderer"
-    elseif v.Backpack:FindFirstChild("Gun") then
-        return "sheriff"
+-- Кнопка FLY (вкл/выкл)
+local flyBtn = Instance.new("TextButton")
+flyBtn.Size = UDim2.new(0, 100, 0, 40)
+flyBtn.Position = UDim2.new(0.55, 0, 0.1, 0)
+flyBtn.BackgroundColor3 = Color3.fromRGB(30, 150, 30)
+flyBtn.Text = "FLY OFF"
+flyBtn.TextColor3 = Color3.fromRGB(255,255,255)
+flyBtn.Font = Enum.Font.GothamBold
+flyBtn.TextSize = 18
+flyBtn.Parent = content
+
+-- Кнопка выдачи предмета
+local giveBtn = Instance.new("TextButton")
+giveBtn.Size = UDim2.new(0, 130, 0, 40)
+giveBtn.Position = UDim2.new(0.05, 0, 0.3, 0)
+giveBtn.BackgroundColor3 = Color3.fromRGB(180, 90, 20)
+giveBtn.Text = "GIVE TOOL"
+giveBtn.TextColor3 = Color3.fromRGB(255,255,255)
+giveBtn.Font = Enum.Font.GothamBold
+giveBtn.TextSize = 18
+giveBtn.Parent = content
+
+-- Поле ID предмета
+local itemIdBox = Instance.new("TextBox")
+itemIdBox.Size = UDim2.new(0, 130, 0, 35)
+itemIdBox.Position = UDim2.new(0.55, 0, 0.3, 0)
+itemIdBox.BackgroundColor3 = Color3.fromRGB(50,50,70)
+itemIdBox.Text = "123456789"
+itemIdBox.TextColor3 = Color3.fromRGB(255,255,255)
+itemIdBox.TextSize = 16
+itemIdBox.Parent = content
+
+-- === Функции ===
+local function spawnItemAtMouse(itemId)
+    local targetPos = mouse.Hit.Position
+    local remote = game:GetService("ReplicatedStorage"):FindFirstChild("ItemRequest")
+    if remote then
+        remote:FireServer("Spawn", itemId, targetPos, "Touch")
     else
-        return "innocent"
+        local tool = Instance.new("Tool")
+        tool.Name = "MobileTool"
+        local handle = Instance.new("Part")
+        handle.Size = Vector3.new(1,1,1)
+        handle.BrickColor = BrickColor.new("Bright orange")
+        handle.Parent = tool
+        tool.Parent = player.Backpack
+        local tag = Instance.new("BoolValue")
+        tag.Name = "LegitSpawn"
+        tag.Value = true
+        tag.Parent = tool
     end
 end
 
--- ESP variables
-local espHighlights = {}
-local noclipConnection = nil
-local flyConnection = nil
-
--- ESP Functions
-local function updateEspMurder(state)
-    for _, hl in pairs(espHighlights) do pcall(function() hl:Destroy() end) end
-    espHighlights = {}
-    if state then
-        for _, v in pairs(game.Players:GetPlayers()) do
-            if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                if getPlayerRole(v) == "murderer" then
-                    local hl = Instance.new("Highlight")
-                    hl.Parent = v.Character
-                    hl.Adornee = v.Character
-                    hl.FillColor = Color3.fromRGB(255, 0, 0)
-                    hl.FillTransparency = 0.3
-                    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                    espHighlights[v] = hl
-                end
-            end
+local function toggleFly()
+    flying = not flying
+    local char = player.Character
+    if not char then return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    if flying then
+        flyBtn.Text = "FLY ON"
+        flyBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.MaxForce = Vector3.new(1/0, 1/0, 1/0)
+        bodyVelocity.Velocity = Vector3.new(0, flySpeed, 0)
+        bodyVelocity.Parent = root
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
         end
-    end
-end
-
-local function updateEspSheriff(state)
-    for _, hl in pairs(espHighlights) do pcall(function() hl:Destroy() end) end
-    espHighlights = {}
-    if state then
-        for _, v in pairs(game.Players:GetPlayers()) do
-            if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                if getPlayerRole(v) == "sheriff" then
-                    local hl = Instance.new("Highlight")
-                    hl.Parent = v.Character
-                    hl.Adornee = v.Character
-                    hl.FillColor = Color3.fromRGB(0, 100, 255)
-                    hl.FillTransparency = 0.3
-                    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                    espHighlights[v] = hl
-                end
-            end
-        end
-    end
-end
-
--- Teleport functions
-local function teleportToSpawn()
-    local spawns = workspace:GetDescendants()
-    for _, v in ipairs(spawns) do
-        if v:IsA("SpawnLocation") then
-            root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
-            return
-        end
-    end
-    local spawn = workspace:FindFirstChild("SpawnLocation")
-    if spawn then root.CFrame = spawn.CFrame * CFrame.new(0, 2, 0) end
-end
-
-local function teleportToMurderer()
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and getPlayerRole(v) == "murderer" then
-            root.CFrame = v.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
-            break
-        end
-    end
-end
-
-local function teleportToSheriff()
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and getPlayerRole(v) == "sheriff" then
-            root.CFrame = v.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
-            break
-        end
-    end
-end
-
--- Noclip
-local function updateNoclip(state)
-    if noclipConnection then
-        noclipConnection:Disconnect()
-        noclipConnection = nil
-    end
-    if state then
-        noclipConnection = game:GetService("RunService").Stepped:Connect(function()
-            if character and root then
-                for _, part in ipairs(character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = false
-                    end
-                end
-            end
-        end)
     else
-        if character then
-            for _, part in ipairs(character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = true
-                end
-            end
+        flyBtn.Text = "FLY OFF"
+        flyBtn.BackgroundColor3 = Color3.fromRGB(30, 150, 30)
+        if bodyVelocity then bodyVelocity:Destroy() end
+        bodyVelocity = nil
+    end
+end
+
+-- Обновление скорости
+speedBox:GetPropertyChangedSignal("Text"):Connect(function()
+    local val = tonumber(speedBox.Text)
+    if val then flySpeed = math.clamp(val, 1, 500) end
+end)
+
+-- === Обработка сворачивания (кнопка внутри GUI) ===
+collapseBtn.MouseButton1Click:Connect(function()
+    guiEnabled = not guiEnabled
+    frame.Visible = guiEnabled
+end)
+
+-- Клавиша "_" (для ПК)
+userInput.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.Underscore then
+        guiEnabled = not guiEnabled
+        frame.Visible = guiEnabled
+    end
+end)
+
+-- Кнопки
+flyBtn.MouseButton1Click:Connect(toggleFly)
+
+giveBtn.MouseButton1Click:Connect(function()
+    local id = itemIdBox.Text
+    if id and id ~= "" then spawnItemAtMouse(id) end
+end)
+
+-- === Джойстик для телефона (тач) ===
+joystickBg.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        isTouchingJoystick = true
+    end
+end)
+
+joystickBg.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        isTouchingJoystick = false
+        joystickKnob.Position = UDim2.new(0.5, -25, 0.5, -25)
+        moveDirection = Vector3.new(0,0,0)
+        if flying and bodyVelocity then
+            bodyVelocity.Velocity = Vector3.new(0, flySpeed, 0)
         end
     end
-end
+end)
 
--- Fly
-local function updateFly(state)
-    if flyConnection then
-        flyConnection:Disconnect()
-        flyConnection = nil
+userInput.TouchMoved:Connect(function(input, processed)
+    if processed then return end
+    if not isTouchingJoystick then return end
+    local touchPos = input.Position
+    local framePos = joystickBg.AbsolutePosition
+    local size = joystickBg.AbsoluteSize
+    local localPos = touchPos - framePos
+    local center = size / 2
+    local delta = localPos - center
+    local maxDist = math.min(size.X, size.Y) / 2 - 10
+    local dist = delta.Magnitude
+    if dist > maxDist then
+        delta = delta / dist * maxDist
     end
-    if state then
-        humanoid.PlatformStand = true
-        flyConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if root then
-                local move = Vector3.new(0, 0, 0)
-                local input = game:GetService("UserInputService")
-                local cam = workspace.CurrentCamera
-                if input:IsKeyDown(Enum.KeyCode.W) then move = move + cam.CFrame.LookVector * 50 end
-                if input:IsKeyDown(Enum.KeyCode.S) then move = move - cam.CFrame.LookVector * 50 end
-                if input:IsKeyDown(Enum.KeyCode.A) then move = move - cam.CFrame.RightVector * 50 end
-                if input:IsKeyDown(Enum.KeyCode.D) then move = move + cam.CFrame.RightVector * 50 end
-                if input:IsKeyDown(Enum.KeyCode.Space) then move = move + Vector3.new(0, 50, 0) end
-                if input:IsKeyDown(Enum.KeyCode.LeftShift) then move = move - Vector3.new(0, 50, 0) end
-                root.Velocity = move
+    joystickKnob.Position = UDim2.new(0, center.X + delta.X - 25, 0, center.Y + delta.Y - 25)
+    
+    -- Преобразуем в направление движения
+    local norm = delta / maxDist
+    local forward = workspace.CurrentCamera.CFrame.LookVector
+    local right = workspace.CurrentCamera.CFrame.RightVector
+    moveDirection = (right * norm.X + forward * -norm.Y) * flySpeed * 0.5
+    if flying and bodyVelocity then
+        bodyVelocity.Velocity = Vector3.new(moveDirection.X, flySpeed, moveDirection.Z)
+    end
+end)
+
+-- Двойной тап по экрану = выдача предмета (для телефона)
+local lastTapTime = 0
+userInput.TouchBegan:Connect(function(input, processed)
+    if processed then return end
+    if input.UserInputType == Enum.UserInputType.Touch then
+        local now = tick()
+        if now - lastTapTime < 0.4 then
+            local id = itemIdBox.Text
+            if id and id ~= "" then
+                spawnItemAtMouse(id)
             end
-        end)
-    else
-        humanoid.PlatformStand = false
+        end
+        lastTapTime = now
     end
+end)
+
+-- Обход античита (как в первой версии)
+local oldFind = game:GetService("ReplicatedStorage").FindFirstChild
+game:GetService("ReplicatedStorage").FindFirstChild = function(self, name)
+    if name == "AntiCheat" or name == "Detection" then return nil end
+    return oldFind(self, name)
 end
 
--- Toggle Button
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 50, 0, 50)
-toggleBtn.Position = UDim2.new(0, 15, 0, 15)
-toggleBtn.Text = "📂"
-toggleBtn.TextSize = 20
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-toggleBtn.BorderSizePixel = 0
-toggleBtn.Parent = screenGui
-toggleBtn.Visible = true
-toggleBtn.ResetOnSpawn = false
-
-toggleBtn.MouseButton1Click:Connect(function()
-    window.Visible = not window.Visible
-end)
-
--- Window controls
-closeBtn.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
-
-minBtn.MouseButton1Click:Connect(function()
-    window.Visible = false
-end)
-
--- Build GUI
-local y = 5
-y = addSection("═══════ MAIN ═══════", y)
-y = addToggle("No Clip", y, updateNoclip)
-y = addToggle("Fly (WASD/Space)", y, updateFly)
-
-y = addSection("═══════ VISUAL ═══════", y)
-y = addToggle("ESP Murder (Red)", y, updateEspMurder)
-y = addToggle("ESP Sheriff (Blue)", y, updateEspSheriff)
-
-y = addSection("═══════ TELEPORT ═══════", y)
-y = addButton("Teleport to Lobby", y, Color3.fromRGB(40, 60, 80), teleportToSpawn)
-y = addButton("Teleport to Murderer", y, Color3.fromRGB(80, 40, 40), teleportToMurderer)
-y = addButton("Teleport to Sheriff", y, Color3.fromRGB(40, 40, 80), teleportToSheriff)
-
-y = addSection("═══════ EXTRA ═══════", y)
-y = addToggle("Speed Boost", y, function(state)
-    if state then humanoid.WalkSpeed = 40 else humanoid.WalkSpeed = 16 end
-end)
-y = addToggle("Super Jump", y, function(state)
-    if state then humanoid.JumpPower = 200 else humanoid.JumpPower = 50 end
-end)
-
-print("furdjehub loaded! (600x400)")
+print("GOOD MOBILE RAILS ACTIVE. Нажмите '−' внутри GUI или клавишу '_' для сворачивания.")
