@@ -10,10 +10,10 @@ screenGui.Name = "furdjehub"
 screenGui.Parent = player:WaitForChild("PlayerGui")
 screenGui.ResetOnSpawn = false
 
--- Main Window
+-- Main Window 600x400
 local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 450)
-window.Position = UDim2.new(0.5, -300, 0.5, -225)
+window.Size = UDim2.new(0, 600, 0, 400)
+window.Position = UDim2.new(0.5, -300, 0.5, -200)
 window.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 window.BackgroundTransparency = 0
 window.BorderSizePixel = 0
@@ -196,7 +196,6 @@ end
 -- ESP variables
 local espHighlights = {}
 local noclipConnection = nil
-local flyConnection = nil
 local autoGrabConnection = nil
 local oldPosition = nil
 local isGrabbing = false
@@ -302,34 +301,7 @@ local function updateNoclip(state)
     end
 end
 
--- Fly
-local function updateFly(state)
-    if flyConnection then
-        flyConnection:Disconnect()
-        flyConnection = nil
-    end
-    if state then
-        humanoid.PlatformStand = true
-        flyConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if root then
-                local move = Vector3.new(0, 0, 0)
-                local input = game:GetService("UserInputService")
-                local cam = workspace.CurrentCamera
-                if input:IsKeyDown(Enum.KeyCode.W) then move = move + cam.CFrame.LookVector * 50 end
-                if input:IsKeyDown(Enum.KeyCode.S) then move = move - cam.CFrame.LookVector * 50 end
-                if input:IsKeyDown(Enum.KeyCode.A) then move = move - cam.CFrame.RightVector * 50 end
-                if input:IsKeyDown(Enum.KeyCode.D) then move = move + cam.CFrame.RightVector * 50 end
-                if input:IsKeyDown(Enum.KeyCode.Space) then move = move + Vector3.new(0, 50, 0) end
-                if input:IsKeyDown(Enum.KeyCode.LeftShift) then move = move - Vector3.new(0, 50, 0) end
-                root.Velocity = move
-            end
-        end)
-    else
-        humanoid.PlatformStand = false
-    end
-end
-
--- Auto Grab Gun (телепорт к пистолету и обратно)
+-- Auto Grab Gun
 local function updateAutoGrab(state)
     if autoGrabConnection then
         autoGrabConnection:Disconnect()
@@ -367,12 +339,12 @@ local function updateAutoGrab(state)
     end
 end
 
--- Toggle Button
+-- Toggle Button (папка)
 local toggleBtn = Instance.new("TextButton")
 toggleBtn.Size = UDim2.new(0, 50, 0, 50)
 toggleBtn.Position = UDim2.new(0, 15, 0, 15)
-toggleBtn.Text = "⚡"
-toggleBtn.TextSize = 24
+toggleBtn.Text = "📂"
+toggleBtn.TextSize = 20
 toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 toggleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
 toggleBtn.BorderSizePixel = 0
@@ -397,7 +369,6 @@ end)
 local y = 5
 y = addSection("═══════ MAIN ═══════", y)
 y = addToggle("No Clip", y, updateNoclip)
-y = addToggle("Fly (WASD/Space)", y, updateFly)
 y = addToggle("Auto Grab Gun (TP)", y, updateAutoGrab)
 
 y = addSection("═══════ VISUAL ═══════", y)
@@ -413,8 +384,5 @@ y = addSection("═══════ EXTRA ═══════", y)
 y = addSlider("Speed Boost", y, 16, 120, 16, function(value)
     humanoid.WalkSpeed = value
 end)
-y = addToggle("Super Jump", y, function(state)
-    if state then humanoid.JumpPower = 200 else humanoid.JumpPower = 50 end
-end)
 
-print("furdjehub loaded! (600x450)")
+print("furdjehub loaded! (600x400)")
