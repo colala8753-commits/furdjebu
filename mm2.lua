@@ -1,103 +1,121 @@
--- furdjehub - Murder Mystery 2 (Windows 10 Style, fixed toggle button)
+-- furdjehub - Murder Mystery 2 (Modern Dark GUI)
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local root = character:WaitForChild("HumanoidRootPart")
 local mm2 = game:GetService("ReplicatedStorage").Remotes
 
--- GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "furdjehub"
 screenGui.Parent = player:WaitForChild("PlayerGui")
 screenGui.ResetOnSpawn = false
 
--- Кнопка открытия (фиксированная, без перетаскивания)
+-- Кнопка открытия
 local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 50, 0, 50)
+toggleBtn.Size = UDim2.new(0, 55, 0, 55)
 toggleBtn.Position = UDim2.new(0, 15, 0, 15)
-toggleBtn.Text = "📂"
-toggleBtn.TextSize = 20
+toggleBtn.Text = "⚡"
+toggleBtn.TextSize = 24
 toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
 toggleBtn.BorderSizePixel = 0
 toggleBtn.Parent = screenGui
 toggleBtn.Visible = true
 toggleBtn.ResetOnSpawn = false
 
--- Главное окно (600x400)
+-- Главное окно
 local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 400)
-window.Position = UDim2.new(0.5, -300, 0.5, -200)
-window.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+window.Size = UDim2.new(0, 550, 0, 450)
+window.Position = UDim2.new(0.5, -275, 0.5, -225)
+window.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 window.BackgroundTransparency = 0
 window.BorderSizePixel = 0
 window.Parent = screenGui
 window.Visible = true
 
--- Тень
-local shadow = Instance.new("Frame")
-shadow.Size = UDim2.new(1, 10, 1, 10)
-shadow.Position = UDim2.new(0, -5, 0, -5)
-shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-shadow.BackgroundTransparency = 0.5
-shadow.BorderSizePixel = 0
-shadow.Parent = window
+-- Скругление углов
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = window
 
 -- Заголовок
 local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 35)
-titleBar.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+titleBar.Size = UDim2.new(1, 0, 0, 45)
+titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
 titleBar.BorderSizePixel = 0
 titleBar.Parent = window
 
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 10)
+titleCorner.Parent = titleBar
+
 local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, -100, 1, 0)
-titleText.Position = UDim2.new(0, 10, 0, 0)
-titleText.Text = "furdjehub | MM2"
+titleText.Size = UDim2.new(1, -110, 1, 0)
+titleText.Position = UDim2.new(0, 15, 0, 0)
+titleText.Text = "furdjehub"
 titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleText.TextXAlignment = Enum.TextXAlignment.Left
-titleText.TextSize = 14
+titleText.TextSize = 18
+titleText.Font = Enum.Font.GothamSemibold
 titleText.BackgroundTransparency = 1
 titleText.Parent = titleBar
+
+local version = Instance.new("TextLabel")
+version.Size = UDim2.new(1, -110, 1, 0)
+version.Position = UDim2.new(0, 15, 0, 0)
+version.Text = "v2.0 | MM2"
+version.TextColor3 = Color3.fromRGB(150, 150, 180)
+version.TextXAlignment = Enum.TextXAlignment.Left
+version.TextSize = 12
+version.Font = Enum.Font.Gotham
+version.BackgroundTransparency = 1
+version.Position = UDim2.new(0, 15, 0, 22)
+version.Parent = titleBar
 
 -- Кнопки управления
 local function createTitleButton(text, x, color)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 30, 0, 30)
-    btn.Position = UDim2.new(1, x, 0, 2)
+    btn.Size = UDim2.new(0, 32, 0, 32)
+    btn.Position = UDim2.new(1, x, 0, 6)
     btn.Text = text
-    btn.TextSize = 14
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.BackgroundColor3 = color or Color3.fromRGB(45, 45, 60)
+    btn.TextSize = 16
+    btn.TextColor3 = Color3.fromRGB(200, 200, 220)
+    btn.BackgroundColor3 = color or Color3.fromRGB(30, 30, 45)
     btn.BorderSizePixel = 0
     btn.Parent = titleBar
     return btn
 end
 
-local minBtn = createTitleButton("─", -90)
-local closeBtn = createTitleButton("✕", -30)
+local minBtn = createTitleButton("─", -95)
+local closeBtn = createTitleButton("✕", -35)
 
 closeBtn.MouseEnter:Connect(function()
     closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
 end)
 closeBtn.MouseLeave:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
 end)
 
--- Содержимое с прокруткой
+-- Основное содержимое
 local content = Instance.new("Frame")
-content.Size = UDim2.new(1, 0, 1, -35)
-content.Position = UDim2.new(0, 0, 0, 35)
-content.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+content.Size = UDim2.new(1, 0, 1, -45)
+content.Position = UDim2.new(0, 0, 0, 45)
+content.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 content.BorderSizePixel = 0
 content.Parent = window
 
+local contentCorner = Instance.new("UICorner")
+contentCorner.CornerRadius = UDim.new(0, 10)
+contentCorner.Parent = content
+
+-- Прокрутка
 local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, -10, 1, -10)
-scrollFrame.Position = UDim2.new(0, 5, 0, 5)
+scrollFrame.Size = UDim2.new(1, -20, 1, -20)
+scrollFrame.Position = UDim2.new(0, 10, 0, 10)
 scrollFrame.BackgroundTransparency = 1
-scrollFrame.ScrollBarThickness = 5
-scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(70, 70, 90)
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollFrame.ScrollBarThickness = 4
+scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 80)
 scrollFrame.Parent = content
 
 local canvas = Instance.new("Frame")
@@ -105,19 +123,19 @@ canvas.Size = UDim2.new(1, 0, 0, 0)
 canvas.BackgroundTransparency = 1
 canvas.Parent = scrollFrame
 
--- Вспомогательные функции GUI
+-- Вспомогательные функции
 local function addSection(text, y)
     local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, -20, 0, 25)
-    lbl.Position = UDim2.new(0, 10, 0, y)
+    lbl.Size = UDim2.new(1, -10, 0, 30)
+    lbl.Position = UDim2.new(0, 5, 0, y)
     lbl.Text = text
     lbl.TextColor3 = Color3.fromRGB(180, 180, 220)
-    lbl.TextSize = 14
+    lbl.TextSize = 13
     lbl.TextXAlignment = Enum.TextXAlignment.Center
     lbl.BackgroundTransparency = 1
-    lbl.Font = Enum.Font.SourceSansSemibold
+    lbl.Font = Enum.Font.GothamSemibold
     lbl.Parent = canvas
-    local newY = y + 30
+    local newY = y + 35
     canvas.Size = UDim2.new(1, 0, 0, newY)
     scrollFrame.CanvasSize = UDim2.new(0, 0, 0, newY)
     return newY
@@ -125,23 +143,26 @@ end
 
 local function addToggle(text, y, callback)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 30)
-    btn.Position = UDim2.new(0, 10, 0, y)
+    btn.Size = UDim2.new(1, -10, 0, 32)
+    btn.Position = UDim2.new(0, 5, 0, y)
     btn.Text = text .. ": OFF"
-    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-    btn.TextColor3 = Color3.fromRGB(230, 230, 230)
+    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+    btn.TextColor3 = Color3.fromRGB(220, 220, 240)
     btn.TextSize = 13
     btn.BorderSizePixel = 0
-    btn.Font = Enum.Font.SourceSans
+    btn.Font = Enum.Font.Gotham
     btn.Parent = canvas
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 6)
+    btnCorner.Parent = btn
     local state = false
     btn.MouseButton1Click:Connect(function()
         state = not state
         btn.Text = text .. (state and ": ON" or ": OFF")
-        btn.BackgroundColor3 = state and Color3.fromRGB(0, 130, 0) or Color3.fromRGB(50, 50, 70)
+        btn.BackgroundColor3 = state and Color3.fromRGB(0, 140, 70) or Color3.fromRGB(40, 40, 60)
         callback(state)
     end)
-    local newY = y + 35
+    local newY = y + 37
     canvas.Size = UDim2.new(1, 0, 0, newY)
     scrollFrame.CanvasSize = UDim2.new(0, 0, 0, newY)
     return newY
@@ -149,17 +170,20 @@ end
 
 local function addButton(text, y, color, callback)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 30)
-    btn.Position = UDim2.new(0, 10, 0, y)
+    btn.Size = UDim2.new(1, -10, 0, 32)
+    btn.Position = UDim2.new(0, 5, 0, y)
     btn.Text = text
-    btn.BackgroundColor3 = color or Color3.fromRGB(55, 55, 80)
-    btn.TextColor3 = Color3.fromRGB(230, 230, 230)
+    btn.BackgroundColor3 = color or Color3.fromRGB(50, 50, 75)
+    btn.TextColor3 = Color3.fromRGB(220, 220, 240)
     btn.TextSize = 13
     btn.BorderSizePixel = 0
-    btn.Font = Enum.Font.SourceSans
+    btn.Font = Enum.Font.Gotham
     btn.Parent = canvas
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 6)
+    btnCorner.Parent = btn
     btn.MouseButton1Click:Connect(callback)
-    local newY = y + 35
+    local newY = y + 37
     canvas.Size = UDim2.new(1, 0, 0, newY)
     scrollFrame.CanvasSize = UDim2.new(0, 0, 0, newY)
     return newY
@@ -189,7 +213,7 @@ local function updateEspMurder(state)
                     local hl = Instance.new("Highlight")
                     hl.Parent = v.Character
                     hl.Adornee = v.Character
-                    hl.FillColor = Color3.fromRGB(255, 0, 0)
+                    hl.FillColor = Color3.fromRGB(255, 30, 30)
                     hl.FillTransparency = 0.3
                     hl.OutlineColor = Color3.fromRGB(255, 255, 255)
                     hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
@@ -210,7 +234,7 @@ local function updateEspSheriff(state)
                     local hl = Instance.new("Highlight")
                     hl.Parent = v.Character
                     hl.Adornee = v.Character
-                    hl.FillColor = Color3.fromRGB(0, 100, 255)
+                    hl.FillColor = Color3.fromRGB(30, 120, 255)
                     hl.FillTransparency = 0.3
                     hl.OutlineColor = Color3.fromRGB(255, 255, 255)
                     hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
@@ -295,22 +319,22 @@ end
 
 -- Сборка GUI
 local y = 5
-y = addSection("═══════ MAIN ═══════", y)
+y = addSection("⚡ MAIN", y)
 y = addToggle("No Clip", y, updateNoclip)
 y = addToggle("Fly (WASD/Space)", y, updateFly)
-y = addToggle("Auto Fling Sheriff", y, function(s) end) -- заглушка
+y = addToggle("Auto Fling Sheriff", y, function(s) end)
 y = addToggle("Auto Shoot Murderer", y, function(s) end)
 
-y = addSection("═══════ VISUAL ═══════", y)
+y = addSection("👁 VISUAL", y)
 y = addToggle("ESP Murder (Red)", y, updateEspMurder)
 y = addToggle("ESP Sheriff (Blue)", y, updateEspSheriff)
 
-y = addSection("═══════ TELEPORT ═══════", y)
-y = addButton("Teleport to Lobby", y, Color3.fromRGB(40, 60, 80), teleportToSpawn)
-y = addButton("Teleport to Murderer", y, Color3.fromRGB(80, 40, 40), teleportToMurderer)
-y = addButton("Teleport to Sheriff", y, Color3.fromRGB(40, 40, 80), teleportToSheriff)
+y = addSection("📡 TELEPORT", y)
+y = addButton("Teleport to Lobby", y, Color3.fromRGB(40, 60, 90), teleportToSpawn)
+y = addButton("Teleport to Murderer", y, Color3.fromRGB(90, 40, 40), teleportToMurderer)
+y = addButton("Teleport to Sheriff", y, Color3.fromRGB(40, 40, 90), teleportToSheriff)
 
-y = addSection("═══════ EXTRA ═══════", y)
+y = addSection("⚙ EXTRA", y)
 y = addToggle("Speed Boost", y, function(s)
     if s then humanoid.WalkSpeed = 40 else humanoid.WalkSpeed = 16 end
 end)
@@ -350,4 +374,4 @@ toggleBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-print("furdjehub loaded (fixed toggle button, no drag)")
+print("furdjehub loaded (Modern Dark GUI)")
