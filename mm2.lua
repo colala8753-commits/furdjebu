@@ -1,4 +1,4 @@
--- MM2 ULTIMATE HUB [FULL + PLAYER TRACKER + INF JUMP + EXTRA]
+-- MM2 ULTIMATE HUB [FULL FIXED - FLING + ESP + TRACKER + SPEED + AUTO GRAB]
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
@@ -229,47 +229,84 @@ local function addButton(text, color, callback)
     return btn
 end
 
-local function addSlider(text, minVal, maxVal, defaultVal, callback)
+-- НОВЫЙ СЛАЙДЕР С + И -
+local function addSpeedSlider(text, minVal, maxVal, defaultVal, callback)
+    local container = Instance.new("Frame")
+    container.Size = UDim2.new(1, -20, 0, 40)
+    container.Position = UDim2.new(0, 10, 0, yPos)
+    container.BackgroundTransparency = 1
+    container.Parent = canvas
+    yPos = yPos + 5
+    
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -20, 0, 20)
-    label.Position = UDim2.new(0, 10, 0, yPos)
+    label.Size = UDim2.new(0.25, 0, 1, 0)
+    label.Position = UDim2.new(0, 0, 0, 0)
     label.Text = text .. ": " .. defaultVal
     label.TextColor3 = Color3.fromRGB(200, 200, 210)
     label.TextSize = 12
     label.BackgroundTransparency = 1
     label.Font = Enum.Font.Gotham
-    label.Parent = canvas
-    yPos = yPos + 22
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = container
     
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 24)
-    btn.Position = UDim2.new(0, 10, 0, yPos)
-    btn.Text = "◀ " .. defaultVal .. " ▶"
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 65)
-    btn.TextColor3 = Color3.fromRGB(230, 230, 240)
-    btn.TextSize = 12
-    btn.BorderSizePixel = 0
-    btn.Font = Enum.Font.Gotham
-    btn.Parent = canvas
-    btn.Selectable = false
-    btn.AutoButtonColor = false
+    local minusBtn = Instance.new("TextButton")
+    minusBtn.Size = UDim2.new(0, 30, 0, 30)
+    minusBtn.Position = UDim2.new(0.4, 0, 0.5, -15)
+    minusBtn.Text = "-"
+    minusBtn.TextSize = 18
+    minusBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    minusBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+    minusBtn.BorderSizePixel = 0
+    minusBtn.Parent = container
     
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 6)
-    btnCorner.Parent = btn
+    local minusCorner = Instance.new("UICorner")
+    minusCorner.CornerRadius = UDim.new(0, 6)
+    minusCorner.Parent = minusBtn
+    
+    local valueDisplay = Instance.new("TextLabel")
+    valueDisplay.Size = UDim2.new(0.1, 0, 1, 0)
+    valueDisplay.Position = UDim2.new(0.5, -20, 0, 0)
+    valueDisplay.Text = tostring(defaultVal)
+    valueDisplay.TextColor3 = Color3.fromRGB(255, 255, 255)
+    valueDisplay.TextSize = 14
+    valueDisplay.BackgroundTransparency = 1
+    valueDisplay.Font = Enum.Font.GothamBold
+    valueDisplay.Parent = container
+    
+    local plusBtn = Instance.new("TextButton")
+    plusBtn.Size = UDim2.new(0, 30, 0, 30)
+    plusBtn.Position = UDim2.new(0.7, 0, 0.5, -15)
+    plusBtn.Text = "+"
+    plusBtn.TextSize = 18
+    plusBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    plusBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+    plusBtn.BorderSizePixel = 0
+    plusBtn.Parent = container
+    
+    local plusCorner = Instance.new("UICorner")
+    plusCorner.CornerRadius = UDim.new(0, 6)
+    plusCorner.Parent = plusBtn
     
     local value = defaultVal
-    btn.MouseButton1Click:Connect(function()
-        value = value + 2
-        if value > maxVal then value = minVal end
-        btn.Text = "◀ " .. value .. " ▶"
+    
+    minusBtn.MouseButton1Click:Connect(function()
+        value = math.max(value - 2, minVal)
+        valueDisplay.Text = tostring(value)
         label.Text = text .. ": " .. value
         callback(value)
     end)
-    yPos = yPos + 30
+    
+    plusBtn.MouseButton1Click:Connect(function()
+        value = math.min(value + 2, maxVal)
+        valueDisplay.Text = tostring(value)
+        label.Text = text .. ": " .. value
+        callback(value)
+    end)
+    
+    yPos = yPos + 45
     canvas.Size = UDim2.new(1, 0, 0, yPos)
     scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos + 50)
-    return btn
+    return container
 end
 
 -- Функция определения роли
@@ -303,6 +340,50 @@ local infJumpEnabled = false
 local playerTrackerEnabled = false
 local speedValue = 16
 local trackerLabels = {}
+local espUpdateConnection = nil
+
+-- ПОСТОЯННОЕ ОБНОВЛЕНИЕ ESP
+local function updateESPContinuous()
+    if espUpdateConnection then
+        espUpdateConnection:Disconnect()
+        espUpdateConnection = nil
+    end
+    
+    espUpdateConnection = RunService.RenderStepped:Connect(function()
+        -- Удаляем старые подсветки
+        for _, hl in pairs(espHighlights) do
+            pcall(function() hl:Destroy() end)
+        end
+        espHighlights = {}
+        
+        if espMurderEnabled or espSheriffEnabled then
+            for _, v in pairs(game.Players:GetPlayers()) do
+                if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                    local role = getPlayerRole(v)
+                    local color = nil
+                    
+                    if espMurderEnabled and role == "murderer" then
+                        color = Color3.fromRGB(255, 0, 0)
+                    elseif espSheriffEnabled and role == "sheriff" then
+                        color = Color3.fromRGB(0, 100, 255)
+                    end
+                    
+                    if color then
+                        local hl = Instance.new("Highlight")
+                        hl.Parent = v.Character
+                        hl.Adornee = v.Character
+                        hl.FillColor = color
+                        hl.FillTransparency = 0.35
+                        hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                        hl.OutlineTransparency = 0.1
+                        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                        espHighlights[v] = hl
+                    end
+                end
+            end
+        end
+    end)
+end
 
 -- INF JUMP
 local function updateInfJump(state)
@@ -320,13 +401,12 @@ local function updateInfJump(state)
     end
 end
 
--- PLAYER TRACKER (35)
+-- PLAYER TRACKER (постоянное обновление)
 local function updatePlayerTracker(state)
     if playerTrackerConnection then
         playerTrackerConnection:Disconnect()
         playerTrackerConnection = nil
     end
-    -- Удаляем старые трекеры
     for _, v in pairs(trackerLabels) do
         pcall(function() v:Destroy() end)
     end
@@ -345,8 +425,7 @@ local function updatePlayerTracker(state)
                         local pos = rootPart.Position
                         local dist = (root.Position - pos).Magnitude
                         
-                        -- Создаём BillboardGui для трекера
-                        if not trackerLabels[v] then
+                        if not trackerLabels[v] or not trackerLabels[v].Parent then
                             local billboard = Instance.new("BillboardGui")
                             billboard.Size = UDim2.new(0, 200, 0, 30)
                             billboard.Adornee = rootPart
@@ -366,7 +445,6 @@ local function updatePlayerTracker(state)
                             trackerLabels[v] = billboard
                         end
                         
-                        -- Обновляем текст с расстоянием
                         local label = trackerLabels[v]:FindFirstChild("TextLabel")
                         if label then
                             local roleText = role == "murderer" and "🔪" or "⭐"
@@ -376,7 +454,6 @@ local function updatePlayerTracker(state)
                 end
             end
             
-            -- Удаляем трекеры для игроков, которые вышли
             for v, label in pairs(trackerLabels) do
                 if not v.Parent or not v.Character then
                     pcall(function() label:Destroy() end)
@@ -387,59 +464,55 @@ local function updatePlayerTracker(state)
     end
 end
 
--- ESP Murder
-local function updateEspMurder(state)
-    for _, hl in pairs(espHighlights) do
-        pcall(function() hl:Destroy() end)
+-- FIXED FLING MURDERER
+local function updateFlingMurderer(state)
+    if flingMurdererConnection then
+        flingMurdererConnection:Disconnect()
+        flingMurdererConnection = nil
     end
-    espHighlights = {}
-    espMurderEnabled = state
+    flingMurdererEnabled = state
     if state then
-        for _, v in pairs(game.Players:GetPlayers()) do
-            if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                if getPlayerRole(v) == "murderer" then
-                    local hl = Instance.new("Highlight")
-                    hl.Parent = v.Character
-                    hl.Adornee = v.Character
-                    hl.FillColor = Color3.fromRGB(255, 0, 0)
-                    hl.FillTransparency = 0.35
-                    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                    hl.OutlineTransparency = 0.1
-                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                    espHighlights[v] = hl
+        flingMurdererConnection = RunService.Heartbeat:Connect(function()
+            if flingMurdererEnabled then
+                for _, v in pairs(game.Players:GetPlayers()) do
+                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        if getPlayerRole(v) == "murderer" then
+                            local hrp = v.Character.HumanoidRootPart
+                            hrp.Velocity = Vector3.new(math.random(-500, 500), 500, math.random(-500, 500))
+                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 10, 0)
+                        end
+                    end
                 end
             end
-        end
+        end)
     end
 end
 
--- ESP Sheriff
-local function updateEspSheriff(state)
-    for _, hl in pairs(espHighlights) do
-        pcall(function() hl:Destroy() end)
+-- FIXED FLING SHERIFF
+local function updateFlingSheriff(state)
+    if flingSheriffConnection then
+        flingSheriffConnection:Disconnect()
+        flingSheriffConnection = nil
     end
-    espHighlights = {}
-    espSheriffEnabled = state
+    flingSheriffEnabled = state
     if state then
-        for _, v in pairs(game.Players:GetPlayers()) do
-            if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                if getPlayerRole(v) == "sheriff" then
-                    local hl = Instance.new("Highlight")
-                    hl.Parent = v.Character
-                    hl.Adornee = v.Character
-                    hl.FillColor = Color3.fromRGB(0, 100, 255)
-                    hl.FillTransparency = 0.35
-                    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                    hl.OutlineTransparency = 0.1
-                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                    espHighlights[v] = hl
+        flingSheriffConnection = RunService.Heartbeat:Connect(function()
+            if flingSheriffEnabled then
+                for _, v in pairs(game.Players:GetPlayers()) do
+                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        if getPlayerRole(v) == "sheriff" then
+                            local hrp = v.Character.HumanoidRootPart
+                            hrp.Velocity = Vector3.new(math.random(-500, 500), 500, math.random(-500, 500))
+                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 10, 0)
+                        end
+                    end
                 end
             end
-        end
+        end)
     end
 end
 
--- Auto Grab Gun
+-- AUTO GRAB GUN (Скрытый телепорт)
 local function updateAutoGrab(state)
     if autoGrabConnection then
         autoGrabConnection:Disconnect()
@@ -452,26 +525,19 @@ local function updateAutoGrab(state)
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v:IsA("Part") and v.Name == "Handle" and v.Parent and v.Parent:IsA("Tool") then
                         local dist = (root.Position - v.Position).Magnitude
-                        if dist < 200 and dist > 5 then
+                        if dist < 200 then
+                            -- Скрытый телепорт на 0.01 секунды
                             local oldPos = root.CFrame
-                            root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
-                            wait(0.1)
+                            root.CFrame = v.CFrame * CFrame.new(0, 1, 0)
+                            wait(0.01)
                             pcall(function()
                                 local mm2 = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
                                 if mm2 and mm2:FindFirstChild("Knife") then
                                     mm2.Knife:FireServer(v.Parent)
                                 end
                             end)
-                            wait(0.1)
                             root.CFrame = oldPos
                             break
-                        elseif dist <= 5 then
-                            pcall(function()
-                                local mm2 = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
-                                if mm2 and mm2:FindFirstChild("Knife") then
-                                    mm2.Knife:FireServer(v.Parent)
-                                end
-                            end)
                         end
                     end
                 end
@@ -505,50 +571,6 @@ local function updateNoclip(state)
                 end
             end
         end
-    end
-end
-
--- FLING MURDERER
-local function updateFlingMurderer(state)
-    if flingMurdererConnection then
-        flingMurdererConnection:Disconnect()
-        flingMurdererConnection = nil
-    end
-    flingMurdererEnabled = state
-    if state then
-        flingMurdererConnection = RunService.Heartbeat:Connect(function()
-            if flingMurdererEnabled then
-                for _, v in pairs(game.Players:GetPlayers()) do
-                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                        if getPlayerRole(v) == "murderer" then
-                            v.Character.HumanoidRootPart.Velocity = Vector3.new(0, 300, 0)
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- FLING SHERIFF
-local function updateFlingSheriff(state)
-    if flingSheriffConnection then
-        flingSheriffConnection:Disconnect()
-        flingSheriffConnection = nil
-    end
-    flingSheriffEnabled = state
-    if state then
-        flingSheriffConnection = RunService.Heartbeat:Connect(function()
-            if flingSheriffEnabled then
-                for _, v in pairs(game.Players:GetPlayers()) do
-                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                        if getPlayerRole(v) == "sheriff" then
-                            v.Character.HumanoidRootPart.Velocity = Vector3.new(0, 300, 0)
-                        end
-                    end
-                end
-            end
-        end)
     end
 end
 
@@ -656,8 +678,8 @@ addToggle("Auto Grab Gun", updateAutoGrab)
 addToggle("INF Jump", updateInfJump)
 
 addSection("═══ VISUAL ═══")
-addToggle("ESP Murder (Red)", updateEspMurder)
-addToggle("ESP Sheriff (Blue)", updateEspSheriff)
+addToggle("ESP Murder (Red)", function(state) espMurderEnabled = state; updateESPContinuous() end)
+addToggle("ESP Sheriff (Blue)", function(state) espSheriffEnabled = state; updateESPContinuous() end)
 addToggle("Player Tracker (Distance)", updatePlayerTracker)
 
 addSection("═══ FLING ═══")
@@ -673,7 +695,7 @@ addButton("To Murderer", Color3.fromRGB(90, 40, 40), teleportToMurderer)
 addButton("To Sheriff", Color3.fromRGB(40, 40, 90), teleportToSheriff)
 
 addSection("═══ EXTRA ═══")
-addSlider("Speed Boost", 16, 120, 16, updateSpeed)
+addSpeedSlider("Speed Boost", 16, 120, 16, updateSpeed)
 
 -- Управление окном
 closeBtn.MouseButton1Click:Connect(function()
@@ -695,9 +717,12 @@ player.CharacterAdded:Connect(function(char)
     if noclipEnabled then
         updateNoclip(true)
     end
+    if espMurderEnabled or espSheriffEnabled then
+        updateESPContinuous()
+    end
 end)
 
 -- Активация обхода античита
 bypassAntiCheat()
 
-print("⚡ MM2 Ultimate Hub loaded! (Player Tracker + INF Jump + Extra)")
+print("⚡ MM2 Ultimate Hub loaded! (Fling Fixed + ESP Auto-Update + Speed +/-)")
