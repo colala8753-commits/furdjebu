@@ -1,10 +1,11 @@
--- MM2 ULTIMATE HUB [FULL FIXED + SCROLL + DRAG + ESP + AUTO GRAB + BYPASS]
+-- MM2 ULTIMATE HUB [FULL + PLAYER TRACKER + INF JUMP + EXTRA]
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local root = character:WaitForChild("HumanoidRootPart")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
 
 -- Удаляем старые GUI
 for _, v in pairs(player.PlayerGui:GetChildren()) do
@@ -20,10 +21,10 @@ screenGui.Parent = player:WaitForChild("PlayerGui")
 screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Главное окно
+-- Главное окно 600x400
 local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 400, 0, 500)
-window.Position = UDim2.new(0.5, -200, 0.5, -250)
+window.Size = UDim2.new(0, 600, 0, 400)
+window.Position = UDim2.new(0.5, -300, 0.5, -200)
 window.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 window.BackgroundTransparency = 0
 window.BorderSizePixel = 0
@@ -174,12 +175,12 @@ end
 
 local function addToggle(text, callback)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 32)
+    btn.Size = UDim2.new(1, -20, 0, 30)
     btn.Position = UDim2.new(0, 10, 0, yPos)
     btn.Text = text .. ": OFF"
     btn.BackgroundColor3 = Color3.fromRGB(45, 45, 70)
     btn.TextColor3 = Color3.fromRGB(230, 230, 240)
-    btn.TextSize = 13
+    btn.TextSize = 12
     btn.BorderSizePixel = 0
     btn.Font = Enum.Font.Gotham
     btn.Parent = canvas
@@ -197,7 +198,7 @@ local function addToggle(text, callback)
         btn.BackgroundColor3 = state and Color3.fromRGB(0, 140, 70) or Color3.fromRGB(45, 45, 70)
         callback(state)
     end)
-    yPos = yPos + 37
+    yPos = yPos + 35
     canvas.Size = UDim2.new(1, 0, 0, yPos)
     scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos + 50)
     return btn
@@ -205,12 +206,12 @@ end
 
 local function addButton(text, color, callback)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 32)
+    btn.Size = UDim2.new(1, -20, 0, 30)
     btn.Position = UDim2.new(0, 10, 0, yPos)
     btn.Text = text
     btn.BackgroundColor3 = color or Color3.fromRGB(55, 55, 85)
     btn.TextColor3 = Color3.fromRGB(230, 230, 240)
-    btn.TextSize = 13
+    btn.TextSize = 12
     btn.BorderSizePixel = 0
     btn.Font = Enum.Font.Gotham
     btn.Parent = canvas
@@ -222,7 +223,7 @@ local function addButton(text, color, callback)
     btnCorner.Parent = btn
     
     btn.MouseButton1Click:Connect(callback)
-    yPos = yPos + 37
+    yPos = yPos + 35
     canvas.Size = UDim2.new(1, 0, 0, yPos)
     scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos + 50)
     return btn
@@ -241,7 +242,7 @@ local function addSlider(text, minVal, maxVal, defaultVal, callback)
     yPos = yPos + 22
     
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 26)
+    btn.Size = UDim2.new(1, -20, 0, 24)
     btn.Position = UDim2.new(0, 10, 0, yPos)
     btn.Text = "◀ " .. defaultVal .. " ▶"
     btn.BackgroundColor3 = Color3.fromRGB(40, 40, 65)
@@ -265,7 +266,7 @@ local function addSlider(text, minVal, maxVal, defaultVal, callback)
         label.Text = text .. ": " .. value
         callback(value)
     end)
-    yPos = yPos + 32
+    yPos = yPos + 30
     canvas.Size = UDim2.new(1, 0, 0, yPos)
     scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos + 50)
     return btn
@@ -286,11 +287,105 @@ end
 local espHighlights = {}
 local autoGrabConnection = nil
 local noclipConnection = nil
+local flingMurdererConnection = nil
+local flingSheriffConnection = nil
+local autoCollectConnection = nil
+local infJumpConnection = nil
+local playerTrackerConnection = nil
 local espMurderEnabled = false
 local espSheriffEnabled = false
 local autoGrabEnabled = false
 local noclipEnabled = false
+local flingMurdererEnabled = false
+local flingSheriffEnabled = false
+local autoCollectEnabled = false
+local infJumpEnabled = false
+local playerTrackerEnabled = false
 local speedValue = 16
+local trackerLabels = {}
+
+-- INF JUMP
+local function updateInfJump(state)
+    if infJumpConnection then
+        infJumpConnection:Disconnect()
+        infJumpConnection = nil
+    end
+    infJumpEnabled = state
+    if state then
+        infJumpConnection = UserInputService.JumpRequest:Connect(function()
+            if infJumpEnabled and character and humanoid then
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end)
+    end
+end
+
+-- PLAYER TRACKER (35)
+local function updatePlayerTracker(state)
+    if playerTrackerConnection then
+        playerTrackerConnection:Disconnect()
+        playerTrackerConnection = nil
+    end
+    -- Удаляем старые трекеры
+    for _, v in pairs(trackerLabels) do
+        pcall(function() v:Destroy() end)
+    end
+    trackerLabels = {}
+    
+    playerTrackerEnabled = state
+    if state then
+        playerTrackerConnection = RunService.RenderStepped:Connect(function()
+            if not playerTrackerEnabled then return end
+            
+            for _, v in pairs(game.Players:GetPlayers()) do
+                if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                    local role = getPlayerRole(v)
+                    if role == "murderer" or role == "sheriff" then
+                        local rootPart = v.Character.HumanoidRootPart
+                        local pos = rootPart.Position
+                        local dist = (root.Position - pos).Magnitude
+                        
+                        -- Создаём BillboardGui для трекера
+                        if not trackerLabels[v] then
+                            local billboard = Instance.new("BillboardGui")
+                            billboard.Size = UDim2.new(0, 200, 0, 30)
+                            billboard.Adornee = rootPart
+                            billboard.StudsOffset = Vector3.new(0, 4, 0)
+                            billboard.AlwaysOnTop = true
+                            billboard.Parent = rootPart
+                            
+                            local label = Instance.new("TextLabel")
+                            label.Size = UDim2.new(1, 0, 1, 0)
+                            label.BackgroundTransparency = 1
+                            label.TextColor3 = role == "murderer" and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 100, 255)
+                            label.TextSize = 16
+                            label.TextStrokeTransparency = 0.3
+                            label.Font = Enum.Font.GothamBold
+                            label.Parent = billboard
+                            
+                            trackerLabels[v] = billboard
+                        end
+                        
+                        -- Обновляем текст с расстоянием
+                        local label = trackerLabels[v]:FindFirstChild("TextLabel")
+                        if label then
+                            local roleText = role == "murderer" and "🔪" or "⭐"
+                            label.Text = roleText .. " " .. v.Name .. " [" .. math.floor(dist) .. "m]"
+                        end
+                    end
+                end
+            end
+            
+            -- Удаляем трекеры для игроков, которые вышли
+            for v, label in pairs(trackerLabels) do
+                if not v.Parent or not v.Character then
+                    pcall(function() label:Destroy() end)
+                    trackerLabels[v] = nil
+                end
+            end
+        end)
+    end
+end
 
 -- ESP Murder
 local function updateEspMurder(state)
@@ -413,6 +508,75 @@ local function updateNoclip(state)
     end
 end
 
+-- FLING MURDERER
+local function updateFlingMurderer(state)
+    if flingMurdererConnection then
+        flingMurdererConnection:Disconnect()
+        flingMurdererConnection = nil
+    end
+    flingMurdererEnabled = state
+    if state then
+        flingMurdererConnection = RunService.Heartbeat:Connect(function()
+            if flingMurdererEnabled then
+                for _, v in pairs(game.Players:GetPlayers()) do
+                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        if getPlayerRole(v) == "murderer" then
+                            v.Character.HumanoidRootPart.Velocity = Vector3.new(0, 300, 0)
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end
+
+-- FLING SHERIFF
+local function updateFlingSheriff(state)
+    if flingSheriffConnection then
+        flingSheriffConnection:Disconnect()
+        flingSheriffConnection = nil
+    end
+    flingSheriffEnabled = state
+    if state then
+        flingSheriffConnection = RunService.Heartbeat:Connect(function()
+            if flingSheriffEnabled then
+                for _, v in pairs(game.Players:GetPlayers()) do
+                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        if getPlayerRole(v) == "sheriff" then
+                            v.Character.HumanoidRootPart.Velocity = Vector3.new(0, 300, 0)
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end
+
+-- AUTO COLLECT COINS
+local function updateAutoCollect(state)
+    if autoCollectConnection then
+        autoCollectConnection:Disconnect()
+        autoCollectConnection = nil
+    end
+    autoCollectEnabled = state
+    if state then
+        autoCollectConnection = RunService.Heartbeat:Connect(function()
+            if autoCollectEnabled and root then
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("Part") and v.Name == "Coin" and v.Parent and v.Parent:IsA("Model") then
+                        local dist = (root.Position - v.Position).Magnitude
+                        if dist < 200 then
+                            root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
+                            wait(0.05)
+                            break
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end
+
 -- Speed
 local function updateSpeed(value)
     speedValue = value
@@ -454,7 +618,6 @@ end
 
 -- Обход античита MM2
 local function bypassAntiCheat()
-    -- Отключаем проверки
     local oldNamecall
     oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
         local method = getnamecallmethod()
@@ -474,7 +637,6 @@ local function bypassAntiCheat()
         return oldNamecall(self, ...)
     end)
     
-    -- Блокировка удаленных проверок
     for _, v in pairs(getgc(true)) do
         if type(v) == "table" then
             if rawget(v, "IsRunning") then
@@ -491,10 +653,19 @@ end
 addSection("════ MAIN ════")
 addToggle("No Clip", updateNoclip)
 addToggle("Auto Grab Gun", updateAutoGrab)
+addToggle("INF Jump", updateInfJump)
 
 addSection("═══ VISUAL ═══")
 addToggle("ESP Murder (Red)", updateEspMurder)
 addToggle("ESP Sheriff (Blue)", updateEspSheriff)
+addToggle("Player Tracker (Distance)", updatePlayerTracker)
+
+addSection("═══ FLING ═══")
+addToggle("Fling Murderer", updateFlingMurderer)
+addToggle("Fling Sheriff", updateFlingSheriff)
+
+addSection("═══ AUTO COLLECT ═══")
+addToggle("Auto Collect Coins", updateAutoCollect)
 
 addSection("═══ TELEPORT ═══")
 addButton("To Lobby", Color3.fromRGB(40, 60, 90), teleportToSpawn)
@@ -529,4 +700,4 @@ end)
 -- Активация обхода античита
 bypassAntiCheat()
 
-print("⚡ MM2 Ultimate Hub loaded! (Scroll + Drag + ESP + Auto Grab)")
+print("⚡ MM2 Ultimate Hub loaded! (Player Tracker + INF Jump + Extra)")
