@@ -1,4 +1,4 @@
--- MM2 ULTIMATE HUB [FULL FIXED - MEGA FLING + AUTO SHOOT + FARM]
+-- MM2 ULTIMATE HUB [FIXED - MEGA FLING ВНИЗ]
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
@@ -28,6 +28,7 @@ local espMurderEnabled = false
 local espSheriffEnabled = false
 local espDistance = 1000
 local wallhackConnections = {}
+local wallhackBillboards = {}
 local autoKnifeEnabled = false
 local autoKnifeConnection = nil
 local instantRespawnEnabled = false
@@ -329,59 +330,163 @@ local function addSliderWithButtons(text, minVal, maxVal, defaultVal, callback, 
     return container
 end
 
+-- ===== ФУНКЦИЯ ОПРЕДЕЛЕНИЯ РОЛИ =====
 local function getPlayerRole(v)
+    if v:FindFirstChild("murder") then
+        return "murderer"
+    elseif v:FindFirstChild("sheriff") then
+        return "sheriff"
+    end
+    
     if v.Character and v.Character:FindFirstChild("Knife") then
         return "murderer"
-    elseif v.Backpack:FindFirstChild("Gun") or (v.Character and v.Character:FindFirstChild("Gun")) then
-        return "sheriff"
-    else
-        return "innocent"
     end
+    if v.Backpack:FindFirstChild("Gun") or (v.Character and v.Character:FindFirstChild("Gun")) then
+        return "sheriff"
+    end
+    
+    return "innocent"
 end
 
 -- ===== WALLHACK =====
 local function updateWallhack(state)
     wallhackEnabled = state
+    
+    for _, v in pairs(wallhackBillboards) do
+        pcall(function() v:Destroy() end)
+    end
+    wallhackBillboards = {}
+    
     for _, con in pairs(wallhackConnections) do
         pcall(function() con:Disconnect() end)
     end
     wallhackConnections = {}
     
     if state then
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v:IsA("BasePart") and v.Transparency < 1 then
-                local originalTransparency = v.Transparency
-                local con = RunService.RenderStepped:Connect(function()
-                    if wallhackEnabled and v and v.Parent then
-                        v.Transparency = math.min(originalTransparency + 0.5, 0.8)
-                    end
-                end)
-                table.insert(wallhackConnections, con)
+        wallhackConnections = {}
+        
+        local function createWallhackForPlayer(v)
+            if v == player then return end
+            if not v.Character or not v.Character:FindFirstChild("HumanoidRootPart") then return end
+            
+            local rootPart = v.Character.HumanoidRootPart
+            local role = getPlayerRole(v)
+            local color = Color3.fromRGB(255, 255, 255)
+            local roleText = "Innocent"
+            
+            if role == "murderer" then
+                color = Color3.fromRGB(255, 0, 0)
+                roleText = "🔪 Murderer"
+            elseif role == "sheriff" then
+                color = Color3.fromRGB(0, 100, 255)
+                roleText = "⭐ Sheriff"
             end
+            
+            local billboard = Instance.new("BillboardGui")
+            billboard.Size = UDim2.new(0, 200, 0, 50)
+            billboard.Adornee = rootPart
+            billboard.StudsOffset = Vector3.new(0, 4, 0)
+            billboard.AlwaysOnTop = true
+            billboard.Parent = rootPart
+            
+            local nameLabel = Instance.new("TextLabel")
+            nameLabel.Size = UDim2.new(1, 0, 0.5, 0)
+            nameLabel.Position = UDim2.new(0, 0, 0, 0)
+            nameLabel.BackgroundTransparency = 1
+            nameLabel.Text = v.Name
+            nameLabel.TextColor3 = color
+            nameLabel.TextSize = 16
+            nameLabel.TextStrokeTransparency = 0
+            nameLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+            nameLabel.Font = Enum.Font.GothamBold
+            nameLabel.Parent = billboard
+            
+            local roleLabel = Instance.new("TextLabel")
+            roleLabel.Size = UDim2.new(1, 0, 0.5, 0)
+            roleLabel.Position = UDim2.new(0, 0, 0.5, 0)
+            roleLabel.BackgroundTransparency = 1
+            roleLabel.Text = roleText
+            roleLabel.TextColor3 = color
+            roleLabel.TextSize = 14
+            roleLabel.TextStrokeTransparency = 0
+            roleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+            roleLabel.Font = Enum.Font.Gotham
+            roleLabel.Parent = billboard
+            
+            table.insert(wallhackBillboards, billboard)
+            
+            local hl = Instance.new("Highlight")
+            hl.Parent = v.Character
+            hl.Adornee = v.Character
+            hl.FillColor = color
+            hl.FillTransparency = 0.7
+            hl.OutlineColor = color
+            hl.OutlineTransparency = 0
+            hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            table.insert(wallhackBillboards, hl)
         end
         
-        local partAddedCon = workspace.DescendantAdded:Connect(function(v)
-            if wallhackEnabled and v:IsA("BasePart") and v.Transparency < 1 then
-                local originalTransparency = v.Transparency
-                local con = RunService.RenderStepped:Connect(function()
-                    if wallhackEnabled and v and v.Parent then
-                        v.Transparency = math.min(originalTransparency + 0.5, 0.8)
+        for _, v in pairs(game.Players:GetPlayers()) do
+            createWallhackForPlayer(v)
+        end
+        
+        local playerAddedCon = game.Players.PlayerAdded:Connect(function(v)
+            v.CharacterAdded:Connect(function()
+                wait(0.5)
+                if wallhackEnabled then
+                    createWallhackForPlayer(v)
+                end
+            end)
+        end)
+        table.insert(wallhackConnections, playerAddedCon)
+        
+        local roleCheckCon = RunService.RenderStepped:Connect(function()
+            if wallhackEnabled then
+                for _, v in pairs(game.Players:GetPlayers()) do
+                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        local role = getPlayerRole(v)
+                        local color = Color3.fromRGB(255, 255, 255)
+                        local roleText = "Innocent"
+                        
+                        if role == "murderer" then
+                            color = Color3.fromRGB(255, 0, 0)
+                            roleText = "🔪 Murderer"
+                        elseif role == "sheriff" then
+                            color = Color3.fromRGB(0, 100, 255)
+                            roleText = "⭐ Sheriff"
+                        end
+                        
+                        for _, billboard in pairs(wallhackBillboards) do
+                            if billboard:IsA("BillboardGui") and billboard.Adornee and billboard.Adornee.Parent == v.Character then
+                                local nameLabel = billboard:FindFirstChild("TextLabel")
+                                local roleLabel = billboard:FindFirstChild("TextLabel")
+                                if nameLabel then
+                                    nameLabel.TextColor3 = color
+                                end
+                                if roleLabel then
+                                    roleLabel.Text = roleText
+                                    roleLabel.TextColor3 = color
+                                end
+                            end
+                            if billboard:IsA("Highlight") and billboard.Parent == v.Character then
+                                billboard.FillColor = color
+                                billboard.OutlineColor = color
+                            end
+                        end
                     end
-                end)
-                table.insert(wallhackConnections, con)
+                end
             end
         end)
-        table.insert(wallhackConnections, partAddedCon)
+        table.insert(wallhackConnections, roleCheckCon)
     else
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v:IsA("BasePart") and v.Transparency > 0.5 then
-                v.Transparency = 0
-            end
+        for _, v in pairs(wallhackBillboards) do
+            pcall(function() v:Destroy() end)
         end
+        wallhackBillboards = {}
     end
 end
 
--- ===== AUTO SHOOT (вместо Silent Aim) =====
+-- ===== AUTO SHOOT =====
 local function createShootButton()
     if shootButton then
         shootButton:Destroy()
@@ -431,12 +536,11 @@ local function createShootButton()
     shootButton.MouseButton1Click:Connect(function()
         if not autoShootEnabled then return end
         
-        -- Проверяем есть ли у нас пистолет
         local hasGun = false
         if character and character:FindFirstChild("Gun") then
             hasGun = true
         end
-        if not hasGun and character and character:FindFirstChild("Tool") then
+        if not hasGun and character then
             for _, tool in pairs(character:GetChildren()) do
                 if tool:IsA("Tool") and tool.Name:lower():find("gun") then
                     hasGun = true
@@ -446,7 +550,6 @@ local function createShootButton()
         end
         
         if not hasGun then
-            -- Ищем пистолет на карте и берем его
             for _, v in pairs(workspace:GetDescendants()) do
                 if v:IsA("Part") and v.Name == "Handle" and v.Parent and v.Parent:IsA("Tool") then
                     if v.Parent.Name:lower():find("gun") then
@@ -470,7 +573,6 @@ local function createShootButton()
             end
         end
         
-        -- Находим убийцу и стреляем
         local target = nil
         local dist = math.huge
         for _, v in pairs(game.Players:GetPlayers()) do
@@ -555,7 +657,7 @@ local function updateAutoShoot(state)
     end
 end
 
--- ===== ESP (только обводка) =====
+-- ===== ESP =====
 local function updateESPContinuous()
     if espUpdateConnection then
         espUpdateConnection:Disconnect()
@@ -789,7 +891,7 @@ local function updateInstantRespawn(state)
     end
 end
 
--- ===== ANTI AFK (медленный) =====
+-- ===== ANTI AFK =====
 local function updateAntiAfk(state)
     if antiAfkConnection then
         antiAfkConnection:Disconnect()
@@ -831,7 +933,7 @@ local function updateAntiAfk(state)
     end
 end
 
--- ===== MEGA FLING (выкидывает в пустоту) =====
+-- ===== MEGA FLING ВНИЗ (ИСПРАВЛЕН) =====
 local flingMurdererEnabled = false
 local flingSheriffEnabled = false
 local flingMurdererConnection = nil
@@ -853,19 +955,16 @@ local function updateFlingMurderer(state)
                             local hrp = v.Character.HumanoidRootPart
                             -- Телепортируемся к цели
                             root.CFrame = hrp.CFrame * CFrame.new(0, 3, 0)
-                            -- Крутимся вокруг цели
                             root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(360), 0)
-                            -- Выкидываем цель в пустоту с бешеной скоростью
-                            hrp.Velocity = Vector3.new(math.random(-2000, 2000), 3000, math.random(-2000, 2000))
-                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 50, 0)
+                            -- ВЫКИДЫВАЕМ ВНИЗ С БЕШЕНОЙ СКОРОСТЬЮ
+                            hrp.Velocity = Vector3.new(math.random(-2000, 2000), -5000, math.random(-2000, 2000))
+                            hrp.CFrame = hrp.CFrame * CFrame.new(0, -50, 0)
                             hrp.RotVelocity = Vector3.new(math.random(-2000, 2000), math.random(-2000, 2000), math.random(-2000, 2000))
-                            -- Ломаем коллизию чтобы не мог зацепиться
                             for _, part in pairs(v.Character:GetDescendants()) do
                                 if part:IsA("BasePart") then
                                     part.CanCollide = false
                                 end
                             end
-                            -- Добавляем в список флинговых целей
                             flingTargets[v] = os.time()
                         end
                     end
@@ -892,8 +991,9 @@ local function updateFlingSheriff(state)
                             local hrp = v.Character.HumanoidRootPart
                             root.CFrame = hrp.CFrame * CFrame.new(0, 3, 0)
                             root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(360), 0)
-                            hrp.Velocity = Vector3.new(math.random(-2000, 2000), 3000, math.random(-2000, 2000))
-                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 50, 0)
+                            -- ВЫКИДЫВАЕМ ВНИЗ С БЕШЕНОЙ СКОРОСТЬЮ
+                            hrp.Velocity = Vector3.new(math.random(-2000, 2000), -5000, math.random(-2000, 2000))
+                            hrp.CFrame = hrp.CFrame * CFrame.new(0, -50, 0)
                             hrp.RotVelocity = Vector3.new(math.random(-2000, 2000), math.random(-2000, 2000), math.random(-2000, 2000))
                             for _, part in pairs(v.Character:GetDescendants()) do
                                 if part:IsA("BasePart") then
@@ -911,7 +1011,7 @@ local function updateFlingSheriff(state)
     end
 end
 
--- ===== AUTO COLLECT (FIXED) =====
+-- ===== AUTO COLLECT =====
 local autoCollectEnabled = false
 local autoCollectConnection = nil
 
@@ -1072,6 +1172,18 @@ local function updateSpeed(value)
     end
 end
 
+local function teleportToMurderer()
+    for _, v in pairs(game.Players:GetPlayers()) do
+        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+            if getPlayerRole(v) == "murderer" then
+                root.CFrame = v.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
+                return
+            end
+        end
+    end
+    showNotification("🔪 Убийца не найден!", Color3.fromRGB(200, 150, 40))
+end
+
 local function teleportToSpawn()
     local spawns = workspace:GetDescendants()
     for _, v in ipairs(spawns) do
@@ -1084,15 +1196,6 @@ local function teleportToSpawn()
     if spawn then root.CFrame = spawn.CFrame * CFrame.new(0, 2, 0) end
 end
 
-local function teleportToMurderer()
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and getPlayerRole(v) == "murderer" then
-            root.CFrame = v.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
-            return
-        end
-    end
-end
-
 local function teleportToSheriff()
     for _, v in pairs(game.Players:GetPlayers()) do
         if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and getPlayerRole(v) == "sheriff" then
@@ -1100,6 +1203,36 @@ local function teleportToSheriff()
             return
         end
     end
+    showNotification("⭐ Шериф не найден!", Color3.fromRGB(200, 150, 40))
+end
+
+local function showNotification(text, color)
+    color = color or Color3.fromRGB(0, 150, 70)
+    local notif = Instance.new("ScreenGui")
+    notif.Name = "Notification"
+    notif.Parent = player:WaitForChild("PlayerGui")
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 400, 0, 60)
+    frame.Position = UDim2.new(0.5, -200, 0.5, -30)
+    frame.BackgroundColor3 = color
+    frame.Parent = notif
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = frame
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextSize = 16
+    label.Font = Enum.Font.GothamBold
+    label.BackgroundTransparency = 1
+    label.Parent = frame
+    
+    task.wait(2)
+    notif:Destroy()
 end
 
 addSection("════ MAIN ════")
@@ -1121,14 +1254,14 @@ addToggle("God Mode", updateGodMode)
 addToggle("Anti Stun", updateAntiStun)
 
 addSection("═══ VISUAL ═══")
-addToggle("Wallhack (See Through Walls)", updateWallhack)
+addToggle("Wallhack (Players Through Walls)", updateWallhack)
 addToggle("ESP Murder (Red Outline)", function(state) espMurderEnabled = state; updateESPContinuous() end)
 addToggle("ESP Sheriff (Blue Outline)", function(state) espSheriffEnabled = state; updateESPContinuous() end)
 addToggle("No Fog / Zoom", updateNoFog)
 
 addSection("═══ FLING ═══")
-addToggle("MEGA FLING Murderer", updateFlingMurderer)
-addToggle("MEGA FLING Sheriff", updateFlingSheriff)
+addToggle("MEGA FLING Murderer (DOWN)", updateFlingMurderer)
+addToggle("MEGA FLING Sheriff (DOWN)", updateFlingSheriff)
 
 addSection("═══ AUTO COLLECT ═══")
 addToggle("Auto Collect Coins", updateAutoCollect)
@@ -1182,4 +1315,4 @@ local function bypassAntiCheat()
 end
 bypassAntiCheat()
 
-print("⚡ MM2 Ultimate Hub loaded!")
+print("⚡ MM2 Ultimate Hub loaded (MEGA FLING DOWN)!")
