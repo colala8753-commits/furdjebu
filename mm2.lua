@@ -1,4 +1,4 @@
--- MM2 ULTIMATE HUB [FULL FIXED - FLING + ESP + TRACKER + SPEED + AUTO GRAB]
+-- MM2 ULTIMATE HUB [SILENT AIM + MOVABLE BUTTON]
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
@@ -6,6 +6,7 @@ local root = character:WaitForChild("HumanoidRootPart")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
+local mouse = player:GetMouse()
 
 -- Удаляем старые GUI
 for _, v in pairs(player.PlayerGui:GetChildren()) do
@@ -13,6 +14,14 @@ for _, v in pairs(player.PlayerGui:GetChildren()) do
         v:Destroy()
     end
 end
+
+-- Переменные
+local silentAimEnabled = false
+local shootButton = nil
+local shootButtonDragging = false
+local shootButtonDragStart = nil
+local shootButtonDragOffset = nil
+local silentAimConnection = nil
 
 -- Создание GUI
 local screenGui = Instance.new("ScreenGui")
@@ -229,7 +238,7 @@ local function addButton(text, color, callback)
     return btn
 end
 
--- НОВЫЙ СЛАЙДЕР С + И -
+-- Слайдер с + и -
 local function addSpeedSlider(text, minVal, maxVal, defaultVal, callback)
     local container = Instance.new("Frame")
     container.Size = UDim2.new(1, -20, 0, 40)
@@ -320,29 +329,152 @@ local function getPlayerRole(v)
     end
 end
 
--- Переменные
+-- СОЗДАНИЕ КНОПКИ ДЛЯ ВЫСТРЕЛА (MOVABLE)
+local function createShootButton()
+    if shootButton then
+        shootButton:Destroy()
+        shootButton = nil
+    end
+    
+    shootButton = Instance.new("TextButton")
+    shootButton.Size = UDim2.new(0, 70, 0, 70)
+    shootButton.Position = UDim2.new(0.8, 0, 0.5, -35)
+    shootButton.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+    shootButton.Text = "🔫\nSHOOT"
+    shootButton.TextSize = 14
+    shootButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    shootButton.BorderSizePixel = 3
+    shootButton.BorderColor3 = Color3.fromRGB(255, 255, 255)
+    shootButton.Parent = screenGui
+    shootButton.Visible = false
+    shootButton.ZIndex = 999
+    shootButton.Selectable = false
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(1, 0)
+    btnCorner.Parent = shootButton
+    
+    local shadow = Instance.new("Frame")
+    shadow.Size = UDim2.new(1, 10, 1, 10)
+    shadow.Position = UDim2.new(0, -5, 0, -5)
+    shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    shadow.BackgroundTransparency = 0.5
+    shadow.BorderSizePixel = 0
+    shadow.ZIndex = -1
+    shadow.Parent = shootButton
+    
+    -- DRAG для кнопки выстрела
+    shootButton.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            shootButtonDragging = true
+            shootButtonDragStart = input.Position
+            shootButtonDragOffset = shootButton.Position
+        end
+    end)
+    
+    shootButton.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            shootButtonDragging = false
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if shootButtonDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - shootButtonDragStart
+            shootButton.Position = UDim2.new(shootButtonDragOffset.X.Scale, shootButtonDragOffset.X.Offset + delta.X, 
+                                             shootButtonDragOffset.Y.Scale, shootButtonDragOffset.Y.Offset + delta.Y)
+        end
+    end)
+    
+    -- Функция выстрела с Silent Aim
+    shootButton.MouseButton1Click:Connect(function()
+        if not silentAimEnabled then return end
+        
+        -- Находим убийцу
+        local target = nil
+        local dist = math.huge
+        for _, v in pairs(game.Players:GetPlayers()) do
+            if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                if getPlayerRole(v) == "murderer" then
+                    local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                    if d < dist then
+                        dist = d
+                        target = v
+                    end
+                end
+            end
+        end
+        
+        if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+            local targetPos = target.Character.HumanoidRootPart.Position
+            
+            -- Silent Aim: наводим камеру на убийцу и стреляем
+            local oldCFrame = Camera.CFrame
+            Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetPos)
+            
+            -- Имитация выстрела через Remote
+            pcall(function()
+                local mm2 = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
+                if mm2 and mm2:FindFirstChild("Gun") then
+                    mm2.Gun:FireServer(target.Character.HumanoidRootPart)
+                elseif mm2 and mm2:FindFirstChild("Shoot") then
+                    mm2.Shoot:FireServer(target.Character.HumanoidRootPart)
+                end
+            end)
+            
+            -- Возвращаем камеру
+            Camera.CFrame = oldCFrame
+            
+            -- Визуальный эффект
+            shootButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+            wait(0.1)
+            shootButton.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+        end
+    end)
+end
+
+-- SILENT AIM
+local function updateSilentAim(state)
+    silentAimEnabled = state
+    
+    if state then
+        if not shootButton then
+            createShootButton()
+        end
+        shootButton.Visible = true
+    else
+        if shootButton then
+            shootButton.Visible = false
+        end
+    end
+end
+
+-- Остальные функции (ESP, Noclip, Fling и т.д.)
 local espHighlights = {}
-local autoGrabConnection = nil
-local noclipConnection = nil
-local flingMurdererConnection = nil
-local flingSheriffConnection = nil
-local autoCollectConnection = nil
-local infJumpConnection = nil
-local playerTrackerConnection = nil
 local espMurderEnabled = false
 local espSheriffEnabled = false
-local autoGrabEnabled = false
 local noclipEnabled = false
-local flingMurdererEnabled = false
-local flingSheriffEnabled = false
+local autoGrabEnabled = false
 local autoCollectEnabled = false
 local infJumpEnabled = false
+local antiFlingEnabled = false
+local flingMurdererEnabled = false
+local flingSheriffEnabled = false
 local playerTrackerEnabled = false
-local speedValue = 16
-local trackerLabels = {}
+local noclipConnection = nil
+local autoGrabConnection = nil
+local autoCollectConnection = nil
+local infJumpConnection = nil
+local antiFlingConnection = nil
+local flingMurdererConnection = nil
+local flingSheriffConnection = nil
+local playerTrackerConnection = nil
 local espUpdateConnection = nil
+local trackerLabels = {}
+local speedValue = 16
+local lastPosition = nil
 
--- ПОСТОЯННОЕ ОБНОВЛЕНИЕ ESP
+-- ESP
 local function updateESPContinuous()
     if espUpdateConnection then
         espUpdateConnection:Disconnect()
@@ -350,7 +482,6 @@ local function updateESPContinuous()
     end
     
     espUpdateConnection = RunService.RenderStepped:Connect(function()
-        -- Удаляем старые подсветки
         for _, hl in pairs(espHighlights) do
             pcall(function() hl:Destroy() end)
         end
@@ -401,151 +532,6 @@ local function updateInfJump(state)
     end
 end
 
--- PLAYER TRACKER (постоянное обновление)
-local function updatePlayerTracker(state)
-    if playerTrackerConnection then
-        playerTrackerConnection:Disconnect()
-        playerTrackerConnection = nil
-    end
-    for _, v in pairs(trackerLabels) do
-        pcall(function() v:Destroy() end)
-    end
-    trackerLabels = {}
-    
-    playerTrackerEnabled = state
-    if state then
-        playerTrackerConnection = RunService.RenderStepped:Connect(function()
-            if not playerTrackerEnabled then return end
-            
-            for _, v in pairs(game.Players:GetPlayers()) do
-                if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                    local role = getPlayerRole(v)
-                    if role == "murderer" or role == "sheriff" then
-                        local rootPart = v.Character.HumanoidRootPart
-                        local pos = rootPart.Position
-                        local dist = (root.Position - pos).Magnitude
-                        
-                        if not trackerLabels[v] or not trackerLabels[v].Parent then
-                            local billboard = Instance.new("BillboardGui")
-                            billboard.Size = UDim2.new(0, 200, 0, 30)
-                            billboard.Adornee = rootPart
-                            billboard.StudsOffset = Vector3.new(0, 4, 0)
-                            billboard.AlwaysOnTop = true
-                            billboard.Parent = rootPart
-                            
-                            local label = Instance.new("TextLabel")
-                            label.Size = UDim2.new(1, 0, 1, 0)
-                            label.BackgroundTransparency = 1
-                            label.TextColor3 = role == "murderer" and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 100, 255)
-                            label.TextSize = 16
-                            label.TextStrokeTransparency = 0.3
-                            label.Font = Enum.Font.GothamBold
-                            label.Parent = billboard
-                            
-                            trackerLabels[v] = billboard
-                        end
-                        
-                        local label = trackerLabels[v]:FindFirstChild("TextLabel")
-                        if label then
-                            local roleText = role == "murderer" and "🔪" or "⭐"
-                            label.Text = roleText .. " " .. v.Name .. " [" .. math.floor(dist) .. "m]"
-                        end
-                    end
-                end
-            end
-            
-            for v, label in pairs(trackerLabels) do
-                if not v.Parent or not v.Character then
-                    pcall(function() label:Destroy() end)
-                    trackerLabels[v] = nil
-                end
-            end
-        end)
-    end
-end
-
--- FIXED FLING MURDERER
-local function updateFlingMurderer(state)
-    if flingMurdererConnection then
-        flingMurdererConnection:Disconnect()
-        flingMurdererConnection = nil
-    end
-    flingMurdererEnabled = state
-    if state then
-        flingMurdererConnection = RunService.Heartbeat:Connect(function()
-            if flingMurdererEnabled then
-                for _, v in pairs(game.Players:GetPlayers()) do
-                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                        if getPlayerRole(v) == "murderer" then
-                            local hrp = v.Character.HumanoidRootPart
-                            hrp.Velocity = Vector3.new(math.random(-500, 500), 500, math.random(-500, 500))
-                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 10, 0)
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- FIXED FLING SHERIFF
-local function updateFlingSheriff(state)
-    if flingSheriffConnection then
-        flingSheriffConnection:Disconnect()
-        flingSheriffConnection = nil
-    end
-    flingSheriffEnabled = state
-    if state then
-        flingSheriffConnection = RunService.Heartbeat:Connect(function()
-            if flingSheriffEnabled then
-                for _, v in pairs(game.Players:GetPlayers()) do
-                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                        if getPlayerRole(v) == "sheriff" then
-                            local hrp = v.Character.HumanoidRootPart
-                            hrp.Velocity = Vector3.new(math.random(-500, 500), 500, math.random(-500, 500))
-                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 10, 0)
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- AUTO GRAB GUN (Скрытый телепорт)
-local function updateAutoGrab(state)
-    if autoGrabConnection then
-        autoGrabConnection:Disconnect()
-        autoGrabConnection = nil
-    end
-    autoGrabEnabled = state
-    if state then
-        autoGrabConnection = RunService.Heartbeat:Connect(function()
-            if autoGrabEnabled and root then
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v:IsA("Part") and v.Name == "Handle" and v.Parent and v.Parent:IsA("Tool") then
-                        local dist = (root.Position - v.Position).Magnitude
-                        if dist < 200 then
-                            -- Скрытый телепорт на 0.01 секунды
-                            local oldPos = root.CFrame
-                            root.CFrame = v.CFrame * CFrame.new(0, 1, 0)
-                            wait(0.01)
-                            pcall(function()
-                                local mm2 = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
-                                if mm2 and mm2:FindFirstChild("Knife") then
-                                    mm2.Knife:FireServer(v.Parent)
-                                end
-                            end)
-                            root.CFrame = oldPos
-                            break
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
 -- NoClip
 local function updateNoclip(state)
     if noclipConnection then
@@ -574,7 +560,79 @@ local function updateNoclip(state)
     end
 end
 
--- AUTO COLLECT COINS
+-- Anti Fling
+local function updateAntiFling(state)
+    if antiFlingConnection then
+        antiFlingConnection:Disconnect()
+        antiFlingConnection = nil
+    end
+    antiFlingEnabled = state
+    if state then
+        lastPosition = root.Position
+        antiFlingConnection = RunService.Heartbeat:Connect(function()
+            if antiFlingEnabled and root and character then
+                local currentPos = root.Position
+                
+                if currentPos.Y < -50 then
+                    local spawn = workspace:FindFirstChild("SpawnLocation") or workspace:FindFirstChild("Lobby")
+                    if spawn then
+                        root.CFrame = spawn.CFrame * CFrame.new(0, 3, 0)
+                    else
+                        root.CFrame = CFrame.new(0, 50, 0)
+                    end
+                    return
+                end
+                
+                if lastPosition then
+                    local distance = (currentPos - lastPosition).Magnitude
+                    if distance > 50 and distance < 500 then
+                        root.CFrame = CFrame.new(lastPosition)
+                        root.Velocity = Vector3.new(0, 0, 0)
+                    end
+                end
+                
+                lastPosition = currentPos
+            end
+        end)
+    else
+        lastPosition = nil
+    end
+end
+
+-- Auto Grab Gun
+local function updateAutoGrab(state)
+    if autoGrabConnection then
+        autoGrabConnection:Disconnect()
+        autoGrabConnection = nil
+    end
+    autoGrabEnabled = state
+    if state then
+        autoGrabConnection = RunService.Heartbeat:Connect(function()
+            if autoGrabEnabled and root then
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("Part") and v.Name == "Handle" and v.Parent and v.Parent:IsA("Tool") then
+                        local dist = (root.Position - v.Position).Magnitude
+                        if dist < 200 then
+                            local oldPos = root.CFrame
+                            root.CFrame = v.CFrame * CFrame.new(0, 1, 0)
+                            wait(0.01)
+                            pcall(function()
+                                local mm2 = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
+                                if mm2 and mm2:FindFirstChild("Knife") then
+                                    mm2.Knife:FireServer(v.Parent)
+                                end
+                            end)
+                            root.CFrame = oldPos
+                            break
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end
+
+-- Auto Collect
 local function updateAutoCollect(state)
     if autoCollectConnection then
         autoCollectConnection:Disconnect()
@@ -591,6 +649,54 @@ local function updateAutoCollect(state)
                             root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
                             wait(0.05)
                             break
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end
+
+-- Fling Murderer
+local function updateFlingMurderer(state)
+    if flingMurdererConnection then
+        flingMurdererConnection:Disconnect()
+        flingMurdererConnection = nil
+    end
+    flingMurdererEnabled = state
+    if state then
+        flingMurdererConnection = RunService.Heartbeat:Connect(function()
+            if flingMurdererEnabled then
+                for _, v in pairs(game.Players:GetPlayers()) do
+                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        if getPlayerRole(v) == "murderer" then
+                            local hrp = v.Character.HumanoidRootPart
+                            hrp.Velocity = Vector3.new(math.random(-500, 500), 500, math.random(-500, 500))
+                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 10, 0)
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end
+
+-- Fling Sheriff
+local function updateFlingSheriff(state)
+    if flingSheriffConnection then
+        flingSheriffConnection:Disconnect()
+        flingSheriffConnection = nil
+    end
+    flingSheriffEnabled = state
+    if state then
+        flingSheriffConnection = RunService.Heartbeat:Connect(function()
+            if flingSheriffEnabled then
+                for _, v in pairs(game.Players:GetPlayers()) do
+                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        if getPlayerRole(v) == "sheriff" then
+                            local hrp = v.Character.HumanoidRootPart
+                            hrp.Velocity = Vector3.new(math.random(-500, 500), 500, math.random(-500, 500))
+                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 10, 0)
                         end
                     end
                 end
@@ -638,49 +744,21 @@ local function teleportToSheriff()
     end
 end
 
--- Обход античита MM2
-local function bypassAntiCheat()
-    local oldNamecall
-    oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
-        local method = getnamecallmethod()
-        if method == "FireServer" then
-            local args = {...}
-            local argsStr = tostring(args[1]) or ""
-            if argsStr:find("AntiCheat") or argsStr:find("Check") or argsStr:find("Report") then
-                return nil
-            end
-            if type(args[1]) == "table" and rawget(args[1], "AntiCheat") then
-                return nil
-            end
-        end
-        if method == "Invoke" and tostring(self):find("AntiCheat") then
-            return nil
-        end
-        return oldNamecall(self, ...)
-    end)
-    
-    for _, v in pairs(getgc(true)) do
-        if type(v) == "table" then
-            if rawget(v, "IsRunning") then
-                rawset(v, "IsRunning", false)
-            end
-            if rawget(v, "Enabled") and type(rawget(v, "Enabled")) == "boolean" then
-                rawset(v, "Enabled", false)
-            end
-        end
-    end
-end
-
 -- Построение GUI
 addSection("════ MAIN ════")
 addToggle("No Clip", updateNoclip)
 addToggle("Auto Grab Gun", updateAutoGrab)
 addToggle("INF Jump", updateInfJump)
 
+addSection("═══ COMBAT ═══")
+addToggle("Silent Aim (Shoot Button)", updateSilentAim)
+
+addSection("═══ PROTECTION ═══")
+addToggle("Anti Fling / Anti Fall", updateAntiFling)
+
 addSection("═══ VISUAL ═══")
 addToggle("ESP Murder (Red)", function(state) espMurderEnabled = state; updateESPContinuous() end)
 addToggle("ESP Sheriff (Blue)", function(state) espSheriffEnabled = state; updateESPContinuous() end)
-addToggle("Player Tracker (Distance)", updatePlayerTracker)
 
 addSection("═══ FLING ═══")
 addToggle("Fling Murderer", updateFlingMurderer)
@@ -718,11 +796,26 @@ player.CharacterAdded:Connect(function(char)
         updateNoclip(true)
     end
     if espMurderEnabled or espSheriffEnabled then
+        wait(0.5)
         updateESPContinuous()
     end
 end)
 
--- Активация обхода античита
+-- Обход античита
+local function bypassAntiCheat()
+    local oldNamecall
+    oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+        local method = getnamecallmethod()
+        if method == "FireServer" then
+            local args = {...}
+            local argsStr = tostring(args[1]) or ""
+            if argsStr:find("AntiCheat") or argsStr:find("Check") or argsStr:find("Report") then
+                return nil
+            end
+        end
+        return oldNamecall(self, ...)
+    end)
+end
 bypassAntiCheat()
 
-print("⚡ MM2 Ultimate Hub loaded! (Fling Fixed + ESP Auto-Update + Speed +/-)")
+print("⚡ MM2 Ultimate Hub loaded! (Silent Aim + Movable Shoot Button)")
