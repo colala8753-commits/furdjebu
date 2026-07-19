@@ -1,592 +1,315 @@
--- furdjehub - Murder Mystery 2 (Ultimate Edition) [FIXED]
--- Полностью исправленная версия с рабочей механикой
+-- UNIVERSAL SCRIPT [INF Jump + NoClip] - Работает во всех играх
+-- Скрипт автоматически включает бесконечные прыжки и ноклип при загрузке
 
 local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-local root = character:WaitForChild("HumanoidRootPart")
-local mm2 = game:GetService("ReplicatedStorage").FindFirstChild("Remotes")
-
--- Удаляем старые GUI
-for _, v in pairs(player.PlayerGui:GetChildren()) do
-    if v.Name == "furdjehub" then
-        v:Destroy()
-    end
-end
-
--- Создание GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "furdjehub"
-screenGui.Parent = player:WaitForChild("PlayerGui")
-screenGui.ResetOnSpawn = false
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- Главное окно
-local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 650, 0, 450)
-window.Position = UDim2.new(0.5, -325, 0.5, -225)
-window.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-window.BackgroundTransparency = 0
-window.BorderSizePixel = 0
-window.Parent = screenGui
-window.Visible = true
-window.Active = true
-window.Selectable = false
-
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 10)
-corner.Parent = window
-
--- Заголовок
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 40)
-titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = window
-
-local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 10)
-titleCorner.Parent = titleBar
-
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, -120, 1, 0)
-titleText.Position = UDim2.new(0, 15, 0, 0)
-titleText.Text = "⚡ furdjehub | MM2"
-titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleText.TextXAlignment = Enum.TextXAlignment.Left
-titleText.TextSize = 16
-titleText.Font = Enum.Font.GothamBold
-titleText.BackgroundTransparency = 1
-titleText.Parent = titleBar
-
--- Drag functionality
-local dragging = false
-local dragStart = nil
-local dragOffset = nil
-
-titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        dragOffset = window.Position
-    end
-end)
-
-titleBar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        window.Position = UDim2.new(dragOffset.X.Scale, dragOffset.X.Offset + delta.X, dragOffset.Y.Scale, dragOffset.Y.Offset + delta.Y)
-    end
-end)
-
--- Кнопки управления
-local function createTitleButton(text, x, color)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 35, 0, 35)
-    btn.Position = UDim2.new(1, x, 0, 2)
-    btn.Text = text
-    btn.TextSize = 16
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.BackgroundColor3 = color or Color3.fromRGB(35, 35, 50)
-    btn.BorderSizePixel = 0
-    btn.Parent = titleBar
-    btn.Selectable = false
-    return btn
-end
-
-local minBtn = createTitleButton("─", -105)
-local closeBtn = createTitleButton("✕", -40)
-
-closeBtn.MouseEnter:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-end)
-closeBtn.MouseLeave:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
-end)
-
--- Кнопка открытия
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 55, 0, 55)
-toggleBtn.Position = UDim2.new(0, 15, 0, 15)
-toggleBtn.Text = "📂"
-toggleBtn.TextSize = 22
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
-toggleBtn.BorderSizePixel = 0
-toggleBtn.Parent = screenGui
-toggleBtn.Visible = true
-toggleBtn.Selectable = false
-
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 10)
-toggleCorner.Parent = toggleBtn
-
-toggleBtn.MouseButton1Click:Connect(function()
-    window.Visible = not window.Visible
-end)
-
--- Основное содержимое
-local content = Instance.new("Frame")
-content.Size = UDim2.new(1, 0, 1, -40)
-content.Position = UDim2.new(0, 0, 0, 40)
-content.BackgroundColor3 = Color3.fromRGB(25, 25, 38)
-content.BorderSizePixel = 0
-content.Parent = window
-
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, -15, 1, -15)
-scrollFrame.Position = UDim2.new(0, 7, 0, 7)
-scrollFrame.BackgroundTransparency = 1
-scrollFrame.ScrollBarThickness = 6
-scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 85)
-scrollFrame.BorderSizePixel = 0
-scrollFrame.Parent = content
-
-local canvas = Instance.new("Frame")
-canvas.Size = UDim2.new(1, 0, 0, 0)
-canvas.BackgroundTransparency = 1
-canvas.Parent = scrollFrame
-
--- Функции для создания GUI
-local yPos = 5
-
-local function addSection(text)
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, -20, 0, 28)
-    lbl.Position = UDim2.new(0, 10, 0, yPos)
-    lbl.Text = text
-    lbl.TextColor3 = Color3.fromRGB(160, 160, 220)
-    lbl.TextSize = 14
-    lbl.TextXAlignment = Enum.TextXAlignment.Center
-    lbl.BackgroundTransparency = 1
-    lbl.Font = Enum.Font.GothamBold
-    lbl.Parent = canvas
-    yPos = yPos + 33
-    canvas.Size = UDim2.new(1, 0, 0, yPos)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos + 50)
-    return lbl
-end
-
-local function addToggle(text, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 30)
-    btn.Position = UDim2.new(0, 10, 0, yPos)
-    btn.Text = text .. ": OFF"
-    btn.BackgroundColor3 = Color3.fromRGB(45, 45, 70)
-    btn.TextColor3 = Color3.fromRGB(230, 230, 240)
-    btn.TextSize = 13
-    btn.BorderSizePixel = 0
-    btn.Font = Enum.Font.Gotham
-    btn.Parent = canvas
-    btn.Selectable = false
-    
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 6)
-    btnCorner.Parent = btn
-    
-    local state = false
-    btn.MouseButton1Click:Connect(function()
-        state = not state
-        btn.Text = text .. (state and ": ON" or ": OFF")
-        btn.BackgroundColor3 = state and Color3.fromRGB(0, 140, 70) or Color3.fromRGB(45, 45, 70)
-        callback(state)
-    end)
-    yPos = yPos + 35
-    canvas.Size = UDim2.new(1, 0, 0, yPos)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos + 50)
-    return btn
-end
-
-local function addButton(text, color, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 30)
-    btn.Position = UDim2.new(0, 10, 0, yPos)
-    btn.Text = text
-    btn.BackgroundColor3 = color or Color3.fromRGB(55, 55, 85)
-    btn.TextColor3 = Color3.fromRGB(230, 230, 240)
-    btn.TextSize = 13
-    btn.BorderSizePixel = 0
-    btn.Font = Enum.Font.Gotham
-    btn.Parent = canvas
-    btn.Selectable = false
-    
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 6)
-    btnCorner.Parent = btn
-    
-    btn.MouseButton1Click:Connect(callback)
-    yPos = yPos + 35
-    canvas.Size = UDim2.new(1, 0, 0, yPos)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos + 50)
-    return btn
-end
-
-local function addSlider(text, minVal, maxVal, defaultVal, callback)
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -20, 0, 20)
-    label.Position = UDim2.new(0, 10, 0, yPos)
-    label.Text = text .. ": " .. defaultVal
-    label.TextColor3 = Color3.fromRGB(200, 200, 210)
-    label.TextSize = 12
-    label.BackgroundTransparency = 1
-    label.Font = Enum.Font.Gotham
-    label.Parent = canvas
-    yPos = yPos + 22
-    
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 24)
-    btn.Position = UDim2.new(0, 10, 0, yPos)
-    btn.Text = "◀ " .. defaultVal .. " ▶"
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 65)
-    btn.TextColor3 = Color3.fromRGB(230, 230, 240)
-    btn.TextSize = 12
-    btn.BorderSizePixel = 0
-    btn.Font = Enum.Font.Gotham
-    btn.Parent = canvas
-    btn.Selectable = false
-    
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 6)
-    btnCorner.Parent = btn
-    
-    local value = defaultVal
-    btn.MouseButton1Click:Connect(function()
-        value = value + 2
-        if value > maxVal then value = minVal end
-        btn.Text = "◀ " .. value .. " ▶"
-        label.Text = text .. ": " .. value
-        callback(value)
-    end)
-    yPos = yPos + 30
-    canvas.Size = UDim2.new(1, 0, 0, yPos)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos + 50)
-    return btn
-end
-
--- Функция получения роли
-local function getPlayerRole(v)
-    if v.Character and v.Character:FindFirstChild("Knife") then
-        return "murderer"
-    elseif v.Backpack:FindFirstChild("Gun") or v.Character:FindFirstChild("Gun") then
-        return "sheriff"
-    else
-        return "innocent"
-    end
-end
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
 -- Переменные состояния
-local espConnections = {}
-local espHighlights = {}
+local infJumpEnabled = true
+local noclipEnabled = true
+local connections = {}
 local noclipConnection = nil
-local autoGrabConnection = nil
-local flingMurdererConnection = nil
-local flingSheriffConnection = nil
-local aimbotConnection = nil
-local spinConnection = nil
-local speedValue = 16
 
--- ESP функции
-local function updateEspMurder(state)
-    for _, hl in pairs(espHighlights) do
-        pcall(function() hl:Destroy() end)
+-- Функция для включения INF Jump
+local function enableInfJump()
+    -- Отключаем старые соединения
+    for _, con in pairs(connections) do
+        pcall(function() con:Disconnect() end)
     end
-    espHighlights = {}
-    if state then
-        for _, v in pairs(game.Players:GetPlayers()) do
-            if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                if getPlayerRole(v) == "murderer" then
-                    local hl = Instance.new("Highlight")
-                    hl.Parent = v.Character
-                    hl.Adornee = v.Character
-                    hl.FillColor = Color3.fromRGB(255, 30, 30)
-                    hl.FillTransparency = 0.35
-                    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                    hl.OutlineTransparency = 0
-                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                    espHighlights[v] = hl
-                end
+    connections = {}
+    
+    -- Отключаем стандартный прыжок
+    local function onJumpRequest()
+        if infJumpEnabled and player.Character and player.Character:FindFirstChild("Humanoid") then
+            local humanoid = player.Character.Humanoid
+            if humanoid then
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, false)
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
+                wait(0.05)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
             end
         end
     end
-end
-
-local function updateEspSheriff(state)
-    for _, hl in pairs(espHighlights) do
-        pcall(function() hl:Destroy() end)
-    end
-    espHighlights = {}
-    if state then
-        for _, v in pairs(game.Players:GetPlayers()) do
-            if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                if getPlayerRole(v) == "sheriff" then
-                    local hl = Instance.new("Highlight")
-                    hl.Parent = v.Character
-                    hl.Adornee = v.Character
-                    hl.FillColor = Color3.fromRGB(30, 120, 255)
-                    hl.FillTransparency = 0.35
-                    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                    hl.OutlineTransparency = 0
-                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                    espHighlights[v] = hl
-                end
+    
+    -- Перехват прыжка через UserInputService
+    local jumpCon = UserInputService.JumpRequest:Connect(onJumpRequest)
+    table.insert(connections, jumpCon)
+    
+    -- Альтернативный метод через Heartbeat
+    local heartbeatCon = RunService.Heartbeat:Connect(function()
+        if infJumpEnabled and player.Character and player.Character:FindFirstChild("Humanoid") then
+            local humanoid = player.Character.Humanoid
+            if humanoid and humanoid:GetState() == Enum.HumanoidStateType.Freefall and not humanoid:GetStateEnabled(Enum.HumanoidStateType.Jumping) then
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+                wait(0.1)
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
             end
         end
-    end
-end
-
--- Телепорты
-local function teleportToSpawn()
-    local spawns = workspace:GetDescendants()
-    for _, v in ipairs(spawns) do
-        if v:IsA("SpawnLocation") then
-            root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
-            return
+    end)
+    table.insert(connections, heartbeatCon)
+    
+    -- Сброс при смене персонажа
+    local charAddedCon = player.CharacterAdded:Connect(function(char)
+        wait(0.5)
+        local humanoid = char:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.JumpPower = 50
+            humanoid.UseJumpPower = true
         end
-    end
-    local spawn = workspace:FindFirstChild("SpawnLocation")
-    if spawn then root.CFrame = spawn.CFrame * CFrame.new(0, 2, 0) end
+    end)
+    table.insert(connections, charAddedCon)
 end
 
-local function teleportToMurderer()
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and getPlayerRole(v) == "murderer" then
-            root.CFrame = v.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
-            return
-        end
-    end
-end
-
-local function teleportToSheriff()
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and getPlayerRole(v) == "sheriff" then
-            root.CFrame = v.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
-            return
-        end
-    end
-end
-
-local function teleportToRandom()
-    local players = {}
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-            table.insert(players, v)
-        end
-    end
-    if #players > 0 then
-        local target = players[math.random(1, #players)]
-        root.CFrame = target.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
-    end
-end
-
--- Noclip
-local function updateNoclip(state)
+-- Функция для включения NoClip
+local function enableNoclip()
     if noclipConnection then
         noclipConnection:Disconnect()
         noclipConnection = nil
     end
-    if state then
-        noclipConnection = game:GetService("RunService").Stepped:Connect(function()
-            if character and root then
-                for _, part in ipairs(character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = false
-                    end
+    
+    noclipConnection = RunService.Stepped:Connect(function()
+        if noclipEnabled and player.Character then
+            local character = player.Character
+            for _, part in ipairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
                 end
             end
-        end)
+        end
+    end)
+end
+
+-- Переключение INF Jump
+local function toggleInfJump()
+    infJumpEnabled = not infJumpEnabled
+    if infJumpEnabled then
+        enableInfJump()
     else
-        if character then
-            for _, part in ipairs(character:GetDescendants()) do
+        for _, con in pairs(connections) do
+            pcall(function() con:Disconnect() end)
+        end
+        connections = {}
+    end
+    return infJumpEnabled
+end
+
+-- Переключение NoClip
+local function toggleNoclip()
+    noclipEnabled = not noclipEnabled
+    if noclipEnabled then
+        enableNoclip()
+    else
+        if noclipConnection then
+            noclipConnection:Disconnect()
+            noclipConnection = nil
+        end
+        -- Возвращаем коллизию
+        if player.Character then
+            for _, part in ipairs(player.Character:GetDescendants()) do
                 if part:IsA("BasePart") then
                     part.CanCollide = true
                 end
             end
         end
     end
+    return noclipEnabled
 end
 
--- Auto Grab Gun
-local function updateAutoGrab(state)
-    if autoGrabConnection then
-        autoGrabConnection:Disconnect()
-        autoGrabConnection = nil
+-- Создание GUI
+local function createGUI()
+    -- Удаляем старые GUI
+    for _, v in pairs(player.PlayerGui:GetChildren()) do
+        if v.Name == "UniversalHub" then
+            v:Destroy()
+        end
     end
-    if state then
-        autoGrabConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if state and root then
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v:IsA("Part") and v.Name == "Handle" and v.Parent and v.Parent:IsA("Tool") then
-                        local dist = (root.Position - v.Position).Magnitude
-                        if dist < 200 and dist > 5 then
-                            local oldPos = root.CFrame
-                            root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
-                            wait(0.1)
-                            pcall(function()
-                                if mm2 and mm2:FindFirstChild("Knife") then
-                                    mm2.Knife:FireServer(v.Parent)
-                                end
-                            end)
-                            wait(0.1)
-                            root.CFrame = oldPos
-                            break
-                        elseif dist <= 5 then
-                            pcall(function()
-                                if mm2 and mm2:FindFirstChild("Knife") then
-                                    mm2.Knife:FireServer(v.Parent)
-                                end
-                            end)
-                        end
-                    end
-                end
-            end
+    
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "UniversalHub"
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = player:WaitForChild("PlayerGui")
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    
+    -- Главное окно
+    local window = Instance.new("Frame")
+    window.Size = UDim2.new(0, 280, 0, 200)
+    window.Position = UDim2.new(0.5, -140, 0.5, -100)
+    window.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    window.BackgroundTransparency = 0
+    window.BorderSizePixel = 0
+    window.Parent = screenGui
+    window.Visible = true
+    window.Active = true
+    
+    local windowCorner = Instance.new("UICorner")
+    windowCorner.CornerRadius = UDim.new(0, 10)
+    windowCorner.Parent = window
+    
+    -- Заголовок
+    local title = Instance.new("Frame")
+    title.Size = UDim2.new(1, 0, 0, 35)
+    title.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+    title.BorderSizePixel = 0
+    title.Parent = window
+    
+    local titleCorner = Instance.new("UICorner")
+    titleCorner.CornerRadius = UDim.new(0, 10)
+    titleCorner.Parent = title
+    
+    local titleText = Instance.new("TextLabel")
+    titleText.Size = UDim2.new(1, -80, 1, 0)
+    titleText.Position = UDim2.new(0, 12, 0, 0)
+    titleText.Text = "⚡ Universal Hub"
+    titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleText.TextXAlignment = Enum.TextXAlignment.Left
+    titleText.TextSize = 15
+    titleText.Font = Enum.Font.GothamBold
+    titleText.BackgroundTransparency = 1
+    titleText.Parent = title
+    
+    -- Кнопка закрытия
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Size = UDim2.new(0, 30, 0, 30)
+    closeBtn.Position = UDim2.new(1, -32, 0, 2)
+    closeBtn.Text = "✕"
+    closeBtn.TextSize = 15
+    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+    closeBtn.BorderSizePixel = 0
+    closeBtn.Parent = title
+    
+    closeBtn.MouseEnter:Connect(function()
+        closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+    end)
+    closeBtn.MouseLeave:Connect(function()
+        closeBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+    end)
+    
+    -- Контент
+    local content = Instance.new("Frame")
+    content.Size = UDim2.new(1, 0, 1, -35)
+    content.Position = UDim2.new(0, 0, 0, 35)
+    content.BackgroundColor3 = Color3.fromRGB(25, 25, 38)
+    content.BorderSizePixel = 0
+    content.Parent = window
+    
+    -- Кнопки
+    local function createButton(text, yPos, color, toggleFunc)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(0.8, 0, 0, 35)
+        btn.Position = UDim2.new(0.1, 0, 0, yPos)
+        btn.BackgroundColor3 = color or Color3.fromRGB(45, 45, 70)
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btn.TextSize = 14
+        btn.BorderSizePixel = 0
+        btn.Font = Enum.Font.Gotham
+        btn.Parent = content
+        
+        local btnCorner = Instance.new("UICorner")
+        btnCorner.CornerRadius = UDim.new(0, 6)
+        btnCorner.Parent = btn
+        
+        local state = true
+        btn.Text = text .. ": ON"
+        
+        btn.MouseButton1Click:Connect(function()
+            state = toggleFunc()
+            btn.Text = text .. (state and ": ON" or ": OFF")
+            btn.BackgroundColor3 = state and Color3.fromRGB(0, 140, 70) or Color3.fromRGB(45, 45, 70)
         end)
+        
+        return btn
     end
+    
+    createButton("INF Jump", 10, Color3.fromRGB(0, 120, 200), toggleInfJump)
+    createButton("NoClip", 55, Color3.fromRGB(200, 120, 0), toggleNoclip)
+    
+    -- Кнопка открытия/закрытия
+    local toggleBtn = Instance.new("TextButton")
+    toggleBtn.Size = UDim2.new(0, 45, 0, 45)
+    toggleBtn.Position = UDim2.new(0, 10, 0, 10)
+    toggleBtn.Text = "⚡"
+    toggleBtn.TextSize = 22
+    toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+    toggleBtn.BorderSizePixel = 0
+    toggleBtn.Parent = screenGui
+    
+    local toggleCorner = Instance.new("UICorner")
+    toggleCorner.CornerRadius = UDim.new(0, 10)
+    toggleCorner.Parent = toggleBtn
+    
+    toggleBtn.MouseButton1Click:Connect(function()
+        window.Visible = not window.Visible
+    end)
+    
+    closeBtn.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+    end)
+    
+    -- Drag functionality
+    local dragging = false
+    local dragStart = nil
+    local dragOffset = nil
+    
+    title.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            dragOffset = window.Position
+        end
+    end)
+    
+    title.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            window.Position = UDim2.new(dragOffset.X.Scale, dragOffset.X.Offset + delta.X, dragOffset.Y.Scale, dragOffset.Y.Offset + delta.Y)
+        end
+    end)
 end
 
--- Fling Murderer
-local function updateFlingMurderer(state)
-    if flingMurdererConnection then
-        flingMurdererConnection:Disconnect()
-        flingMurdererConnection = nil
-    end
-    if state then
-        flingMurdererConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if state then
-                for _, v in pairs(game.Players:GetPlayers()) do
-                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                        if getPlayerRole(v) == "murderer" then
-                            v.Character.HumanoidRootPart.Velocity = Vector3.new(0, 250, 0)
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- Fling Sheriff
-local function updateFlingSheriff(state)
-    if flingSheriffConnection then
-        flingSheriffConnection:Disconnect()
-        flingSheriffConnection = nil
-    end
-    if state then
-        flingSheriffConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if state then
-                for _, v in pairs(game.Players:GetPlayers()) do
-                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                        if getPlayerRole(v) == "sheriff" then
-                            v.Character.HumanoidRootPart.Velocity = Vector3.new(0, 250, 0)
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- Aimbot
-local function updateAimbot(state)
-    if aimbotConnection then
-        aimbotConnection:Disconnect()
-        aimbotConnection = nil
-    end
-    if state then
-        aimbotConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if state then
-                local target = nil
-                local dist = math.huge
-                for _, v in pairs(game.Players:GetPlayers()) do
-                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                        if getPlayerRole(v) == "murderer" then
-                            local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
-                            if d < dist then
-                                dist = d
-                                target = v
-                            end
-                        end
-                    end
-                end
-                if target then
-                    root.CFrame = CFrame.lookAt(root.Position, target.Character.HumanoidRootPart.Position)
-                end
-            end
-        end)
-    end
-end
-
--- Spin
-local function updateSpin(state)
-    if spinConnection then
-        spinConnection:Disconnect()
-        spinConnection = nil
-    end
-    if state then
-        spinConnection = game:GetService("RunService").Heartbeat:Connect(function()
-            if state and root then
-                root.CFrame = root.CFrame * CFrame.Angles(0, 0.08, 0)
-            end
-        end)
-    end
-end
-
--- Speed Boost
-local function updateSpeed(value)
-    speedValue = value
-    if humanoid then
-        humanoid.WalkSpeed = value
-    end
-end
-
--- Построение GUI
-addSection("════ MAIN ════")
-addToggle("No Clip", updateNoclip)
-addToggle("Auto Grab Gun", updateAutoGrab)
-
-addSection("═══ VISUAL ═══")
-addToggle("ESP Murder (Red)", updateEspMurder)
-addToggle("ESP Sheriff (Blue)", updateEspSheriff)
-
-addSection("═══ FLING ═══")
-addToggle("Fling Murderer", updateFlingMurderer)
-addToggle("Fling Sheriff", updateFlingSheriff)
-
-addSection("═══ COMBAT ═══")
-addToggle("Aimbot (Auto Aim)", updateAimbot)
-
-addSection("═══ TELEPORT ═══")
-addButton("To Lobby", Color3.fromRGB(40, 60, 90), teleportToSpawn)
-addButton("To Murderer", Color3.fromRGB(90, 40, 40), teleportToMurderer)
-addButton("To Sheriff", Color3.fromRGB(40, 40, 90), teleportToSheriff)
-addButton("To Random Player", Color3.fromRGB(60, 40, 90), teleportToRandom)
-
-addSection("═══ EXTRA ═══")
-addSlider("Speed Boost", 16, 120, 16, updateSpeed)
-addToggle("Spin", updateSpin)
-
--- Управление окном
-closeBtn.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
-
-minBtn.MouseButton1Click:Connect(function()
-    window.Visible = false
-end)
+-- Автоматический запуск
+enableInfJump()
+enableNoclip()
+createGUI()
 
 -- Переподключение при смене персонажа
 player.CharacterAdded:Connect(function(char)
-    character = char
-    humanoid = char:WaitForChild("Humanoid")
-    root = char:WaitForChild("HumanoidRootPart")
-    if speedValue then
-        humanoid.WalkSpeed = speedValue
+    wait(0.5)
+    if infJumpEnabled then
+        local humanoid = char:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.JumpPower = 50
+            humanoid.UseJumpPower = true
+        end
+    end
+    if noclipEnabled then
+        -- NoClip автоматически переподключится через RunService
     end
 end)
 
-print("⚡ furdjehub Ultimate Edition loaded! (FIXED)")
+-- Защита от отключения
+game:GetService("CoreGui").ChildAdded:Connect(function(child)
+    if child.Name == "CoreScript" then
+        wait(0.5)
+        if infJumpEnabled then
+            enableInfJump()
+        end
+        if noclipEnabled then
+            enableNoclip()
+        end
+    end
+end)
+
+print("⚡ Universal Script loaded! INF Jump + NoClip enabled permanently.")
