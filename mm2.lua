@@ -1,4 +1,4 @@
--- MM2 ULTIMATE HUB [FULL + MEGA FLING + WALLHACK + FIXED ESP]
+-- MM2 ULTIMATE HUB [FULL FIXED - MEGA FLING + AUTO SHOOT + FARM]
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
@@ -14,10 +14,8 @@ for _, v in pairs(player.PlayerGui:GetChildren()) do
     end
 end
 
-local silentAimEnabled = false
+local autoShootEnabled = false
 local invisibilityEnabled = false
-local hitboxEnabled = false
-local hitboxSize = 1
 local wallhackEnabled = false
 local shootButton = nil
 local shootButtonDragging = false
@@ -29,8 +27,6 @@ local espUpdateConnection = nil
 local espMurderEnabled = false
 local espSheriffEnabled = false
 local espDistance = 1000
-local hitboxConnections = {}
-local hitboxObjects = {}
 local wallhackConnections = {}
 local autoKnifeEnabled = false
 local autoKnifeConnection = nil
@@ -38,8 +34,13 @@ local instantRespawnEnabled = false
 local instantRespawnConnection = nil
 local antiAfkEnabled = false
 local antiAfkConnection = nil
-local antiAfkStartPos = nil
 local antiAfkStartCFrame = nil
+local godModeEnabled = false
+local godModeConnection = nil
+local antiStunEnabled = false
+local antiStunConnection = nil
+local noFogEnabled = false
+local noFogConnection = nil
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "MM2UltimateHub"
@@ -48,8 +49,8 @@ screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 420)
-window.Position = UDim2.new(0.5, -300, 0.5, -210)
+window.Size = UDim2.new(0, 600, 0, 450)
+window.Position = UDim2.new(0.5, -300, 0.5, -225)
 window.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 window.BackgroundTransparency = 0
 window.BorderSizePixel = 0
@@ -338,6 +339,7 @@ local function getPlayerRole(v)
     end
 end
 
+-- ===== WALLHACK =====
 local function updateWallhack(state)
     wallhackEnabled = state
     for _, con in pairs(wallhackConnections) do
@@ -379,241 +381,7 @@ local function updateWallhack(state)
     end
 end
 
-local function updateHitboxes(state)
-    hitboxEnabled = state
-    
-    for _, obj in pairs(hitboxObjects) do
-        pcall(function() obj:Destroy() end)
-    end
-    hitboxObjects = {}
-    for _, con in pairs(hitboxConnections) do
-        pcall(function() con:Disconnect() end)
-    end
-    hitboxConnections = {}
-    
-    if state then
-        for _, v in pairs(game.Players:GetPlayers()) do
-            if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                local rootPart = v.Character.HumanoidRootPart
-                local hitboxPart = Instance.new("Part")
-                hitboxPart.Size = Vector3.new(4 * hitboxSize, 6 * hitboxSize, 3 * hitboxSize)
-                hitboxPart.Transparency = 0.5
-                hitboxPart.BrickColor = BrickColor.Red()
-                hitboxPart.CanCollide = false
-                hitboxPart.Anchored = true
-                hitboxPart.Parent = v.Character
-                
-                local weld = Instance.new("Weld")
-                weld.Part0 = rootPart
-                weld.Part1 = hitboxPart
-                weld.C0 = CFrame.new(0, 0, 0)
-                weld.Parent = hitboxPart
-                
-                table.insert(hitboxObjects, hitboxPart)
-                
-                local con = RunService.Heartbeat:Connect(function()
-                    if hitboxPart and rootPart and hitboxPart.Parent then
-                        hitboxPart.Position = rootPart.Position
-                        hitboxPart.Size = Vector3.new(4 * hitboxSize, 6 * hitboxSize, 3 * hitboxSize)
-                    end
-                end)
-                table.insert(hitboxConnections, con)
-            end
-        end
-        
-        local playerAddedCon = game.Players.PlayerAdded:Connect(function(v)
-            v.CharacterAdded:Connect(function(char)
-                wait(0.5)
-                if hitboxEnabled and char and char:FindFirstChild("HumanoidRootPart") then
-                    local rootPart = char.HumanoidRootPart
-                    local hitboxPart = Instance.new("Part")
-                    hitboxPart.Size = Vector3.new(4 * hitboxSize, 6 * hitboxSize, 3 * hitboxSize)
-                    hitboxPart.Transparency = 0.5
-                    hitboxPart.BrickColor = BrickColor.Red()
-                    hitboxPart.CanCollide = false
-                    hitboxPart.Anchored = true
-                    hitboxPart.Parent = char
-                    
-                    local weld = Instance.new("Weld")
-                    weld.Part0 = rootPart
-                    weld.Part1 = hitboxPart
-                    weld.C0 = CFrame.new(0, 0, 0)
-                    weld.Parent = hitboxPart
-                    
-                    table.insert(hitboxObjects, hitboxPart)
-                end
-            end)
-        end)
-        table.insert(hitboxConnections, playerAddedCon)
-    end
-end
-
-local function updateHitboxSize(value)
-    hitboxSize = value
-    if hitboxEnabled then
-        for _, part in pairs(hitboxObjects) do
-            if part and part.Parent then
-                part.Size = Vector3.new(4 * value, 6 * value, 3 * value)
-            end
-        end
-    end
-end
-
-local function updateAutoKnife(state)
-    if autoKnifeConnection then
-        autoKnifeConnection:Disconnect()
-        autoKnifeConnection = nil
-    end
-    autoKnifeEnabled = state
-    if state then
-        autoKnifeConnection = RunService.Heartbeat:Connect(function()
-            if autoKnifeEnabled and character then
-                local knife = character:FindFirstChild("Knife")
-                if knife then
-                    local target = nil
-                    local dist = math.huge
-                    for _, v in pairs(game.Players:GetPlayers()) do
-                        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                            local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
-                            if d < dist and d < 20 then
-                                dist = d
-                                target = v
-                            end
-                        end
-                    end
-                    if target then
-                        pcall(function()
-                            local mm2 = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
-                            if mm2 and mm2:FindFirstChild("Knife") then
-                                mm2.Knife:FireServer(target.Character.HumanoidRootPart)
-                            end
-                        end)
-                    end
-                end
-            end
-        end)
-    end
-end
-
-local function updateInstantRespawn(state)
-    if instantRespawnConnection then
-        instantRespawnConnection:Disconnect()
-        instantRespawnConnection = nil
-    end
-    instantRespawnEnabled = state
-    if state then
-        instantRespawnConnection = RunService.Heartbeat:Connect(function()
-            if instantRespawnEnabled then
-                if not character or not character:FindFirstChild("Humanoid") or character.Humanoid.Health <= 0 then
-                    for _, v in pairs(player.PlayerGui:GetDescendants()) do
-                        if v:IsA("TextButton") and (v.Name:lower():find("respawn") or v.Text:lower():find("respawn")) then
-                            pcall(function() v:Click() end)
-                            break
-                        end
-                    end
-                    pcall(function()
-                        local mm2 = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
-                        if mm2 and mm2:FindFirstChild("Respawn") then
-                            mm2.Respawn:FireServer()
-                        end
-                    end)
-                end
-            end
-        end)
-    end
-end
-
-local function updateAntiAfk(state)
-    if antiAfkConnection then
-        antiAfkConnection:Disconnect()
-        antiAfkConnection = nil
-    end
-    antiAfkEnabled = state
-    if state then
-        antiAfkStartPos = root.Position
-        antiAfkStartCFrame = root.CFrame
-        local step = 0
-        
-        antiAfkConnection = RunService.Heartbeat:Connect(function()
-            if antiAfkEnabled and character and root then
-                step = step + 1
-                local offset = Vector3.new(0, 0, 0)
-                
-                if step % 4 == 0 then
-                    offset = Vector3.new(1, 0, 0)
-                elseif step % 4 == 1 then
-                    offset = Vector3.new(-1, 0, 0)
-                elseif step % 4 == 2 then
-                    offset = Vector3.new(0, 0, 1)
-                elseif step % 4 == 3 then
-                    offset = Vector3.new(0, 0, -1)
-                end
-                
-                root.CFrame = antiAfkStartCFrame + offset
-                
-                if step % 10 == 0 and humanoid then
-                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                    wait(0.05)
-                end
-                
-                if step % 8 == 0 then
-                    root.CFrame = antiAfkStartCFrame
-                end
-            end
-        end)
-    else
-        if antiAfkStartCFrame and root then
-            root.CFrame = antiAfkStartCFrame
-        end
-        antiAfkStartPos = nil
-        antiAfkStartCFrame = nil
-    end
-end
-
-local function updateInvisibility(state)
-    invisibilityEnabled = state
-    
-    if state then
-        if character then
-            for _, part in ipairs(character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.Transparency = 1
-                    table.insert(invisibleParts, part)
-                end
-            end
-        end
-        if root then
-            root.CanCollide = false
-        end
-        if character then
-            for _, part in ipairs(character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CastShadow = false
-                end
-            end
-        end
-        if humanoid then
-            humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
-        end
-    else
-        for _, part in ipairs(invisibleParts) do
-            pcall(function()
-                if part and part.Parent then
-                    part.Transparency = 0
-                    part.CastShadow = true
-                end
-            end)
-        end
-        invisibleParts = {}
-        if root then
-            root.CanCollide = true
-        end
-        if humanoid then
-            humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOn
-        end
-    end
-end
-
+-- ===== AUTO SHOOT (вместо Silent Aim) =====
 local function createShootButton()
     if shootButton then
         shootButton:Destroy()
@@ -624,8 +392,8 @@ local function createShootButton()
     shootButton.Size = UDim2.new(0, 80, 0, 80)
     shootButton.Position = UDim2.new(0.8, -40, 0.6, -40)
     shootButton.BackgroundColor3 = Color3.fromRGB(200, 30, 30)
-    shootButton.Text = "🔫\nSHOOT"
-    shootButton.TextSize = 14
+    shootButton.Text = "🔫\nAUTO\nSHOOT"
+    shootButton.TextSize = 12
     shootButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     shootButton.BorderSizePixel = 3
     shootButton.BorderColor3 = Color3.fromRGB(255, 255, 255)
@@ -661,8 +429,48 @@ local function createShootButton()
     end)
     
     shootButton.MouseButton1Click:Connect(function()
-        if not silentAimEnabled then return end
+        if not autoShootEnabled then return end
         
+        -- Проверяем есть ли у нас пистолет
+        local hasGun = false
+        if character and character:FindFirstChild("Gun") then
+            hasGun = true
+        end
+        if not hasGun and character and character:FindFirstChild("Tool") then
+            for _, tool in pairs(character:GetChildren()) do
+                if tool:IsA("Tool") and tool.Name:lower():find("gun") then
+                    hasGun = true
+                    break
+                end
+            end
+        end
+        
+        if not hasGun then
+            -- Ищем пистолет на карте и берем его
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v:IsA("Part") and v.Name == "Handle" and v.Parent and v.Parent:IsA("Tool") then
+                    if v.Parent.Name:lower():find("gun") then
+                        local dist = (root.Position - v.Position).Magnitude
+                        if dist < 200 then
+                            local oldPos = root.CFrame
+                            root.CFrame = v.CFrame * CFrame.new(0, 1, 0)
+                            wait(0.05)
+                            pcall(function()
+                                local mm2 = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
+                                if mm2 and mm2:FindFirstChild("Knife") then
+                                    mm2.Knife:FireServer(v.Parent)
+                                end
+                            end)
+                            root.CFrame = oldPos
+                            wait(0.2)
+                            break
+                        end
+                    end
+                end
+            end
+        end
+        
+        -- Находим убийцу и стреляем
         local target = nil
         local dist = math.huge
         for _, v in pairs(game.Players:GetPlayers()) do
@@ -733,8 +541,8 @@ local function createShootButton()
     end)
 end
 
-local function updateSilentAim(state)
-    silentAimEnabled = state
+local function updateAutoShoot(state)
+    autoShootEnabled = state
     if state then
         if not shootButton then
             createShootButton()
@@ -747,6 +555,7 @@ local function updateSilentAim(state)
     end
 end
 
+-- ===== ESP (только обводка) =====
 local function updateESPContinuous()
     if espUpdateConnection then
         espUpdateConnection:Disconnect()
@@ -768,17 +577,11 @@ local function updateESPContinuous()
                     if dist <= espDistance then
                         local role = getPlayerRole(v)
                         local color = nil
-                        local outlineColor = nil
-                        local transparency = 0.2
                         
                         if espMurderEnabled and role == "murderer" then
                             color = Color3.fromRGB(255, 0, 0)
-                            outlineColor = Color3.fromRGB(255, 255, 255)
-                            transparency = 0.15
                         elseif espSheriffEnabled and role == "sheriff" then
                             color = Color3.fromRGB(0, 100, 255)
-                            outlineColor = Color3.fromRGB(255, 255, 255)
-                            transparency = 0.15
                         end
                         
                         if color then
@@ -786,32 +589,11 @@ local function updateESPContinuous()
                             hl.Parent = v.Character
                             hl.Adornee = v.Character
                             hl.FillColor = color
-                            hl.FillTransparency = transparency
-                            hl.OutlineColor = outlineColor or Color3.fromRGB(255, 255, 255)
+                            hl.FillTransparency = 0.8
+                            hl.OutlineColor = color
                             hl.OutlineTransparency = 0
                             hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
                             espHighlights[v] = hl
-                            
-                            local box = Instance.new("BoxHandleAdornment")
-                            box.Size = Vector3.new(4.5, 7, 3.5)
-                            box.Adornee = rootPart
-                            box.AlwaysOnTop = true
-                            box.ZIndex = 10
-                            box.Color3 = color
-                            box.Transparency = 0.3
-                            box.Parent = rootPart
-                            table.insert(espHighlights, box)
-                            
-                            local circle = Instance.new("CylinderHandleAdornment")
-                            circle.Height = 0.5
-                            circle.Radius = 5
-                            circle.Adornee = rootPart
-                            circle.AlwaysOnTop = true
-                            circle.ZIndex = 5
-                            circle.Color3 = color
-                            circle.Transparency = 0.6
-                            circle.Parent = rootPart
-                            table.insert(espHighlights, circle)
                         end
                     end
                 end
@@ -820,20 +602,354 @@ local function updateESPContinuous()
     end)
 end
 
-local noclipEnabled = false
-local autoGrabEnabled = false
-local autoCollectEnabled = false
-local infJumpEnabled = false
-local antiFlingEnabled = false
+-- ===== GOD MODE =====
+local function updateGodMode(state)
+    if godModeConnection then
+        godModeConnection:Disconnect()
+        godModeConnection = nil
+    end
+    godModeEnabled = state
+    if state then
+        if character and character:FindFirstChild("Humanoid") then
+            character.Humanoid.MaxHealth = 1000
+            character.Humanoid.Health = 1000
+        end
+        godModeConnection = player.CharacterAdded:Connect(function(char)
+            wait(0.5)
+            local h = char:FindFirstChild("Humanoid")
+            if h then
+                h.MaxHealth = 1000
+                h.Health = 1000
+            end
+        end)
+    else
+        if character and character:FindFirstChild("Humanoid") then
+            character.Humanoid.MaxHealth = 100
+            character.Humanoid.Health = 100
+        end
+    end
+end
+
+-- ===== ANTI STUN =====
+local function updateAntiStun(state)
+    if antiStunConnection then
+        antiStunConnection:Disconnect()
+        antiStunConnection = nil
+    end
+    antiStunEnabled = state
+    if state then
+        antiStunConnection = RunService.Heartbeat:Connect(function()
+            if antiStunEnabled and character then
+                local h = character:FindFirstChild("Humanoid")
+                if h and h:GetState() == Enum.HumanoidStateType.Stunned then
+                    h:ChangeState(Enum.HumanoidStateType.Running)
+                end
+            end
+        end)
+    end
+end
+
+-- ===== NO FOG =====
+local function updateNoFog(state)
+    if noFogConnection then
+        noFogConnection:Disconnect()
+        noFogConnection = nil
+    end
+    noFogEnabled = state
+    if state then
+        noFogConnection = RunService.RenderStepped:Connect(function()
+            if noFogEnabled and workspace.CurrentCamera then
+                workspace.CurrentCamera.CameraSubject = nil
+            end
+        end)
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("Atmosphere") or v:IsA("Fog") then
+                v.Enabled = false
+            end
+        end
+        workspace.CurrentCamera.FieldOfView = 120
+    else
+        workspace.CurrentCamera.FieldOfView = 70
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("Atmosphere") or v:IsA("Fog") then
+                v.Enabled = true
+            end
+        end
+    end
+end
+
+-- ===== INVISIBILITY =====
+local function updateInvisibility(state)
+    invisibilityEnabled = state
+    
+    if state then
+        if character then
+            for _, part in ipairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.Transparency = 1
+                    table.insert(invisibleParts, part)
+                end
+            end
+        end
+        if root then
+            root.CanCollide = false
+        end
+        if character then
+            for _, part in ipairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CastShadow = false
+                end
+            end
+        end
+        if humanoid then
+            humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
+        end
+    else
+        for _, part in ipairs(invisibleParts) do
+            pcall(function()
+                if part and part.Parent then
+                    part.Transparency = 0
+                    part.CastShadow = true
+                end
+            end)
+        end
+        invisibleParts = {}
+        if root then
+            root.CanCollide = true
+        end
+        if humanoid then
+            humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOn
+        end
+    end
+end
+
+-- ===== AUTO KNIFE =====
+local function updateAutoKnife(state)
+    if autoKnifeConnection then
+        autoKnifeConnection:Disconnect()
+        autoKnifeConnection = nil
+    end
+    autoKnifeEnabled = state
+    if state then
+        autoKnifeConnection = RunService.Heartbeat:Connect(function()
+            if autoKnifeEnabled and character then
+                local knife = character:FindFirstChild("Knife")
+                if knife then
+                    local target = nil
+                    local dist = math.huge
+                    for _, v in pairs(game.Players:GetPlayers()) do
+                        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                            local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                            if d < dist and d < 20 then
+                                dist = d
+                                target = v
+                            end
+                        end
+                    end
+                    if target then
+                        pcall(function()
+                            local mm2 = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
+                            if mm2 and mm2:FindFirstChild("Knife") then
+                                mm2.Knife:FireServer(target.Character.HumanoidRootPart)
+                            end
+                        end)
+                    end
+                end
+            end
+        end)
+    end
+end
+
+-- ===== INSTANT RESPAWN =====
+local function updateInstantRespawn(state)
+    if instantRespawnConnection then
+        instantRespawnConnection:Disconnect()
+        instantRespawnConnection = nil
+    end
+    instantRespawnEnabled = state
+    if state then
+        instantRespawnConnection = RunService.Heartbeat:Connect(function()
+            if instantRespawnEnabled then
+                if not character or not character:FindFirstChild("Humanoid") or character.Humanoid.Health <= 0 then
+                    for _, v in pairs(player.PlayerGui:GetDescendants()) do
+                        if v:IsA("TextButton") and (v.Name:lower():find("respawn") or v.Text:lower():find("respawn")) then
+                            pcall(function() v:Click() end)
+                            break
+                        end
+                    end
+                    pcall(function()
+                        local mm2 = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
+                        if mm2 and mm2:FindFirstChild("Respawn") then
+                            mm2.Respawn:FireServer()
+                        end
+                    end)
+                end
+            end
+        end)
+    end
+end
+
+-- ===== ANTI AFK (медленный) =====
+local function updateAntiAfk(state)
+    if antiAfkConnection then
+        antiAfkConnection:Disconnect()
+        antiAfkConnection = nil
+    end
+    antiAfkEnabled = state
+    if state then
+        antiAfkStartCFrame = root.CFrame
+        local step = 0
+        
+        antiAfkConnection = RunService.Heartbeat:Connect(function()
+            if antiAfkEnabled and character and root then
+                step = step + 1
+                local offset = Vector3.new(0, 0, 0)
+                
+                if step % 10 == 0 then
+                    offset = Vector3.new(0.5, 0, 0)
+                elseif step % 10 == 5 then
+                    offset = Vector3.new(-0.5, 0, 0)
+                end
+                
+                root.CFrame = antiAfkStartCFrame + offset
+                
+                if step % 20 == 0 and humanoid then
+                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                    wait(0.05)
+                end
+                
+                if step % 15 == 0 then
+                    root.CFrame = antiAfkStartCFrame
+                end
+            end
+        end)
+    else
+        if antiAfkStartCFrame and root then
+            root.CFrame = antiAfkStartCFrame
+        end
+        antiAfkStartCFrame = nil
+    end
+end
+
+-- ===== MEGA FLING (выкидывает в пустоту) =====
 local flingMurdererEnabled = false
 local flingSheriffEnabled = false
-local noclipConnection = nil
-local autoGrabConnection = nil
-local autoCollectConnection = nil
-local infJumpConnection = nil
-local antiFlingConnection = nil
 local flingMurdererConnection = nil
 local flingSheriffConnection = nil
+local flingTargets = {}
+
+local function updateFlingMurderer(state)
+    if flingMurdererConnection then
+        flingMurdererConnection:Disconnect()
+        flingMurdererConnection = nil
+    end
+    flingMurdererEnabled = state
+    if state then
+        flingMurdererConnection = RunService.Heartbeat:Connect(function()
+            if flingMurdererEnabled then
+                for _, v in pairs(game.Players:GetPlayers()) do
+                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        if getPlayerRole(v) == "murderer" then
+                            local hrp = v.Character.HumanoidRootPart
+                            -- Телепортируемся к цели
+                            root.CFrame = hrp.CFrame * CFrame.new(0, 3, 0)
+                            -- Крутимся вокруг цели
+                            root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(360), 0)
+                            -- Выкидываем цель в пустоту с бешеной скоростью
+                            hrp.Velocity = Vector3.new(math.random(-2000, 2000), 3000, math.random(-2000, 2000))
+                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 50, 0)
+                            hrp.RotVelocity = Vector3.new(math.random(-2000, 2000), math.random(-2000, 2000), math.random(-2000, 2000))
+                            -- Ломаем коллизию чтобы не мог зацепиться
+                            for _, part in pairs(v.Character:GetDescendants()) do
+                                if part:IsA("BasePart") then
+                                    part.CanCollide = false
+                                end
+                            end
+                            -- Добавляем в список флинговых целей
+                            flingTargets[v] = os.time()
+                        end
+                    end
+                end
+            end
+        end)
+    else
+        flingTargets = {}
+    end
+end
+
+local function updateFlingSheriff(state)
+    if flingSheriffConnection then
+        flingSheriffConnection:Disconnect()
+        flingSheriffConnection = nil
+    end
+    flingSheriffEnabled = state
+    if state then
+        flingSheriffConnection = RunService.Heartbeat:Connect(function()
+            if flingSheriffEnabled then
+                for _, v in pairs(game.Players:GetPlayers()) do
+                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        if getPlayerRole(v) == "sheriff" then
+                            local hrp = v.Character.HumanoidRootPart
+                            root.CFrame = hrp.CFrame * CFrame.new(0, 3, 0)
+                            root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(360), 0)
+                            hrp.Velocity = Vector3.new(math.random(-2000, 2000), 3000, math.random(-2000, 2000))
+                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 50, 0)
+                            hrp.RotVelocity = Vector3.new(math.random(-2000, 2000), math.random(-2000, 2000), math.random(-2000, 2000))
+                            for _, part in pairs(v.Character:GetDescendants()) do
+                                if part:IsA("BasePart") then
+                                    part.CanCollide = false
+                                end
+                            end
+                            flingTargets[v] = os.time()
+                        end
+                    end
+                end
+            end
+        end)
+    else
+        flingTargets = {}
+    end
+end
+
+-- ===== AUTO COLLECT (FIXED) =====
+local autoCollectEnabled = false
+local autoCollectConnection = nil
+
+local function updateAutoCollect(state)
+    if autoCollectConnection then
+        autoCollectConnection:Disconnect()
+        autoCollectConnection = nil
+    end
+    autoCollectEnabled = state
+    if state then
+        autoCollectConnection = RunService.Heartbeat:Connect(function()
+            if autoCollectEnabled and root then
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("Part") and v.Name == "Coin" and v.Parent and v.Parent:IsA("Model") then
+                        local dist = (root.Position - v.Position).Magnitude
+                        if dist < 150 then
+                            local oldPos = root.CFrame
+                            root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
+                            wait(0.05)
+                            root.CFrame = oldPos
+                            break
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end
+
+-- Остальные функции
+local noclipEnabled = false
+local autoGrabEnabled = false
+local infJumpEnabled = false
+local antiFlingEnabled = false
+local noclipConnection = nil
+local autoGrabConnection = nil
+local infJumpConnection = nil
+local antiFlingConnection = nil
 local speedValue = 16
 local lastPosition = nil
 
@@ -949,78 +1065,6 @@ local function updateAutoGrab(state)
     end
 end
 
-local function updateAutoCollect(state)
-    if autoCollectConnection then
-        autoCollectConnection:Disconnect()
-        autoCollectConnection = nil
-    end
-    autoCollectEnabled = state
-    if state then
-        autoCollectConnection = RunService.Heartbeat:Connect(function()
-            if autoCollectEnabled and root then
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v:IsA("Part") and v.Name == "Coin" and v.Parent and v.Parent:IsA("Model") then
-                        local dist = (root.Position - v.Position).Magnitude
-                        if dist < 200 then
-                            root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
-                            wait(0.05)
-                            break
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
-local function updateFlingMurderer(state)
-    if flingMurdererConnection then
-        flingMurdererConnection:Disconnect()
-        flingMurdererConnection = nil
-    end
-    flingMurdererEnabled = state
-    if state then
-        flingMurdererConnection = RunService.Heartbeat:Connect(function()
-            if flingMurdererEnabled then
-                for _, v in pairs(game.Players:GetPlayers()) do
-                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                        if getPlayerRole(v) == "murderer" then
-                            local hrp = v.Character.HumanoidRootPart
-                            hrp.Velocity = Vector3.new(math.random(-1000, 1000), 1500, math.random(-1000, 1000))
-                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 30, 0)
-                            hrp.RotVelocity = Vector3.new(math.random(-1000, 1000), math.random(-1000, 1000), math.random(-1000, 1000))
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
-local function updateFlingSheriff(state)
-    if flingSheriffConnection then
-        flingSheriffConnection:Disconnect()
-        flingSheriffConnection = nil
-    end
-    flingSheriffEnabled = state
-    if state then
-        flingSheriffConnection = RunService.Heartbeat:Connect(function()
-            if flingSheriffEnabled then
-                for _, v in pairs(game.Players:GetPlayers()) do
-                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                        if getPlayerRole(v) == "sheriff" then
-                            local hrp = v.Character.HumanoidRootPart
-                            hrp.Velocity = Vector3.new(math.random(-1000, 1000), 1500, math.random(-1000, 1000))
-                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 30, 0)
-                            hrp.RotVelocity = Vector3.new(math.random(-1000, 1000), math.random(-1000, 1000), math.random(-1000, 1000))
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
 local function updateSpeed(value)
     speedValue = value
     if humanoid then
@@ -1064,10 +1108,8 @@ addToggle("Auto Grab Gun", updateAutoGrab)
 addToggle("INF Jump", updateInfJump)
 
 addSection("═══ COMBAT ═══")
-addToggle("Silent Aim (Shoot Button)", updateSilentAim)
+addToggle("Auto Shoot (Button)", updateAutoShoot)
 addToggle("Auto Knife", updateAutoKnife)
-addSliderWithButtons("Hitbox Size", 0.5, 5, 1, updateHitboxSize, 0.1)
-addToggle("Hitbox (Enable)", updateHitboxes)
 
 addSection("═══ STEALTH ═══")
 addToggle("Invisibility (Not Visible)", updateInvisibility)
@@ -1075,15 +1117,18 @@ addToggle("Invisibility (Not Visible)", updateInvisibility)
 addSection("═══ PROTECTION ═══")
 addToggle("Anti Fling / Anti Fall", updateAntiFling)
 addToggle("Instant Respawn", updateInstantRespawn)
+addToggle("God Mode", updateGodMode)
+addToggle("Anti Stun", updateAntiStun)
 
 addSection("═══ VISUAL ═══")
 addToggle("Wallhack (See Through Walls)", updateWallhack)
-addToggle("ESP Murder (Red)", function(state) espMurderEnabled = state; updateESPContinuous() end)
-addToggle("ESP Sheriff (Blue)", function(state) espSheriffEnabled = state; updateESPContinuous() end)
+addToggle("ESP Murder (Red Outline)", function(state) espMurderEnabled = state; updateESPContinuous() end)
+addToggle("ESP Sheriff (Blue Outline)", function(state) espSheriffEnabled = state; updateESPContinuous() end)
+addToggle("No Fog / Zoom", updateNoFog)
 
 addSection("═══ FLING ═══")
-addToggle("Fling Murderer (MEGA)", updateFlingMurderer)
-addToggle("Fling Sheriff (MEGA)", updateFlingSheriff)
+addToggle("MEGA FLING Murderer", updateFlingMurderer)
+addToggle("MEGA FLING Sheriff", updateFlingSheriff)
 
 addSection("═══ AUTO COLLECT ═══")
 addToggle("Auto Collect Coins", updateAutoCollect)
@@ -1095,7 +1140,7 @@ addButton("To Sheriff", Color3.fromRGB(40, 40, 90), teleportToSheriff)
 
 addSection("═══ EXTRA ═══")
 addSliderWithButtons("Speed Boost", 16, 120, 16, updateSpeed, 2)
-addToggle("Anti AFK (Smart)", updateAntiAfk)
+addToggle("Anti AFK (Slow)", updateAntiAfk)
 
 closeBtn.MouseButton1Click:Connect(function()
     screenGui:Destroy()
