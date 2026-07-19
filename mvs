@@ -1,4 +1,4 @@
--- MURDERER VS SHERIFFS DUELS HUB [FULL + NO COOLDOWN + EARLY MOVE]
+-- MURDERER VS SHERIFFS DUELS HUB [NO RELOAD + INFINITE AMMO]
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
@@ -24,7 +24,7 @@ local aimbotEnabled = false
 local autoBlockEnabled = false
 local quickSwordEnabled = false
 local teleportToEnemyEnabled = false
-local noCooldownEnabled = false
+local noReloadEnabled = false
 local earlyMoveEnabled = false
 local noclipConnection = nil
 local infJumpConnection = nil
@@ -34,7 +34,7 @@ local aimbotConnection = nil
 local autoBlockConnection = nil
 local quickSwordConnection = nil
 local teleportToEnemyConnection = nil
-local noCooldownConnection = nil
+local noReloadConnection = nil
 local earlyMoveConnection = nil
 local espUpdateCounter = 0
 
@@ -521,41 +521,76 @@ local function updateAimbot(state)
     end
 end
 
--- ===== НЕТ КД У ПИСТОЛЕТА =====
-local function updateNoCooldown(state)
-    if noCooldownConnection then
-        noCooldownConnection:Disconnect()
-        noCooldownConnection = nil
+-- ===== НЕТ ПЕРЕЗАРЯДКИ + БЕСКОНЕЧНЫЕ ПАТРОНЫ =====
+local function updateNoReload(state)
+    if noReloadConnection then
+        noReloadConnection:Disconnect()
+        noReloadConnection = nil
     end
-    noCooldownEnabled = state
+    noReloadEnabled = state
     if state then
-        noCooldownConnection = RunService.Heartbeat:Connect(function()
-            if noCooldownEnabled then
-                -- Поиск пистолета в руке и удаление кд
+        noReloadConnection = RunService.Heartbeat:Connect(function()
+            if noReloadEnabled then
+                -- Ищем пистолет в руке или рюкзаке
+                local gun = nil
                 if character then
                     for _, tool in pairs(character:GetChildren()) do
-                        if tool:IsA("Tool") and tool.Name:lower():find("gun") then
-                            -- Удаляем задержку анимации
-                            pcall(function()
-                                if tool:FindFirstChild("Cooldown") then
-                                    tool.Cooldown:Destroy()
-                                end
-                                if tool:FindFirstChild("FireRate") then
-                                    tool.FireRate.Value = 0
-                                end
-                                if tool:FindFirstChild("ReloadTime") then
-                                    tool.ReloadTime.Value = 0
-                                end
-                            end)
+                        if tool:IsA("Tool") and (tool.Name:lower():find("gun") or tool.Name:lower():find("pistol") or tool.Name:lower():find("revolver")) then
+                            gun = tool
+                            break
                         end
                     end
+                end
+                if not gun and player.Backpack then
+                    for _, tool in pairs(player.Backpack:GetChildren()) do
+                        if tool:IsA("Tool") and (tool.Name:lower():find("gun") or tool.Name:lower():find("pistol") or tool.Name:lower():find("revolver")) then
+                            gun = tool
+                            break
+                        end
+                    end
+                end
+                
+                if gun then
+                    -- Удаляем перезарядку (Reload)
+                    pcall(function()
+                        if gun:FindFirstChild("Reload") then
+                            gun.Reload:Destroy()
+                        end
+                        if gun:FindFirstChild("ReloadTime") then
+                            gun.ReloadTime.Value = 0
+                        end
+                        if gun:FindFirstChild("Reloading") then
+                            gun.Reloading.Value = false
+                        end
+                        -- Убираем задержку между выстрелами
+                        if gun:FindFirstChild("FireRate") then
+                            gun.FireRate.Value = 0
+                        end
+                        if gun:FindFirstChild("Cooldown") then
+                            gun.Cooldown:Destroy()
+                        end
+                        -- Бесконечные патроны
+                        if gun:FindFirstChild("Ammo") then
+                            gun.Ammo.Value = 999
+                        end
+                        if gun:FindFirstChild("MaxAmmo") then
+                            gun.MaxAmmo.Value = 999
+                        end
+                        if gun:FindFirstChild("CurrentAmmo") then
+                            gun.CurrentAmmo.Value = 999
+                        end
+                        -- Отключаем проверки на перезарядку
+                        if gun:FindFirstChild("Reloading") then
+                            gun.Reloading.Value = false
+                        end
+                    end)
                 end
             end
         end)
     end
 end
 
--- ===== РАННЕЕ ДВИЖЕНИЕ (ИГНОР 5 СЕКУНД) =====
+-- ===== РАННЕЕ ДВИЖЕНИЕ =====
 local function updateEarlyMove(state)
     if earlyMoveConnection then
         earlyMoveConnection:Disconnect()
@@ -567,13 +602,11 @@ local function updateEarlyMove(state)
             if earlyMoveEnabled and character then
                 local humanoid = character:FindFirstChild("Humanoid")
                 if humanoid then
-                    -- Принудительно разрешаем движение
                     humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, true)
                     humanoid:SetStateEnabled(Enum.HumanoidStateType.RunningNoPhysics, true)
                     humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
                     humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
                     
-                    -- Если игрок в состоянии Freefall или GettingUp - переключаем на Running
                     if humanoid:GetState() == Enum.HumanoidStateType.Freefall then
                         humanoid:ChangeState(Enum.HumanoidStateType.Running)
                     end
@@ -746,7 +779,7 @@ addSection("═══ COMBAT ═══")
 addToggle("Aimbot (Aim Only)", updateAimbot)
 addToggle("Auto Block", updateAutoBlock)
 addToggle("Quick Sword (Auto Attack)", updateQuickSword)
-addToggle("No Gun Cooldown", updateNoCooldown)
+addToggle("No Reload + Infinite Ammo", updateNoReload)
 
 addSection("═══ MOVEMENT ═══")
 addToggle("Early Move (Ignore 5s Wait)", updateEarlyMove)
@@ -780,4 +813,4 @@ end)
 
 bypassAntiCheat()
 
-print("⚔️ MvS Ultimate Hub loaded (NO COOLDOWN + EARLY MOVE)!")
+print("⚔️ MvS Ultimate Hub loaded (NO RELOAD + INFINITE AMMO)!")
