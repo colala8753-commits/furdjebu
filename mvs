@@ -1,4 +1,4 @@
--- MURDERER VS SHERIFFS DUELS HUB [SAFE - NO AUTO SHOOT]
+-- MURDERER VS SHERIFFS DUELS HUB [FULL + NO COOLDOWN + EARLY MOVE]
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
@@ -24,6 +24,8 @@ local aimbotEnabled = false
 local autoBlockEnabled = false
 local quickSwordEnabled = false
 local teleportToEnemyEnabled = false
+local noCooldownEnabled = false
+local earlyMoveEnabled = false
 local noclipConnection = nil
 local infJumpConnection = nil
 local espUpdateConnection = nil
@@ -32,11 +34,12 @@ local aimbotConnection = nil
 local autoBlockConnection = nil
 local quickSwordConnection = nil
 local teleportToEnemyConnection = nil
+local noCooldownConnection = nil
+local earlyMoveConnection = nil
 local espUpdateCounter = 0
 
--- ===== ОБХОД АНТИЧИТА (БЕЗОПАСНЫЙ) =====
+-- ===== БЕЗОПАСНЫЙ ОБХОД АНТИЧИТА =====
 local function bypassAntiCheat()
-    -- Только базовый обход, без агрессивных хуков
     for _, v in pairs(getgc(true)) do
         if type(v) == "table" then
             if rawget(v, "IsRunning") then
@@ -72,8 +75,8 @@ screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 420)
-window.Position = UDim2.new(0.5, -300, 0.5, -210)
+window.Size = UDim2.new(0, 600, 0, 450)
+window.Position = UDim2.new(0.5, -300, 0.5, -225)
 window.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 window.BackgroundTransparency = 0
 window.BorderSizePixel = 0
@@ -99,7 +102,7 @@ titleCorner.Parent = titleBar
 local titleText = Instance.new("TextLabel")
 titleText.Size = UDim2.new(1, -120, 1, 0)
 titleText.Position = UDim2.new(0, 15, 0, 0)
-titleText.Text = "⚔️ MvS Ultimate Hub [SAFE]"
+titleText.Text = "⚔️ MvS Ultimate Hub"
 titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleText.TextXAlignment = Enum.TextXAlignment.Left
 titleText.TextSize = 16
@@ -390,7 +393,7 @@ local function updateJump(value)
     end
 end
 
--- ===== ESP (ОПТИМИЗИРОВАН) =====
+-- ===== ESP =====
 local function updateESP(state)
     espEnabled = state
     
@@ -467,7 +470,7 @@ local function updateESP(state)
     end
 end
 
--- ===== АИМБОТ (БЕЗ АВТОВЫСТРЕЛА - ТОЛЬКО НАВЕДЕНИЕ) =====
+-- ===== АИМБОТ =====
 local function updateAimbot(state)
     if aimbotConnection then
         aimbotConnection:Disconnect()
@@ -512,6 +515,71 @@ local function updateAimbot(state)
                 if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
                     local targetPos = target.Character.HumanoidRootPart.Position
                     Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetPos)
+                end
+            end
+        end)
+    end
+end
+
+-- ===== НЕТ КД У ПИСТОЛЕТА =====
+local function updateNoCooldown(state)
+    if noCooldownConnection then
+        noCooldownConnection:Disconnect()
+        noCooldownConnection = nil
+    end
+    noCooldownEnabled = state
+    if state then
+        noCooldownConnection = RunService.Heartbeat:Connect(function()
+            if noCooldownEnabled then
+                -- Поиск пистолета в руке и удаление кд
+                if character then
+                    for _, tool in pairs(character:GetChildren()) do
+                        if tool:IsA("Tool") and tool.Name:lower():find("gun") then
+                            -- Удаляем задержку анимации
+                            pcall(function()
+                                if tool:FindFirstChild("Cooldown") then
+                                    tool.Cooldown:Destroy()
+                                end
+                                if tool:FindFirstChild("FireRate") then
+                                    tool.FireRate.Value = 0
+                                end
+                                if tool:FindFirstChild("ReloadTime") then
+                                    tool.ReloadTime.Value = 0
+                                end
+                            end)
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end
+
+-- ===== РАННЕЕ ДВИЖЕНИЕ (ИГНОР 5 СЕКУНД) =====
+local function updateEarlyMove(state)
+    if earlyMoveConnection then
+        earlyMoveConnection:Disconnect()
+        earlyMoveConnection = nil
+    end
+    earlyMoveEnabled = state
+    if state then
+        earlyMoveConnection = RunService.Heartbeat:Connect(function()
+            if earlyMoveEnabled and character then
+                local humanoid = character:FindFirstChild("Humanoid")
+                if humanoid then
+                    -- Принудительно разрешаем движение
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.RunningNoPhysics, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
+                    
+                    -- Если игрок в состоянии Freefall или GettingUp - переключаем на Running
+                    if humanoid:GetState() == Enum.HumanoidStateType.Freefall then
+                        humanoid:ChangeState(Enum.HumanoidStateType.Running)
+                    end
+                    if humanoid:GetState() == Enum.HumanoidStateType.GettingUp then
+                        humanoid:ChangeState(Enum.HumanoidStateType.Running)
+                    end
                 end
             end
         end)
@@ -675,11 +743,13 @@ addSection("═══ VISUAL ═══")
 addToggle("ESP (Team Color)", updateESP)
 
 addSection("═══ COMBAT ═══")
-addToggle("Aimbot (Aim Only - Safe)", updateAimbot)
+addToggle("Aimbot (Aim Only)", updateAimbot)
 addToggle("Auto Block", updateAutoBlock)
 addToggle("Quick Sword (Auto Attack)", updateQuickSword)
+addToggle("No Gun Cooldown", updateNoCooldown)
 
-addSection("═══ TELEPORT ═══")
+addSection("═══ MOVEMENT ═══")
+addToggle("Early Move (Ignore 5s Wait)", updateEarlyMove)
 addToggle("Teleport To Enemy", updateTeleportToEnemy)
 
 closeBtn.MouseButton1Click:Connect(function()
@@ -710,4 +780,4 @@ end)
 
 bypassAntiCheat()
 
-print("⚔️ MvS Ultimate Hub loaded (SAFE - NO AUTO SHOOT)!")
+print("⚔️ MvS Ultimate Hub loaded (NO COOLDOWN + EARLY MOVE)!")
