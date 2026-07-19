@@ -1,4 +1,4 @@
--- MURDERER VS SHERIFFS DUELS HUB [FULL]
+-- MURDERER VS SHERIFFS DUELS HUB [FULL + 3 NEW FUNCTIONS]
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
@@ -21,11 +21,47 @@ local speedValue = 16
 local jumpValue = 50
 local espEnabled = false
 local aimbotEnabled = false
+local autoBlockEnabled = false
+local quickSwordEnabled = false
+local teleportToEnemyEnabled = false
 local noclipConnection = nil
 local infJumpConnection = nil
 local espUpdateConnection = nil
 local espHighlights = {}
 local aimbotConnection = nil
+local autoBlockConnection = nil
+local quickSwordConnection = nil
+local teleportToEnemyConnection = nil
+
+-- ===== ОБХОД АНТИЧИТА =====
+local function bypassAntiCheat()
+    local oldNamecall
+    oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+        local method = getnamecallmethod()
+        if method == "FireServer" then
+            local args = {...}
+            local argsStr = tostring(args[1]) or ""
+            if argsStr:find("AntiCheat") or argsStr:find("Check") or argsStr:find("Report") or argsStr:find("Ban") then
+                return nil
+            end
+        end
+        if method == "Invoke" and tostring(self):find("AntiCheat") then
+            return nil
+        end
+        return oldNamecall(self, ...)
+    end)
+    
+    for _, v in pairs(getgc(true)) do
+        if type(v) == "table" then
+            if rawget(v, "IsRunning") then
+                rawset(v, "IsRunning", false)
+            end
+            if rawget(v, "Enabled") and type(rawget(v, "Enabled")) == "boolean" then
+                rawset(v, "Enabled", false)
+            end
+        end
+    end
+end
 
 -- GUI
 local screenGui = Instance.new("ScreenGui")
@@ -35,8 +71,8 @@ screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 500, 0, 450)
-window.Position = UDim2.new(0.5, -250, 0.5, -225)
+window.Size = UDim2.new(0, 600, 0, 420)
+window.Position = UDim2.new(0.5, -300, 0.5, -210)
 window.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 window.BackgroundTransparency = 0
 window.BorderSizePixel = 0
@@ -353,7 +389,7 @@ local function updateJump(value)
     end
 end
 
--- ===== ESP (КОМАНДНЫЙ) =====
+-- ===== ESP =====
 local function updateESP(state)
     espEnabled = state
     
@@ -369,46 +405,39 @@ local function updateESP(state)
             end
             espHighlights = {}
             
-            -- Определяем команду игрока
             local myTeam = nil
             if player.Team then
-                myTeam = player.Team.Name
-            end
-            
-            -- Проверяем находится ли игрок в лобби
-            local inLobby = false
-            if workspace:FindFirstChild("Lobby") and root then
-                local lobby = workspace.Lobby
-                if (root.Position - lobby.Position).Magnitude < 100 then
-                    inLobby = true
-                end
+                myTeam = player.Team
             end
             
             for _, v in pairs(game.Players:GetPlayers()) do
                 if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                    local color = nil
-                    local transparency = 0.3
-                    
-                    if inLobby or not myTeam then
-                        color = Color3.fromRGB(200, 200, 200)
-                        transparency = 0.5
-                    else
-                        if v.Team and v.Team.Name == myTeam then
-                            color = Color3.fromRGB(0, 255, 50)
+                    local humanoidCheck = v.Character:FindFirstChild("Humanoid")
+                    if humanoidCheck and humanoidCheck.Health > 0 then
+                        local color = nil
+                        local transparency = 0.3
+                        
+                        if myTeam and v.Team then
+                            if v.Team == myTeam then
+                                color = Color3.fromRGB(0, 255, 50)
+                            else
+                                color = Color3.fromRGB(255, 0, 0)
+                            end
                         else
-                            color = Color3.fromRGB(255, 0, 0)
+                            color = Color3.fromRGB(200, 200, 200)
+                            transparency = 0.5
                         end
+                        
+                        local hl = Instance.new("Highlight")
+                        hl.Parent = v.Character
+                        hl.Adornee = v.Character
+                        hl.FillColor = color
+                        hl.FillTransparency = transparency
+                        hl.OutlineColor = color
+                        hl.OutlineTransparency = 0.1
+                        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                        espHighlights[v] = hl
                     end
-                    
-                    local hl = Instance.new("Highlight")
-                    hl.Parent = v.Character
-                    hl.Adornee = v.Character
-                    hl.FillColor = color
-                    hl.FillTransparency = transparency
-                    hl.OutlineColor = color
-                    hl.OutlineTransparency = 0.2
-                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                    espHighlights[v] = hl
                 end
             end
         end)
@@ -431,26 +460,28 @@ local function updateAimbot(state)
     if state then
         aimbotConnection = RunService.Heartbeat:Connect(function()
             if aimbotEnabled and character and root then
-                -- Находим врага (противоположную команду)
                 local target = nil
                 local dist = math.huge
                 local myTeam = player.Team
                 
                 for _, v in pairs(game.Players:GetPlayers()) do
                     if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                        if myTeam then
-                            if v.Team and v.Team ~= myTeam then
+                        local humanoidCheck = v.Character:FindFirstChild("Humanoid")
+                        if humanoidCheck and humanoidCheck.Health > 0 then
+                            if myTeam and v.Team then
+                                if v.Team ~= myTeam then
+                                    local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                                    if d < dist then
+                                        dist = d
+                                        target = v
+                                    end
+                                end
+                            else
                                 local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
                                 if d < dist then
                                     dist = d
                                     target = v
                                 end
-                            end
-                        else
-                            local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
-                            if d < dist then
-                                dist = d
-                                target = v
                             end
                         end
                     end
@@ -458,8 +489,153 @@ local function updateAimbot(state)
                 
                 if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
                     local targetPos = target.Character.HumanoidRootPart.Position
-                    -- Наводим камеру на цель
                     Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetPos)
+                end
+            end
+        end)
+    end
+end
+
+-- ===== НОВАЯ ФУНКЦИЯ 1: AUTO BLOCK (Автоблок) =====
+local function updateAutoBlock(state)
+    if autoBlockConnection then
+        autoBlockConnection:Disconnect()
+        autoBlockConnection = nil
+    end
+    autoBlockEnabled = state
+    if state then
+        autoBlockConnection = RunService.Heartbeat:Connect(function()
+            if autoBlockEnabled and character then
+                -- Ищем ближайшего врага
+                local target = nil
+                local dist = math.huge
+                local myTeam = player.Team
+                
+                for _, v in pairs(game.Players:GetPlayers()) do
+                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        local humanoidCheck = v.Character:FindFirstChild("Humanoid")
+                        if humanoidCheck and humanoidCheck.Health > 0 then
+                            if myTeam and v.Team then
+                                if v.Team ~= myTeam then
+                                    local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                                    if d < dist and d < 15 then
+                                        dist = d
+                                        target = v
+                                    end
+                                end
+                            else
+                                local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                                if d < dist and d < 15 then
+                                    dist = d
+                                    target = v
+                                end
+                            end
+                        end
+                    end
+                end
+                
+                if target then
+                    -- Поворачиваемся к врагу для блока
+                    root.CFrame = CFrame.lookAt(root.Position, target.Character.HumanoidRootPart.Position)
+                end
+            end
+        end)
+    end
+end
+
+-- ===== НОВАЯ ФУНКЦИЯ 2: QUICK SWORD (Быстрый удар мечом) =====
+local function updateQuickSword(state)
+    if quickSwordConnection then
+        quickSwordConnection:Disconnect()
+        quickSwordConnection = nil
+    end
+    quickSwordEnabled = state
+    if state then
+        quickSwordConnection = RunService.Heartbeat:Connect(function()
+            if quickSwordEnabled and character then
+                -- Ищем врага
+                local target = nil
+                local dist = math.huge
+                local myTeam = player.Team
+                
+                for _, v in pairs(game.Players:GetPlayers()) do
+                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        local humanoidCheck = v.Character:FindFirstChild("Humanoid")
+                        if humanoidCheck and humanoidCheck.Health > 0 then
+                            if myTeam and v.Team then
+                                if v.Team ~= myTeam then
+                                    local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                                    if d < dist and d < 12 then
+                                        dist = d
+                                        target = v
+                                    end
+                                end
+                            else
+                                local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                                if d < dist and d < 12 then
+                                    dist = d
+                                    target = v
+                                end
+                            end
+                        end
+                    end
+                end
+                
+                if target then
+                    -- Атакуем врага
+                    pcall(function()
+                        local remotes = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
+                        if remotes and remotes:FindFirstChild("Sword") then
+                            remotes.Sword:FireServer(target.Character.HumanoidRootPart)
+                        elseif remotes and remotes:FindFirstChild("Attack") then
+                            remotes.Attack:FireServer(target.Character)
+                        end
+                    end)
+                end
+            end
+        end)
+    end
+end
+
+-- ===== НОВАЯ ФУНКЦИЯ 3: TELEPORT TO ENEMY (Телепорт к врагу) =====
+local function updateTeleportToEnemy(state)
+    if teleportToEnemyConnection then
+        teleportToEnemyConnection:Disconnect()
+        teleportToEnemyConnection = nil
+    end
+    teleportToEnemyEnabled = state
+    if state then
+        teleportToEnemyConnection = RunService.Heartbeat:Connect(function()
+            if teleportToEnemyEnabled and root then
+                local target = nil
+                local dist = math.huge
+                local myTeam = player.Team
+                
+                for _, v in pairs(game.Players:GetPlayers()) do
+                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        local humanoidCheck = v.Character:FindFirstChild("Humanoid")
+                        if humanoidCheck and humanoidCheck.Health > 0 then
+                            if myTeam and v.Team then
+                                if v.Team ~= myTeam then
+                                    local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                                    if d < dist then
+                                        dist = d
+                                        target = v
+                                    end
+                                end
+                            else
+                                local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                                if d < dist then
+                                    dist = d
+                                    target = v
+                                end
+                            end
+                        end
+                    end
+                end
+                
+                if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                    root.CFrame = target.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
                 end
             end
         end)
@@ -480,6 +656,11 @@ addToggle("ESP (Team Color)", updateESP)
 
 addSection("═══ COMBAT ═══")
 addToggle("Aimbot (Auto Aim)", updateAimbot)
+addToggle("Auto Block", updateAutoBlock)
+addToggle("Quick Sword (Auto Attack)", updateQuickSword)
+
+addSection("═══ TELEPORT ═══")
+addToggle("Teleport To Enemy", updateTeleportToEnemy)
 
 closeBtn.MouseButton1Click:Connect(function()
     screenGui:Destroy()
@@ -507,4 +688,6 @@ player.CharacterAdded:Connect(function(char)
     end
 end)
 
-print("⚔️ MvS Ultimate Hub loaded!")
+bypassAntiCheat()
+
+print("⚔️ MvS Ultimate Hub loaded (3 NEW DUEL FUNCTIONS)!")
