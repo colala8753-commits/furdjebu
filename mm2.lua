@@ -1,4 +1,4 @@
--- MM2 ULTIMATE HUB [SILENT AIM + MOVABLE BUTTON]
+-- MM2 ULTIMATE HUB [FULL + HITBOX + 3 NEW FUNCTIONS]
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
@@ -8,29 +8,40 @@ local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
 local mouse = player:GetMouse()
 
--- Удаляем старые GUI
 for _, v in pairs(player.PlayerGui:GetChildren()) do
     if v.Name == "MM2UltimateHub" then
         v:Destroy()
     end
 end
 
--- Переменные
 local silentAimEnabled = false
+local invisibilityEnabled = false
+local hitboxEnabled = false
+local hitboxSize = 1
 local shootButton = nil
 local shootButtonDragging = false
 local shootButtonDragStart = nil
 local shootButtonDragOffset = nil
-local silentAimConnection = nil
+local invisibleParts = {}
+local espHighlights = {}
+local espUpdateConnection = nil
+local espMurderEnabled = false
+local espSheriffEnabled = false
+local hitboxConnections = {}
+local hitboxObjects = {}
+local autoKnifeEnabled = false
+local autoKnifeConnection = nil
+local instantRespawnEnabled = false
+local instantRespawnConnection = nil
+local antiAfkEnabled = false
+local antiAfkConnection = nil
 
--- Создание GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "MM2UltimateHub"
 screenGui.Parent = player:WaitForChild("PlayerGui")
 screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Главное окно 600x400
 local window = Instance.new("Frame")
 window.Size = UDim2.new(0, 600, 0, 400)
 window.Position = UDim2.new(0.5, -300, 0.5, -200)
@@ -46,7 +57,6 @@ local windowCorner = Instance.new("UICorner")
 windowCorner.CornerRadius = UDim.new(0, 10)
 windowCorner.Parent = window
 
--- Заголовок
 local titleBar = Instance.new("Frame")
 titleBar.Size = UDim2.new(1, 0, 0, 40)
 titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
@@ -68,7 +78,6 @@ titleText.Font = Enum.Font.GothamBold
 titleText.BackgroundTransparency = 1
 titleText.Parent = titleBar
 
--- Drag functionality
 local dragging = false
 local dragStart = nil
 local dragOffset = nil
@@ -94,7 +103,6 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- Кнопки управления
 local function createTitleButton(text, x, color)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0, 35, 0, 35)
@@ -119,7 +127,6 @@ closeBtn.MouseLeave:Connect(function()
     closeBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
 end)
 
--- Кнопка открытия
 local toggleBtn = Instance.new("TextButton")
 toggleBtn.Size = UDim2.new(0, 55, 0, 55)
 toggleBtn.Position = UDim2.new(0, 15, 0, 15)
@@ -140,7 +147,6 @@ toggleBtn.MouseButton1Click:Connect(function()
     window.Visible = not window.Visible
 end)
 
--- Скроллинг контент
 local content = Instance.new("Frame")
 content.Size = UDim2.new(1, 0, 1, -40)
 content.Position = UDim2.new(0, 0, 0, 40)
@@ -163,7 +169,6 @@ canvas.Size = UDim2.new(1, 0, 0, 0)
 canvas.BackgroundTransparency = 1
 canvas.Parent = scrollFrame
 
--- Функции создания GUI
 local yPos = 5
 local function addSection(text)
     local lbl = Instance.new("TextLabel")
@@ -238,8 +243,8 @@ local function addButton(text, color, callback)
     return btn
 end
 
--- Слайдер с + и -
-local function addSpeedSlider(text, minVal, maxVal, defaultVal, callback)
+local function addSliderWithButtons(text, minVal, maxVal, defaultVal, callback, step)
+    step = step or 1
     local container = Instance.new("Frame")
     container.Size = UDim2.new(1, -20, 0, 40)
     container.Position = UDim2.new(0, 10, 0, yPos)
@@ -248,7 +253,7 @@ local function addSpeedSlider(text, minVal, maxVal, defaultVal, callback)
     yPos = yPos + 5
     
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(0.25, 0, 1, 0)
+    label.Size = UDim2.new(0.3, 0, 1, 0)
     label.Position = UDim2.new(0, 0, 0, 0)
     label.Text = text .. ": " .. defaultVal
     label.TextColor3 = Color3.fromRGB(200, 200, 210)
@@ -299,14 +304,14 @@ local function addSpeedSlider(text, minVal, maxVal, defaultVal, callback)
     local value = defaultVal
     
     minusBtn.MouseButton1Click:Connect(function()
-        value = math.max(value - 2, minVal)
+        value = math.max(value - step, minVal)
         valueDisplay.Text = tostring(value)
         label.Text = text .. ": " .. value
         callback(value)
     end)
     
     plusBtn.MouseButton1Click:Connect(function()
-        value = math.min(value + 2, maxVal)
+        value = math.min(value + step, maxVal)
         valueDisplay.Text = tostring(value)
         label.Text = text .. ": " .. value
         callback(value)
@@ -318,7 +323,6 @@ local function addSpeedSlider(text, minVal, maxVal, defaultVal, callback)
     return container
 end
 
--- Функция определения роли
 local function getPlayerRole(v)
     if v.Character and v.Character:FindFirstChild("Knife") then
         return "murderer"
@@ -329,7 +333,211 @@ local function getPlayerRole(v)
     end
 end
 
--- СОЗДАНИЕ КНОПКИ ДЛЯ ВЫСТРЕЛА (MOVABLE)
+local function updateHitboxes(state)
+    hitboxEnabled = state
+    
+    for _, obj in pairs(hitboxObjects) do
+        pcall(function() obj:Destroy() end)
+    end
+    hitboxObjects = {}
+    for _, con in pairs(hitboxConnections) do
+        pcall(function() con:Disconnect() end)
+    end
+    hitboxConnections = {}
+    
+    if state then
+        for _, v in pairs(game.Players:GetPlayers()) do
+            if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                local rootPart = v.Character.HumanoidRootPart
+                local hitboxPart = Instance.new("Part")
+                hitboxPart.Size = Vector3.new(4 * hitboxSize, 6 * hitboxSize, 3 * hitboxSize)
+                hitboxPart.Transparency = 1
+                hitboxPart.CanCollide = false
+                hitboxPart.Anchored = true
+                hitboxPart.Parent = v.Character
+                
+                local weld = Instance.new("Weld")
+                weld.Part0 = rootPart
+                weld.Part1 = hitboxPart
+                weld.C0 = CFrame.new(0, 0, 0)
+                weld.Parent = hitboxPart
+                
+                table.insert(hitboxObjects, hitboxPart)
+                
+                local con = RunService.Heartbeat:Connect(function()
+                    if hitboxPart and rootPart and hitboxPart.Parent then
+                        hitboxPart.Position = rootPart.Position
+                        hitboxPart.Size = Vector3.new(4 * hitboxSize, 6 * hitboxSize, 3 * hitboxSize)
+                    end
+                end)
+                table.insert(hitboxConnections, con)
+            end
+        end
+        
+        local playerAddedCon = game.Players.PlayerAdded:Connect(function(v)
+            v.CharacterAdded:Connect(function(char)
+                wait(0.5)
+                if hitboxEnabled and char and char:FindFirstChild("HumanoidRootPart") then
+                    local rootPart = char.HumanoidRootPart
+                    local hitboxPart = Instance.new("Part")
+                    hitboxPart.Size = Vector3.new(4 * hitboxSize, 6 * hitboxSize, 3 * hitboxSize)
+                    hitboxPart.Transparency = 1
+                    hitboxPart.CanCollide = false
+                    hitboxPart.Anchored = true
+                    hitboxPart.Parent = char
+                    
+                    local weld = Instance.new("Weld")
+                    weld.Part0 = rootPart
+                    weld.Part1 = hitboxPart
+                    weld.C0 = CFrame.new(0, 0, 0)
+                    weld.Parent = hitboxPart
+                    
+                    table.insert(hitboxObjects, hitboxPart)
+                end
+            end)
+        end)
+        table.insert(hitboxConnections, playerAddedCon)
+    end
+end
+
+local function updateHitboxSize(value)
+    hitboxSize = value
+    if hitboxEnabled then
+        for _, part in pairs(hitboxObjects) do
+            if part and part.Parent then
+                part.Size = Vector3.new(4 * value, 6 * value, 3 * value)
+            end
+        end
+    end
+end
+
+local function updateAutoKnife(state)
+    if autoKnifeConnection then
+        autoKnifeConnection:Disconnect()
+        autoKnifeConnection = nil
+    end
+    autoKnifeEnabled = state
+    if state then
+        autoKnifeConnection = RunService.Heartbeat:Connect(function()
+            if autoKnifeEnabled and character then
+                local knife = character:FindFirstChild("Knife")
+                if knife then
+                    local target = nil
+                    local dist = math.huge
+                    for _, v in pairs(game.Players:GetPlayers()) do
+                        if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                            local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                            if d < dist and d < 15 then
+                                dist = d
+                                target = v
+                            end
+                        end
+                    end
+                    if target then
+                        pcall(function()
+                            local mm2 = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
+                            if mm2 and mm2:FindFirstChild("Knife") then
+                                mm2.Knife:FireServer(target.Character.HumanoidRootPart)
+                            end
+                        end)
+                    end
+                end
+            end
+        end)
+    end
+end
+
+local function updateInstantRespawn(state)
+    if instantRespawnConnection then
+        instantRespawnConnection:Disconnect()
+        instantRespawnConnection = nil
+    end
+    instantRespawnEnabled = state
+    if state then
+        instantRespawnConnection = RunService.Heartbeat:Connect(function()
+            if instantRespawnEnabled then
+                if not character or not character:FindFirstChild("Humanoid") or character.Humanoid.Health <= 0 then
+                    for _, v in pairs(player.PlayerGui:GetDescendants()) do
+                        if v:IsA("TextButton") and (v.Name:lower():find("respawn") or v.Text:lower():find("respawn")) then
+                            pcall(function() v:Click() end)
+                            break
+                        end
+                    end
+                    pcall(function()
+                        local mm2 = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
+                        if mm2 and mm2:FindFirstChild("Respawn") then
+                            mm2.Respawn:FireServer()
+                        end
+                    end)
+                end
+            end
+        end)
+    end
+end
+
+local function updateAntiAfk(state)
+    if antiAfkConnection then
+        antiAfkConnection:Disconnect()
+        antiAfkConnection = nil
+    end
+    antiAfkEnabled = state
+    if state then
+        antiAfkConnection = RunService.Heartbeat:Connect(function()
+            if antiAfkEnabled and character and humanoid then
+                local currentPos = root.Position
+                local offset = Vector3.new(math.random(-2, 2), 0, math.random(-2, 2))
+                root.CFrame = root.CFrame + offset
+                wait(0.1)
+                root.CFrame = CFrame.new(currentPos)
+            end
+        end)
+    end
+end
+
+local function updateInvisibility(state)
+    invisibilityEnabled = state
+    
+    if state then
+        if character then
+            for _, part in ipairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.Transparency = 1
+                    table.insert(invisibleParts, part)
+                end
+            end
+        end
+        if root then
+            root.CanCollide = false
+        end
+        if character then
+            for _, part in ipairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CastShadow = false
+                end
+            end
+        end
+        if humanoid then
+            humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
+        end
+    else
+        for _, part in ipairs(invisibleParts) do
+            pcall(function()
+                if part and part.Parent then
+                    part.Transparency = 0
+                    part.CastShadow = true
+                end
+            end)
+        end
+        invisibleParts = {}
+        if root then
+            root.CanCollide = true
+        end
+        if humanoid then
+            humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOn
+        end
+    end
+end
+
 local function createShootButton()
     if shootButton then
         shootButton:Destroy()
@@ -337,9 +545,9 @@ local function createShootButton()
     end
     
     shootButton = Instance.new("TextButton")
-    shootButton.Size = UDim2.new(0, 70, 0, 70)
-    shootButton.Position = UDim2.new(0.8, 0, 0.5, -35)
-    shootButton.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+    shootButton.Size = UDim2.new(0, 80, 0, 80)
+    shootButton.Position = UDim2.new(0.8, -40, 0.6, -40)
+    shootButton.BackgroundColor3 = Color3.fromRGB(200, 30, 30)
     shootButton.Text = "🔫\nSHOOT"
     shootButton.TextSize = 14
     shootButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -354,16 +562,6 @@ local function createShootButton()
     btnCorner.CornerRadius = UDim.new(1, 0)
     btnCorner.Parent = shootButton
     
-    local shadow = Instance.new("Frame")
-    shadow.Size = UDim2.new(1, 10, 1, 10)
-    shadow.Position = UDim2.new(0, -5, 0, -5)
-    shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    shadow.BackgroundTransparency = 0.5
-    shadow.BorderSizePixel = 0
-    shadow.ZIndex = -1
-    shadow.Parent = shootButton
-    
-    -- DRAG для кнопки выстрела
     shootButton.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             shootButtonDragging = true
@@ -386,11 +584,9 @@ local function createShootButton()
         end
     end)
     
-    -- Функция выстрела с Silent Aim
     shootButton.MouseButton1Click:Connect(function()
         if not silentAimEnabled then return end
         
-        -- Находим убийцу
         local target = nil
         local dist = math.huge
         for _, v in pairs(game.Players:GetPlayers()) do
@@ -407,36 +603,62 @@ local function createShootButton()
         
         if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
             local targetPos = target.Character.HumanoidRootPart.Position
-            
-            -- Silent Aim: наводим камеру на убийцу и стреляем
             local oldCFrame = Camera.CFrame
+            
             Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetPos)
             
-            -- Имитация выстрела через Remote
-            pcall(function()
-                local mm2 = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
-                if mm2 and mm2:FindFirstChild("Gun") then
-                    mm2.Gun:FireServer(target.Character.HumanoidRootPart)
-                elseif mm2 and mm2:FindFirstChild("Shoot") then
-                    mm2.Shoot:FireServer(target.Character.HumanoidRootPart)
-                end
-            end)
+            local success = false
+            local mm2 = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
             
-            -- Возвращаем камеру
+            if mm2 then
+                local remoteNames = {"Gun", "Shoot", "Fire", "GunRemote", "ShootRemote"}
+                for _, name in ipairs(remoteNames) do
+                    local remote = mm2:FindFirstChild(name)
+                    if remote then
+                        pcall(function()
+                            remote:FireServer(target.Character.HumanoidRootPart)
+                            success = true
+                        end)
+                        if success then break end
+                    end
+                end
+                
+                if not success then
+                    pcall(function()
+                        for _, remote in pairs(mm2:GetChildren()) do
+                            if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
+                                pcall(function()
+                                    remote:FireServer(target.Character)
+                                    success = true
+                                end)
+                                if success then break end
+                            end
+                        end
+                    end)
+                end
+            end
+            
             Camera.CFrame = oldCFrame
             
-            -- Визуальный эффект
-            shootButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+            if success then
+                shootButton.BackgroundColor3 = Color3.fromRGB(0, 255, 50)
+                wait(0.1)
+                shootButton.BackgroundColor3 = Color3.fromRGB(200, 30, 30)
+            else
+                shootButton.BackgroundColor3 = Color3.fromRGB(255, 200, 0)
+                wait(0.1)
+                shootButton.BackgroundColor3 = Color3.fromRGB(200, 30, 30)
+            end
+        else
+            shootButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             wait(0.1)
-            shootButton.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+            shootButton.BackgroundColor3 = Color3.fromRGB(200, 30, 30)
         end
     end)
 end
 
--- SILENT AIM
 local function updateSilentAim(state)
     silentAimEnabled = state
-    
     if state then
         if not shootButton then
             createShootButton()
@@ -449,32 +671,6 @@ local function updateSilentAim(state)
     end
 end
 
--- Остальные функции (ESP, Noclip, Fling и т.д.)
-local espHighlights = {}
-local espMurderEnabled = false
-local espSheriffEnabled = false
-local noclipEnabled = false
-local autoGrabEnabled = false
-local autoCollectEnabled = false
-local infJumpEnabled = false
-local antiFlingEnabled = false
-local flingMurdererEnabled = false
-local flingSheriffEnabled = false
-local playerTrackerEnabled = false
-local noclipConnection = nil
-local autoGrabConnection = nil
-local autoCollectConnection = nil
-local infJumpConnection = nil
-local antiFlingConnection = nil
-local flingMurdererConnection = nil
-local flingSheriffConnection = nil
-local playerTrackerConnection = nil
-local espUpdateConnection = nil
-local trackerLabels = {}
-local speedValue = 16
-local lastPosition = nil
-
--- ESP
 local function updateESPContinuous()
     if espUpdateConnection then
         espUpdateConnection:Disconnect()
@@ -504,11 +700,24 @@ local function updateESPContinuous()
                         hl.Parent = v.Character
                         hl.Adornee = v.Character
                         hl.FillColor = color
-                        hl.FillTransparency = 0.35
+                        hl.FillTransparency = 0.3
                         hl.OutlineColor = Color3.fromRGB(255, 255, 255)
                         hl.OutlineTransparency = 0.1
                         hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
                         espHighlights[v] = hl
+                        
+                        local rootPart = v.Character.HumanoidRootPart
+                        if rootPart then
+                            local box = Instance.new("BoxHandleAdornment")
+                            box.Size = Vector3.new(4, 6, 3)
+                            box.Adornee = rootPart
+                            box.AlwaysOnTop = true
+                            box.ZIndex = 10
+                            box.Color3 = color
+                            box.Transparency = 0.5
+                            box.Parent = rootPart
+                            table.insert(espHighlights, box)
+                        end
                     end
                 end
             end
@@ -516,7 +725,23 @@ local function updateESPContinuous()
     end)
 end
 
--- INF JUMP
+local noclipEnabled = false
+local autoGrabEnabled = false
+local autoCollectEnabled = false
+local infJumpEnabled = false
+local antiFlingEnabled = false
+local flingMurdererEnabled = false
+local flingSheriffEnabled = false
+local noclipConnection = nil
+local autoGrabConnection = nil
+local autoCollectConnection = nil
+local infJumpConnection = nil
+local antiFlingConnection = nil
+local flingMurdererConnection = nil
+local flingSheriffConnection = nil
+local speedValue = 16
+local lastPosition = nil
+
 local function updateInfJump(state)
     if infJumpConnection then
         infJumpConnection:Disconnect()
@@ -532,7 +757,6 @@ local function updateInfJump(state)
     end
 end
 
--- NoClip
 local function updateNoclip(state)
     if noclipConnection then
         noclipConnection:Disconnect()
@@ -560,7 +784,6 @@ local function updateNoclip(state)
     end
 end
 
--- Anti Fling
 local function updateAntiFling(state)
     if antiFlingConnection then
         antiFlingConnection:Disconnect()
@@ -599,7 +822,6 @@ local function updateAntiFling(state)
     end
 end
 
--- Auto Grab Gun
 local function updateAutoGrab(state)
     if autoGrabConnection then
         autoGrabConnection:Disconnect()
@@ -632,7 +854,6 @@ local function updateAutoGrab(state)
     end
 end
 
--- Auto Collect
 local function updateAutoCollect(state)
     if autoCollectConnection then
         autoCollectConnection:Disconnect()
@@ -657,7 +878,6 @@ local function updateAutoCollect(state)
     end
 end
 
--- Fling Murderer
 local function updateFlingMurderer(state)
     if flingMurdererConnection then
         flingMurdererConnection:Disconnect()
@@ -681,7 +901,6 @@ local function updateFlingMurderer(state)
     end
 end
 
--- Fling Sheriff
 local function updateFlingSheriff(state)
     if flingSheriffConnection then
         flingSheriffConnection:Disconnect()
@@ -705,7 +924,6 @@ local function updateFlingSheriff(state)
     end
 end
 
--- Speed
 local function updateSpeed(value)
     speedValue = value
     if humanoid then
@@ -713,7 +931,6 @@ local function updateSpeed(value)
     end
 end
 
--- Teleports
 local function teleportToSpawn()
     local spawns = workspace:GetDescendants()
     for _, v in ipairs(spawns) do
@@ -744,7 +961,6 @@ local function teleportToSheriff()
     end
 end
 
--- Построение GUI
 addSection("════ MAIN ════")
 addToggle("No Clip", updateNoclip)
 addToggle("Auto Grab Gun", updateAutoGrab)
@@ -752,9 +968,16 @@ addToggle("INF Jump", updateInfJump)
 
 addSection("═══ COMBAT ═══")
 addToggle("Silent Aim (Shoot Button)", updateSilentAim)
+addToggle("Auto Knife", updateAutoKnife)
+addSliderWithButtons("Hitbox Size", 0.5, 5, 1, updateHitboxSize, 0.1)
+addToggle("Hitbox (Enable)", updateHitboxes)
+
+addSection("═══ STEALTH ═══")
+addToggle("Invisibility (Not Visible)", updateInvisibility)
 
 addSection("═══ PROTECTION ═══")
 addToggle("Anti Fling / Anti Fall", updateAntiFling)
+addToggle("Instant Respawn", updateInstantRespawn)
 
 addSection("═══ VISUAL ═══")
 addToggle("ESP Murder (Red)", function(state) espMurderEnabled = state; updateESPContinuous() end)
@@ -773,9 +996,9 @@ addButton("To Murderer", Color3.fromRGB(90, 40, 40), teleportToMurderer)
 addButton("To Sheriff", Color3.fromRGB(40, 40, 90), teleportToSheriff)
 
 addSection("═══ EXTRA ═══")
-addSpeedSlider("Speed Boost", 16, 120, 16, updateSpeed)
+addSliderWithButtons("Speed Boost", 16, 120, 16, updateSpeed, 2)
+addToggle("Anti AFK", updateAntiAfk)
 
--- Управление окном
 closeBtn.MouseButton1Click:Connect(function()
     screenGui:Destroy()
 end)
@@ -784,7 +1007,6 @@ minBtn.MouseButton1Click:Connect(function()
     window.Visible = false
 end)
 
--- Переподключение при смене персонажа
 player.CharacterAdded:Connect(function(char)
     character = char
     humanoid = char:WaitForChild("Humanoid")
@@ -801,7 +1023,6 @@ player.CharacterAdded:Connect(function(char)
     end
 end)
 
--- Обход античита
 local function bypassAntiCheat()
     local oldNamecall
     oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
@@ -818,4 +1039,4 @@ local function bypassAntiCheat()
 end
 bypassAntiCheat()
 
-print("⚡ MM2 Ultimate Hub loaded! (Silent Aim + Movable Shoot Button)")
+print("⚡ MM2 Ultimate Hub loaded!")
