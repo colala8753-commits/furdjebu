@@ -1,4 +1,4 @@
--- MURDERER VS SHERIFFS DUELS HUB [FULL FIXED - OPTIMIZED ESP + SMART AIMBOT]
+-- MURDERER VS SHERIFFS DUELS HUB [SAFE - NO AUTO SHOOT]
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
@@ -28,44 +28,25 @@ local noclipConnection = nil
 local infJumpConnection = nil
 local espUpdateConnection = nil
 local espHighlights = {}
-local espCache = {}
 local aimbotConnection = nil
 local autoBlockConnection = nil
 local quickSwordConnection = nil
 local teleportToEnemyConnection = nil
 local espUpdateCounter = 0
 
--- ===== ОБХОД АНТИЧИТА =====
+-- ===== ОБХОД АНТИЧИТА (БЕЗОПАСНЫЙ) =====
 local function bypassAntiCheat()
-    local oldNamecall
-    oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
-        local method = getnamecallmethod()
-        if method == "FireServer" then
-            local args = {...}
-            local argsStr = tostring(args[1]) or ""
-            if argsStr:find("AntiCheat") or argsStr:find("Check") or argsStr:find("Report") or argsStr:find("Ban") then
-                return nil
-            end
-        end
-        if method == "Invoke" and tostring(self):find("AntiCheat") then
-            return nil
-        end
-        return oldNamecall(self, ...)
-    end)
-    
+    -- Только базовый обход, без агрессивных хуков
     for _, v in pairs(getgc(true)) do
         if type(v) == "table" then
             if rawget(v, "IsRunning") then
                 rawset(v, "IsRunning", false)
             end
-            if rawget(v, "Enabled") and type(rawget(v, "Enabled")) == "boolean" then
-                rawset(v, "Enabled", false)
-            end
         end
     end
 end
 
--- ===== ПРОВЕРКА ВИДИМОСТИ (НЕ ЧЕРЕЗ СТЕНЫ) =====
+-- ===== ПРОВЕРКА ВИДИМОСТИ =====
 local function isVisible(targetPart)
     if not targetPart or not Camera then return false end
     
@@ -118,7 +99,7 @@ titleCorner.Parent = titleBar
 local titleText = Instance.new("TextLabel")
 titleText.Size = UDim2.new(1, -120, 1, 0)
 titleText.Position = UDim2.new(0, 15, 0, 0)
-titleText.Text = "⚔️ MvS Ultimate Hub"
+titleText.Text = "⚔️ MvS Ultimate Hub [SAFE]"
 titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleText.TextXAlignment = Enum.TextXAlignment.Left
 titleText.TextSize = 16
@@ -409,7 +390,7 @@ local function updateJump(value)
     end
 end
 
--- ===== ESP (ОПТИМИЗИРОВАН - ОБНОВЛЕНИЕ РАЗ В 5 КАДРОВ) =====
+-- ===== ESP (ОПТИМИЗИРОВАН) =====
 local function updateESP(state)
     espEnabled = state
     
@@ -433,7 +414,6 @@ local function updateESP(state)
                 end
             end
             
-            -- Удаляем старые Highlight для игроков которых нет
             for v, hl in pairs(espHighlights) do
                 if not currentPlayers[v] then
                     pcall(function() hl:Destroy() end)
@@ -441,7 +421,6 @@ local function updateESP(state)
                 end
             end
             
-            -- Создаем новые Highlight
             local myTeam = nil
             if player.Team then
                 myTeam = player.Team
@@ -488,7 +467,7 @@ local function updateESP(state)
     end
 end
 
--- ===== СМАРТ АИМБОТ (НЕ ЧЕРЕЗ СТЕНЫ + АВТОВЫСТРЕЛ) =====
+-- ===== АИМБОТ (БЕЗ АВТОВЫСТРЕЛА - ТОЛЬКО НАВЕДЕНИЕ) =====
 local function updateAimbot(state)
     if aimbotConnection then
         aimbotConnection:Disconnect()
@@ -503,14 +482,12 @@ local function updateAimbot(state)
                 local dist = math.huge
                 local myTeam = player.Team
                 
-                -- Находим видимого врага
                 for _, v in pairs(game.Players:GetPlayers()) do
                     if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
                         local humanoidCheck = v.Character:FindFirstChild("Humanoid")
                         if humanoidCheck and humanoidCheck.Health > 0 then
                             if myTeam and v.Team then
                                 if v.Team ~= myTeam then
-                                    -- Проверяем видимость
                                     if isVisible(v.Character.HumanoidRootPart) then
                                         local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
                                         if d < dist then
@@ -534,26 +511,7 @@ local function updateAimbot(state)
                 
                 if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
                     local targetPos = target.Character.HumanoidRootPart.Position
-                    
-                    -- Наводим камеру
                     Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetPos)
-                    
-                    -- Автоматический выстрел, если цель видна
-                    if isVisible(target.Character.HumanoidRootPart) then
-                        pcall(function()
-                            local remotes = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
-                            if remotes then
-                                -- Пробуем разные варианты выстрела
-                                if remotes:FindFirstChild("Gun") then
-                                    remotes.Gun:FireServer(target.Character.HumanoidRootPart)
-                                elseif remotes:FindFirstChild("Shoot") then
-                                    remotes.Shoot:FireServer(target.Character)
-                                elseif remotes:FindFirstChild("Fire") then
-                                    remotes.Fire:FireServer(target.Character.HumanoidRootPart)
-                                end
-                            end
-                        end)
-                    end
                 end
             end
         end)
@@ -717,7 +675,7 @@ addSection("═══ VISUAL ═══")
 addToggle("ESP (Team Color)", updateESP)
 
 addSection("═══ COMBAT ═══")
-addToggle("Smart Aimbot (No Walls + Auto Shoot)", updateAimbot)
+addToggle("Aimbot (Aim Only - Safe)", updateAimbot)
 addToggle("Auto Block", updateAutoBlock)
 addToggle("Quick Sword (Auto Attack)", updateQuickSword)
 
@@ -752,4 +710,4 @@ end)
 
 bypassAntiCheat()
 
-print("⚔️ MvS Ultimate Hub loaded (OPTIMIZED ESP + SMART AIMBOT)!")
+print("⚔️ MvS Ultimate Hub loaded (SAFE - NO AUTO SHOOT)!")
