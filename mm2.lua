@@ -1,4 +1,4 @@
--- MM2 ULTIMATE HUB [FULL + HITBOX + 3 NEW FUNCTIONS]
+-- MM2 ULTIMATE HUB [FULL + MEGA FLING + WALLHACK + FIXED ESP]
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
@@ -18,6 +18,7 @@ local silentAimEnabled = false
 local invisibilityEnabled = false
 local hitboxEnabled = false
 local hitboxSize = 1
+local wallhackEnabled = false
 local shootButton = nil
 local shootButtonDragging = false
 local shootButtonDragStart = nil
@@ -27,14 +28,18 @@ local espHighlights = {}
 local espUpdateConnection = nil
 local espMurderEnabled = false
 local espSheriffEnabled = false
+local espDistance = 1000
 local hitboxConnections = {}
 local hitboxObjects = {}
+local wallhackConnections = {}
 local autoKnifeEnabled = false
 local autoKnifeConnection = nil
 local instantRespawnEnabled = false
 local instantRespawnConnection = nil
 local antiAfkEnabled = false
 local antiAfkConnection = nil
+local antiAfkStartPos = nil
+local antiAfkStartCFrame = nil
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "MM2UltimateHub"
@@ -43,8 +48,8 @@ screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 400)
-window.Position = UDim2.new(0.5, -300, 0.5, -200)
+window.Size = UDim2.new(0, 600, 0, 420)
+window.Position = UDim2.new(0.5, -300, 0.5, -210)
 window.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 window.BackgroundTransparency = 0
 window.BorderSizePixel = 0
@@ -333,6 +338,47 @@ local function getPlayerRole(v)
     end
 end
 
+local function updateWallhack(state)
+    wallhackEnabled = state
+    for _, con in pairs(wallhackConnections) do
+        pcall(function() con:Disconnect() end)
+    end
+    wallhackConnections = {}
+    
+    if state then
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("BasePart") and v.Transparency < 1 then
+                local originalTransparency = v.Transparency
+                local con = RunService.RenderStepped:Connect(function()
+                    if wallhackEnabled and v and v.Parent then
+                        v.Transparency = math.min(originalTransparency + 0.5, 0.8)
+                    end
+                end)
+                table.insert(wallhackConnections, con)
+            end
+        end
+        
+        local partAddedCon = workspace.DescendantAdded:Connect(function(v)
+            if wallhackEnabled and v:IsA("BasePart") and v.Transparency < 1 then
+                local originalTransparency = v.Transparency
+                local con = RunService.RenderStepped:Connect(function()
+                    if wallhackEnabled and v and v.Parent then
+                        v.Transparency = math.min(originalTransparency + 0.5, 0.8)
+                    end
+                end)
+                table.insert(wallhackConnections, con)
+            end
+        end)
+        table.insert(wallhackConnections, partAddedCon)
+    else
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("BasePart") and v.Transparency > 0.5 then
+                v.Transparency = 0
+            end
+        end
+    end
+end
+
 local function updateHitboxes(state)
     hitboxEnabled = state
     
@@ -351,7 +397,8 @@ local function updateHitboxes(state)
                 local rootPart = v.Character.HumanoidRootPart
                 local hitboxPart = Instance.new("Part")
                 hitboxPart.Size = Vector3.new(4 * hitboxSize, 6 * hitboxSize, 3 * hitboxSize)
-                hitboxPart.Transparency = 1
+                hitboxPart.Transparency = 0.5
+                hitboxPart.BrickColor = BrickColor.Red()
                 hitboxPart.CanCollide = false
                 hitboxPart.Anchored = true
                 hitboxPart.Parent = v.Character
@@ -381,7 +428,8 @@ local function updateHitboxes(state)
                     local rootPart = char.HumanoidRootPart
                     local hitboxPart = Instance.new("Part")
                     hitboxPart.Size = Vector3.new(4 * hitboxSize, 6 * hitboxSize, 3 * hitboxSize)
-                    hitboxPart.Transparency = 1
+                    hitboxPart.Transparency = 0.5
+                    hitboxPart.BrickColor = BrickColor.Red()
                     hitboxPart.CanCollide = false
                     hitboxPart.Anchored = true
                     hitboxPart.Parent = char
@@ -427,7 +475,7 @@ local function updateAutoKnife(state)
                     for _, v in pairs(game.Players:GetPlayers()) do
                         if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
                             local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
-                            if d < dist and d < 15 then
+                            if d < dist and d < 20 then
                                 dist = d
                                 target = v
                             end
@@ -482,15 +530,43 @@ local function updateAntiAfk(state)
     end
     antiAfkEnabled = state
     if state then
+        antiAfkStartPos = root.Position
+        antiAfkStartCFrame = root.CFrame
+        local step = 0
+        
         antiAfkConnection = RunService.Heartbeat:Connect(function()
-            if antiAfkEnabled and character and humanoid then
-                local currentPos = root.Position
-                local offset = Vector3.new(math.random(-2, 2), 0, math.random(-2, 2))
-                root.CFrame = root.CFrame + offset
-                wait(0.1)
-                root.CFrame = CFrame.new(currentPos)
+            if antiAfkEnabled and character and root then
+                step = step + 1
+                local offset = Vector3.new(0, 0, 0)
+                
+                if step % 4 == 0 then
+                    offset = Vector3.new(1, 0, 0)
+                elseif step % 4 == 1 then
+                    offset = Vector3.new(-1, 0, 0)
+                elseif step % 4 == 2 then
+                    offset = Vector3.new(0, 0, 1)
+                elseif step % 4 == 3 then
+                    offset = Vector3.new(0, 0, -1)
+                end
+                
+                root.CFrame = antiAfkStartCFrame + offset
+                
+                if step % 10 == 0 and humanoid then
+                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                    wait(0.05)
+                end
+                
+                if step % 8 == 0 then
+                    root.CFrame = antiAfkStartCFrame
+                end
             end
         end)
+    else
+        if antiAfkStartCFrame and root then
+            root.CFrame = antiAfkStartCFrame
+        end
+        antiAfkStartPos = nil
+        antiAfkStartCFrame = nil
     end
 end
 
@@ -686,37 +762,56 @@ local function updateESPContinuous()
         if espMurderEnabled or espSheriffEnabled then
             for _, v in pairs(game.Players:GetPlayers()) do
                 if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                    local role = getPlayerRole(v)
-                    local color = nil
+                    local rootPart = v.Character.HumanoidRootPart
+                    local dist = (root.Position - rootPart.Position).Magnitude
                     
-                    if espMurderEnabled and role == "murderer" then
-                        color = Color3.fromRGB(255, 0, 0)
-                    elseif espSheriffEnabled and role == "sheriff" then
-                        color = Color3.fromRGB(0, 100, 255)
-                    end
-                    
-                    if color then
-                        local hl = Instance.new("Highlight")
-                        hl.Parent = v.Character
-                        hl.Adornee = v.Character
-                        hl.FillColor = color
-                        hl.FillTransparency = 0.3
-                        hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                        hl.OutlineTransparency = 0.1
-                        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                        espHighlights[v] = hl
+                    if dist <= espDistance then
+                        local role = getPlayerRole(v)
+                        local color = nil
+                        local outlineColor = nil
+                        local transparency = 0.2
                         
-                        local rootPart = v.Character.HumanoidRootPart
-                        if rootPart then
+                        if espMurderEnabled and role == "murderer" then
+                            color = Color3.fromRGB(255, 0, 0)
+                            outlineColor = Color3.fromRGB(255, 255, 255)
+                            transparency = 0.15
+                        elseif espSheriffEnabled and role == "sheriff" then
+                            color = Color3.fromRGB(0, 100, 255)
+                            outlineColor = Color3.fromRGB(255, 255, 255)
+                            transparency = 0.15
+                        end
+                        
+                        if color then
+                            local hl = Instance.new("Highlight")
+                            hl.Parent = v.Character
+                            hl.Adornee = v.Character
+                            hl.FillColor = color
+                            hl.FillTransparency = transparency
+                            hl.OutlineColor = outlineColor or Color3.fromRGB(255, 255, 255)
+                            hl.OutlineTransparency = 0
+                            hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                            espHighlights[v] = hl
+                            
                             local box = Instance.new("BoxHandleAdornment")
-                            box.Size = Vector3.new(4, 6, 3)
+                            box.Size = Vector3.new(4.5, 7, 3.5)
                             box.Adornee = rootPart
                             box.AlwaysOnTop = true
                             box.ZIndex = 10
                             box.Color3 = color
-                            box.Transparency = 0.5
+                            box.Transparency = 0.3
                             box.Parent = rootPart
                             table.insert(espHighlights, box)
+                            
+                            local circle = Instance.new("CylinderHandleAdornment")
+                            circle.Height = 0.5
+                            circle.Radius = 5
+                            circle.Adornee = rootPart
+                            circle.AlwaysOnTop = true
+                            circle.ZIndex = 5
+                            circle.Color3 = color
+                            circle.Transparency = 0.6
+                            circle.Parent = rootPart
+                            table.insert(espHighlights, circle)
                         end
                     end
                 end
@@ -891,8 +986,9 @@ local function updateFlingMurderer(state)
                     if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
                         if getPlayerRole(v) == "murderer" then
                             local hrp = v.Character.HumanoidRootPart
-                            hrp.Velocity = Vector3.new(math.random(-500, 500), 500, math.random(-500, 500))
-                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 10, 0)
+                            hrp.Velocity = Vector3.new(math.random(-1000, 1000), 1500, math.random(-1000, 1000))
+                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 30, 0)
+                            hrp.RotVelocity = Vector3.new(math.random(-1000, 1000), math.random(-1000, 1000), math.random(-1000, 1000))
                         end
                     end
                 end
@@ -914,8 +1010,9 @@ local function updateFlingSheriff(state)
                     if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
                         if getPlayerRole(v) == "sheriff" then
                             local hrp = v.Character.HumanoidRootPart
-                            hrp.Velocity = Vector3.new(math.random(-500, 500), 500, math.random(-500, 500))
-                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 10, 0)
+                            hrp.Velocity = Vector3.new(math.random(-1000, 1000), 1500, math.random(-1000, 1000))
+                            hrp.CFrame = hrp.CFrame * CFrame.new(0, 30, 0)
+                            hrp.RotVelocity = Vector3.new(math.random(-1000, 1000), math.random(-1000, 1000), math.random(-1000, 1000))
                         end
                     end
                 end
@@ -980,12 +1077,13 @@ addToggle("Anti Fling / Anti Fall", updateAntiFling)
 addToggle("Instant Respawn", updateInstantRespawn)
 
 addSection("═══ VISUAL ═══")
+addToggle("Wallhack (See Through Walls)", updateWallhack)
 addToggle("ESP Murder (Red)", function(state) espMurderEnabled = state; updateESPContinuous() end)
 addToggle("ESP Sheriff (Blue)", function(state) espSheriffEnabled = state; updateESPContinuous() end)
 
 addSection("═══ FLING ═══")
-addToggle("Fling Murderer", updateFlingMurderer)
-addToggle("Fling Sheriff", updateFlingSheriff)
+addToggle("Fling Murderer (MEGA)", updateFlingMurderer)
+addToggle("Fling Sheriff (MEGA)", updateFlingSheriff)
 
 addSection("═══ AUTO COLLECT ═══")
 addToggle("Auto Collect Coins", updateAutoCollect)
@@ -997,7 +1095,7 @@ addButton("To Sheriff", Color3.fromRGB(40, 40, 90), teleportToSheriff)
 
 addSection("═══ EXTRA ═══")
 addSliderWithButtons("Speed Boost", 16, 120, 16, updateSpeed, 2)
-addToggle("Anti AFK", updateAntiAfk)
+addToggle("Anti AFK (Smart)", updateAntiAfk)
 
 closeBtn.MouseButton1Click:Connect(function()
     screenGui:Destroy()
