@@ -1,0 +1,510 @@
+-- MURDERER VS SHERIFFS DUELS HUB [FULL]
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local root = character:WaitForChild("HumanoidRootPart")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+local mouse = player:GetMouse()
+
+for _, v in pairs(player.PlayerGui:GetChildren()) do
+    if v.Name == "MvSHub" then
+        v:Destroy()
+    end
+end
+
+-- ПЕРЕМЕННЫЕ
+local noclipEnabled = false
+local infJumpEnabled = false
+local speedValue = 16
+local jumpValue = 50
+local espEnabled = false
+local aimbotEnabled = false
+local noclipConnection = nil
+local infJumpConnection = nil
+local espUpdateConnection = nil
+local espHighlights = {}
+local aimbotConnection = nil
+
+-- GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MvSHub"
+screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local window = Instance.new("Frame")
+window.Size = UDim2.new(0, 500, 0, 450)
+window.Position = UDim2.new(0.5, -250, 0.5, -225)
+window.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+window.BackgroundTransparency = 0
+window.BorderSizePixel = 0
+window.Parent = screenGui
+window.Visible = true
+window.Active = true
+window.Selectable = false
+
+local windowCorner = Instance.new("UICorner")
+windowCorner.CornerRadius = UDim.new(0, 10)
+windowCorner.Parent = window
+
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 40)
+titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+titleBar.BorderSizePixel = 0
+titleBar.Parent = window
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 10)
+titleCorner.Parent = titleBar
+
+local titleText = Instance.new("TextLabel")
+titleText.Size = UDim2.new(1, -120, 1, 0)
+titleText.Position = UDim2.new(0, 15, 0, 0)
+titleText.Text = "⚔️ MvS Ultimate Hub"
+titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleText.TextXAlignment = Enum.TextXAlignment.Left
+titleText.TextSize = 16
+titleText.Font = Enum.Font.GothamBold
+titleText.BackgroundTransparency = 1
+titleText.Parent = titleBar
+
+local dragging = false
+local dragStart = nil
+local dragOffset = nil
+
+titleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        dragOffset = window.Position
+    end
+end)
+
+titleBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        window.Position = UDim2.new(dragOffset.X.Scale, dragOffset.X.Offset + delta.X, dragOffset.Y.Scale, dragOffset.Y.Offset + delta.Y)
+    end
+end)
+
+local function createTitleButton(text, x, color)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 35, 0, 35)
+    btn.Position = UDim2.new(1, x, 0, 2)
+    btn.Text = text
+    btn.TextSize = 16
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.BackgroundColor3 = color or Color3.fromRGB(35, 35, 50)
+    btn.BorderSizePixel = 0
+    btn.Parent = titleBar
+    btn.Selectable = false
+    return btn
+end
+
+local minBtn = createTitleButton("─", -105)
+local closeBtn = createTitleButton("✕", -40)
+
+closeBtn.MouseEnter:Connect(function()
+    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+end)
+closeBtn.MouseLeave:Connect(function()
+    closeBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+end)
+
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 55, 0, 55)
+toggleBtn.Position = UDim2.new(0, 15, 0, 15)
+toggleBtn.Text = "⚔️"
+toggleBtn.TextSize = 22
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+toggleBtn.BorderSizePixel = 0
+toggleBtn.Parent = screenGui
+toggleBtn.Visible = true
+toggleBtn.Selectable = false
+
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(0, 10)
+toggleCorner.Parent = toggleBtn
+
+toggleBtn.MouseButton1Click:Connect(function()
+    window.Visible = not window.Visible
+end)
+
+local content = Instance.new("Frame")
+content.Size = UDim2.new(1, 0, 1, -40)
+content.Position = UDim2.new(0, 0, 0, 40)
+content.BackgroundColor3 = Color3.fromRGB(25, 25, 38)
+content.BorderSizePixel = 0
+content.Parent = window
+
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, -10, 1, -10)
+scrollFrame.Position = UDim2.new(0, 5, 0, 5)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.ScrollBarThickness = 8
+scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 85)
+scrollFrame.ScrollBarImageTransparency = 0.3
+scrollFrame.BorderSizePixel = 0
+scrollFrame.Parent = content
+
+local canvas = Instance.new("Frame")
+canvas.Size = UDim2.new(1, 0, 0, 0)
+canvas.BackgroundTransparency = 1
+canvas.Parent = scrollFrame
+
+local yPos = 5
+
+local function addSection(text)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -20, 0, 28)
+    lbl.Position = UDim2.new(0, 10, 0, yPos)
+    lbl.Text = text
+    lbl.TextColor3 = Color3.fromRGB(160, 160, 220)
+    lbl.TextSize = 14
+    lbl.TextXAlignment = Enum.TextXAlignment.Center
+    lbl.BackgroundTransparency = 1
+    lbl.Font = Enum.Font.GothamBold
+    lbl.Parent = canvas
+    yPos = yPos + 33
+    canvas.Size = UDim2.new(1, 0, 0, yPos)
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos + 50)
+    return lbl
+end
+
+local function addToggle(text, callback)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -20, 0, 30)
+    btn.Position = UDim2.new(0, 10, 0, yPos)
+    btn.Text = text .. ": OFF"
+    btn.BackgroundColor3 = Color3.fromRGB(45, 45, 70)
+    btn.TextColor3 = Color3.fromRGB(230, 230, 240)
+    btn.TextSize = 12
+    btn.BorderSizePixel = 0
+    btn.Font = Enum.Font.Gotham
+    btn.Parent = canvas
+    btn.Selectable = false
+    btn.AutoButtonColor = false
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 6)
+    btnCorner.Parent = btn
+    
+    local state = false
+    btn.MouseButton1Click:Connect(function()
+        state = not state
+        btn.Text = text .. (state and ": ON" or ": OFF")
+        btn.BackgroundColor3 = state and Color3.fromRGB(0, 140, 70) or Color3.fromRGB(45, 45, 70)
+        callback(state)
+    end)
+    yPos = yPos + 35
+    canvas.Size = UDim2.new(1, 0, 0, yPos)
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos + 50)
+    return btn
+end
+
+local function addInputSlider(text, minVal, maxVal, defaultVal, callback, step)
+    step = step or 1
+    local container = Instance.new("Frame")
+    container.Size = UDim2.new(1, -20, 0, 40)
+    container.Position = UDim2.new(0, 10, 0, yPos)
+    container.BackgroundTransparency = 1
+    container.Parent = canvas
+    yPos = yPos + 5
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.25, 0, 1, 0)
+    label.Position = UDim2.new(0, 0, 0, 0)
+    label.Text = text .. ": " .. defaultVal
+    label.TextColor3 = Color3.fromRGB(200, 200, 210)
+    label.TextSize = 12
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.Gotham
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = container
+    
+    local minusBtn = Instance.new("TextButton")
+    minusBtn.Size = UDim2.new(0, 30, 0, 30)
+    minusBtn.Position = UDim2.new(0.4, 0, 0.5, -15)
+    minusBtn.Text = "-"
+    minusBtn.TextSize = 18
+    minusBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    minusBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+    minusBtn.BorderSizePixel = 0
+    minusBtn.Parent = container
+    
+    local minusCorner = Instance.new("UICorner")
+    minusCorner.CornerRadius = UDim.new(0, 6)
+    minusCorner.Parent = minusBtn
+    
+    local valueDisplay = Instance.new("TextLabel")
+    valueDisplay.Size = UDim2.new(0.1, 0, 1, 0)
+    valueDisplay.Position = UDim2.new(0.5, -20, 0, 0)
+    valueDisplay.Text = tostring(defaultVal)
+    valueDisplay.TextColor3 = Color3.fromRGB(255, 255, 255)
+    valueDisplay.TextSize = 14
+    valueDisplay.BackgroundTransparency = 1
+    valueDisplay.Font = Enum.Font.GothamBold
+    valueDisplay.Parent = container
+    
+    local plusBtn = Instance.new("TextButton")
+    plusBtn.Size = UDim2.new(0, 30, 0, 30)
+    plusBtn.Position = UDim2.new(0.7, 0, 0.5, -15)
+    plusBtn.Text = "+"
+    plusBtn.TextSize = 18
+    plusBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    plusBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+    plusBtn.BorderSizePixel = 0
+    plusBtn.Parent = container
+    
+    local plusCorner = Instance.new("UICorner")
+    plusCorner.CornerRadius = UDim.new(0, 6)
+    plusCorner.Parent = plusBtn
+    
+    local value = defaultVal
+    
+    minusBtn.MouseButton1Click:Connect(function()
+        value = math.max(value - step, minVal)
+        valueDisplay.Text = tostring(value)
+        label.Text = text .. ": " .. value
+        callback(value)
+    end)
+    
+    plusBtn.MouseButton1Click:Connect(function()
+        value = math.min(value + step, maxVal)
+        valueDisplay.Text = tostring(value)
+        label.Text = text .. ": " .. value
+        callback(value)
+    end)
+    
+    yPos = yPos + 45
+    canvas.Size = UDim2.new(1, 0, 0, yPos)
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPos + 50)
+    return container
+end
+
+-- ===== ФУНКЦИИ =====
+
+-- NOCLIP
+local function updateNoclip(state)
+    if noclipConnection then
+        noclipConnection:Disconnect()
+        noclipConnection = nil
+    end
+    noclipEnabled = state
+    if state then
+        noclipConnection = RunService.Stepped:Connect(function()
+            if noclipEnabled and character then
+                for _, part in ipairs(character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+            end
+        end)
+    else
+        if character then
+            for _, part in ipairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = true
+                end
+            end
+        end
+    end
+end
+
+-- INF JUMP
+local function updateInfJump(state)
+    if infJumpConnection then
+        infJumpConnection:Disconnect()
+        infJumpConnection = nil
+    end
+    infJumpEnabled = state
+    if state then
+        infJumpConnection = UserInputService.JumpRequest:Connect(function()
+            if infJumpEnabled and character and humanoid then
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end)
+    end
+end
+
+-- SPEED BOOST
+local function updateSpeed(value)
+    speedValue = value
+    if humanoid then
+        humanoid.WalkSpeed = value
+    end
+end
+
+-- JUMP BOOST
+local function updateJump(value)
+    jumpValue = value
+    if humanoid then
+        humanoid.JumpPower = value
+    end
+end
+
+-- ===== ESP (КОМАНДНЫЙ) =====
+local function updateESP(state)
+    espEnabled = state
+    
+    if espUpdateConnection then
+        espUpdateConnection:Disconnect()
+        espUpdateConnection = nil
+    end
+    
+    if state then
+        espUpdateConnection = RunService.RenderStepped:Connect(function()
+            for _, hl in pairs(espHighlights) do
+                pcall(function() hl:Destroy() end)
+            end
+            espHighlights = {}
+            
+            -- Определяем команду игрока
+            local myTeam = nil
+            if player.Team then
+                myTeam = player.Team.Name
+            end
+            
+            -- Проверяем находится ли игрок в лобби
+            local inLobby = false
+            if workspace:FindFirstChild("Lobby") and root then
+                local lobby = workspace.Lobby
+                if (root.Position - lobby.Position).Magnitude < 100 then
+                    inLobby = true
+                end
+            end
+            
+            for _, v in pairs(game.Players:GetPlayers()) do
+                if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                    local color = nil
+                    local transparency = 0.3
+                    
+                    if inLobby or not myTeam then
+                        color = Color3.fromRGB(200, 200, 200)
+                        transparency = 0.5
+                    else
+                        if v.Team and v.Team.Name == myTeam then
+                            color = Color3.fromRGB(0, 255, 50)
+                        else
+                            color = Color3.fromRGB(255, 0, 0)
+                        end
+                    end
+                    
+                    local hl = Instance.new("Highlight")
+                    hl.Parent = v.Character
+                    hl.Adornee = v.Character
+                    hl.FillColor = color
+                    hl.FillTransparency = transparency
+                    hl.OutlineColor = color
+                    hl.OutlineTransparency = 0.2
+                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    espHighlights[v] = hl
+                end
+            end
+        end)
+    else
+        for _, hl in pairs(espHighlights) do
+            pcall(function() hl:Destroy() end)
+        end
+        espHighlights = {}
+    end
+end
+
+-- ===== АИМБОТ =====
+local function updateAimbot(state)
+    if aimbotConnection then
+        aimbotConnection:Disconnect()
+        aimbotConnection = nil
+    end
+    aimbotEnabled = state
+    
+    if state then
+        aimbotConnection = RunService.Heartbeat:Connect(function()
+            if aimbotEnabled and character and root then
+                -- Находим врага (противоположную команду)
+                local target = nil
+                local dist = math.huge
+                local myTeam = player.Team
+                
+                for _, v in pairs(game.Players:GetPlayers()) do
+                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        if myTeam then
+                            if v.Team and v.Team ~= myTeam then
+                                local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                                if d < dist then
+                                    dist = d
+                                    target = v
+                                end
+                            end
+                        else
+                            local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                            if d < dist then
+                                dist = d
+                                target = v
+                            end
+                        end
+                    end
+                end
+                
+                if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                    local targetPos = target.Character.HumanoidRootPart.Position
+                    -- Наводим камеру на цель
+                    Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetPos)
+                end
+            end
+        end)
+    end
+end
+
+-- ===== ПОСТРОЕНИЕ GUI =====
+addSection("════ MAIN ════")
+addToggle("No Clip", updateNoclip)
+addToggle("INF Jump", updateInfJump)
+
+addSection("═══ BOOSTS ═══")
+addInputSlider("Speed Boost", 16, 2500, 16, updateSpeed, 2)
+addInputSlider("Jump Boost", 0, 500, 50, updateJump, 2)
+
+addSection("═══ VISUAL ═══")
+addToggle("ESP (Team Color)", updateESP)
+
+addSection("═══ COMBAT ═══")
+addToggle("Aimbot (Auto Aim)", updateAimbot)
+
+closeBtn.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+minBtn.MouseButton1Click:Connect(function()
+    window.Visible = false
+end)
+
+player.CharacterAdded:Connect(function(char)
+    character = char
+    humanoid = char:WaitForChild("Humanoid")
+    root = char:WaitForChild("HumanoidRootPart")
+    if speedValue then
+        humanoid.WalkSpeed = speedValue
+    end
+    if jumpValue then
+        humanoid.JumpPower = jumpValue
+    end
+    if noclipEnabled then
+        updateNoclip(true)
+    end
+    if espEnabled then
+        updateESP(true)
+    end
+end)
+
+print("⚔️ MvS Ultimate Hub loaded!")
