@@ -41,6 +41,18 @@ local Modes = {
         Description = "+1 Speed Keyboard Escape | Candy & Chocolate",
         Script = "",
         Game = "speedkeyboard"
+    },
+    {
+        Name = "🖱️ Auto Clicker",
+        Description = "Автоматический кликер",
+        Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/autcl"))()',
+        Game = "autoclicker"
+    },
+    {
+        Name = "⚙️ Macros",
+        Description = "Макросы для игр",
+        Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/macros"))()',
+        Game = "macros"
     }
 }
 
