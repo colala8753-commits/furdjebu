@@ -1,4 +1,4 @@
--- AUTO CLICKER [UNIVERSAL + MOBILE SUPPORT]
+-- AUTO CLICKER [UNIVERSAL + MOBILE SUPPORT - FIXED]
 local player = game.Players.LocalPlayer
 local mouse = player:GetMouse()
 local UserInputService = game:GetService("UserInputService")
@@ -35,7 +35,7 @@ screenGui.Parent = player:WaitForChild("PlayerGui")
 screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- ===== ГЛАВНАЯ ПАНЕЛЬ (как на 1 скрине) =====
+-- ===== ГЛАВНАЯ ПАНЕЛЬ =====
 local mainPanel = Instance.new("Frame")
 mainPanel.Size = UDim2.new(0, 300, 0, 65)
 mainPanel.Position = UDim2.new(0.5, -150, 0.85, 0)
@@ -157,7 +157,7 @@ local pointObjects = {}
 
 -- ===== ФУНКЦИИ =====
 
--- Создание точки клика (как на 2 скрине - синий кружок с точкой внутри)
+-- Создание точки клика
 local function createClickPoint(position)
     local point = Instance.new("Frame")
     point.Size = UDim2.new(0, 45, 0, 45)
@@ -175,7 +175,7 @@ local function createClickPoint(position)
     pointCorner.CornerRadius = UDim.new(1, 0)
     pointCorner.Parent = point
     
-    -- Центр точки (клик) - красная точка как на скрине
+    -- Центр точки (клик)
     local center = Instance.new("Frame")
     center.Size = UDim2.new(0, 8, 0, 8)
     center.Position = UDim2.new(0.5, -4, 0.5, -4)
@@ -198,40 +198,9 @@ local function createClickPoint(position)
     numberLabel.BackgroundTransparency = 1
     numberLabel.Parent = point
     
-    -- Добавляем drag для точки
-    point.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            isDragging = true
-            dragPoint = point
-            dragOffset = Vector2.new(input.Position.X - point.AbsolutePosition.X, input.Position.Y - point.AbsolutePosition.Y)
-        end
-    end)
-    
-    point.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            isDragging = false
-            dragPoint = nil
-        end
-    end)
-    
     table.insert(pointObjects, point)
     return point
 end
-
--- Обновление позиции точки при драге
-RunService.RenderStepped:Connect(function()
-    if isDragging and dragPoint then
-        local pos = mouse
-        dragPoint.Position = UDim2.new(0, pos.X - 22.5 - (dragOffset.X or 0), 0, pos.Y - 22.5 - (dragOffset.Y or 0))
-        -- Обновляем координаты в массиве
-        for i, obj in ipairs(pointObjects) do
-            if obj == dragPoint then
-                clickPoints[i] = Vector2.new(pos.X - (dragOffset.X or 0), pos.Y - (dragOffset.Y or 0))
-                break
-            end
-        end
-    end
-end)
 
 -- Добавление точки клика
 local function addClickPoint()
@@ -239,7 +208,7 @@ local function addClickPoint()
     -- Проверяем, не слишком близко к существующим точкам
     for _, p in ipairs(clickPoints) do
         if (p - pos).Magnitude < 30 then
-            return -- Слишком близко, игнорируем
+            return
         end
     end
     table.insert(clickPoints, pos)
@@ -257,16 +226,6 @@ local function removeLastPoint()
     end
 end
 
--- Очистка всех точек
-local function clearAllPoints()
-    for _, obj in pairs(pointObjects) do
-        obj:Destroy()
-    end
-    pointObjects = {}
-    clickPoints = {}
-    updateInfo()
-end
-
 -- Обновление информации
 local function updateInfo()
     infoLabel.Text = tostring(#clickPoints)
@@ -274,10 +233,9 @@ end
 
 -- ===== ОСНОВНАЯ ЛОГИКА КЛИКЕРА =====
 
--- Эмуляция клика (поддерживает и телефон)
+-- Эмуляция клика
 local function emulateClick(pos)
     if isMobile then
-        -- Мобильная версия
         local touch = {
             Id = 1,
             Position = pos,
@@ -288,7 +246,6 @@ local function emulateClick(pos)
         wait(0.02)
         TouchInputService:SendEvent(Enum.UserInputType.Touch, Enum.KeyCode.Unknown, false, false, touch)
     else
-        -- ПК версия
         local touch = {
             Id = 1,
             Position = pos,
@@ -321,13 +278,11 @@ local function startClicker()
         local currentPos = clickPoints[currentPointIndex]
         if currentPos then
             if isHolding then
-                -- Режим удержания (движение вверх-вниз как на 3 скрине)
                 local targetPos = currentPos + Vector2.new(0, 30 * holdingDirection)
                 emulateClick(targetPos)
                 holdingDirection = holdingDirection * -1
                 wait(0.15)
             else
-                -- Обычный клик
                 emulateClick(currentPos)
             end
         end
@@ -452,17 +407,17 @@ end
 
 -- ===== НАСТРОЙКА КНОПОК =====
 
--- Синяя кнопка (Вкл/Выкл)
+-- Синяя кнопка
 toggleBtn.MouseButton1Click:Connect(function()
     toggleClicker()
 end)
 
--- Зеленая кнопка (+)
+-- Зеленая кнопка
 addBtn.MouseButton1Click:Connect(function()
     addClickPoint()
 end)
 
--- Оранжевая кнопка (Hold)
+-- Оранжевая кнопка
 holdBtn.MouseButton1Click:Connect(function()
     isHolding = not isHolding
     if isHolding then
@@ -474,7 +429,7 @@ holdBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Красная кнопка (-)
+-- Красная кнопка
 removeBtn.MouseButton1Click:Connect(function()
     removeLastPoint()
 end)
@@ -505,9 +460,8 @@ UserInputService.InputBegan:Connect(function(input)
     end
 end)
 
--- ===== ПОДДЕРЖКА ТЕЛЕФОНА (как на 1 скрине) =====
+-- ===== ПОДДЕРЖКА ТЕЛЕФОНА =====
 if isMobile then
-    -- Увеличиваем кнопки для телефона
     mainPanel.Size = UDim2.new(0, 350, 0, 75)
     mainPanel.Position = UDim2.new(0.5, -175, 0.8, 0)
     
@@ -536,15 +490,9 @@ if isMobile then
     instrBtn.TextSize = 20
 end
 
--- ===== АВТООБНОВЛЕНИЕ ПОЗИЦИЙ ПРИ ИЗМЕНЕНИИ РАЗМЕРА ЭКРАНА =====
-UserInputService:GetPropertyChangedSignal("WindowFocused"):Connect(function()
-    screenSize = Vector2.new(mouse.ViewSizeX, mouse.ViewSizeY)
-end)
-
--- ===== ЗАПУСК =====
+-- ===== ДЛЯ ТЕСТА =====
 print("🖱️ Auto Clicker loaded!")
-print("📌 Поддерживает ПК и телефон!")
-print("📌 F1 - Вкл/Выкл")
-print("📌 F2 - Добавить точку клика")
-print("📌 F3 - Удалить последнюю точку")
-print("📌 F4 - Режим удержания")
+print("📌 Нажми F1 - Вкл/Выкл")
+print("📌 Нажми F2 - Добавить точку")
+print("📌 Нажми F3 - Удалить точку")
+print("📌 Нажми F4 - Режим удержания")
