@@ -1,1 +1,550 @@
+-- AUTO CLICKER [UNIVERSAL + MOBILE SUPPORT]
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local TouchInputService = game:GetService("TouchInputService")
 
+-- Удаляем старые GUI
+for _, v in pairs(player.PlayerGui:GetChildren()) do
+    if v.Name == "AutoClicker" then
+        v:Destroy()
+    end
+end
+
+-- ===== ПЕРЕМЕННЫЕ =====
+local clickPoints = {}
+local isRunning = false
+local isHolding = false
+local currentPointIndex = 1
+local holdingDirection = 1
+local clickerConnection = nil
+local screenSize = Vector2.new(mouse.ViewSizeX, mouse.ViewSizeY)
+local isDragging = false
+local dragPoint = nil
+local dragOffset = nil
+
+-- Проверка на мобильное устройство
+local isMobile = UserInputService.TouchEnabled
+
+-- ===== СОЗДАНИЕ GUI =====
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "AutoClicker"
+screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- ===== ГЛАВНАЯ ПАНЕЛЬ (как на 1 скрине) =====
+local mainPanel = Instance.new("Frame")
+mainPanel.Size = UDim2.new(0, 300, 0, 65)
+mainPanel.Position = UDim2.new(0.5, -150, 0.85, 0)
+mainPanel.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+mainPanel.BackgroundTransparency = 0.15
+mainPanel.BorderSizePixel = 0
+mainPanel.Parent = screenGui
+mainPanel.Active = true
+mainPanel.Draggable = true
+
+local panelCorner = Instance.new("UICorner")
+panelCorner.CornerRadius = UDim.new(0, 15)
+panelCorner.Parent = mainPanel
+
+local panelStroke = Instance.new("UIStroke")
+panelStroke.Thickness = 1
+panelStroke.Color = Color3.fromRGB(60, 60, 80)
+panelStroke.Parent = mainPanel
+
+-- ===== КНОПКИ =====
+
+-- Синяя кнопка (Треугольник - ВКЛ/ВЫКЛ)
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 50, 0, 50)
+toggleBtn.Position = UDim2.new(0, 8, 0.5, -25)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+toggleBtn.BorderSizePixel = 0
+toggleBtn.Text = "▶"
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.TextSize = 24
+toggleBtn.Font = Enum.Font.GothamBold
+toggleBtn.Parent = mainPanel
+
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(1, 0)
+toggleCorner.Parent = toggleBtn
+
+-- Зеленая кнопка (+)
+local addBtn = Instance.new("TextButton")
+addBtn.Size = UDim2.new(0, 50, 0, 50)
+addBtn.Position = UDim2.new(0, 65, 0.5, -25)
+addBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 80)
+addBtn.BorderSizePixel = 0
+addBtn.Text = "+"
+addBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+addBtn.TextSize = 32
+addBtn.Font = Enum.Font.GothamBold
+addBtn.Parent = mainPanel
+
+local addCorner = Instance.new("UICorner")
+addCorner.CornerRadius = UDim.new(1, 0)
+addCorner.Parent = addBtn
+
+-- Оранжевая кнопка (удержание)
+local holdBtn = Instance.new("TextButton")
+holdBtn.Size = UDim2.new(0, 50, 0, 50)
+holdBtn.Position = UDim2.new(0, 122, 0.5, -25)
+holdBtn.BackgroundColor3 = Color3.fromRGB(255, 140, 0)
+holdBtn.BorderSizePixel = 0
+holdBtn.Text = "↕"
+holdBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+holdBtn.TextSize = 26
+holdBtn.Font = Enum.Font.GothamBold
+holdBtn.Parent = mainPanel
+
+local holdCorner = Instance.new("UICorner")
+holdCorner.CornerRadius = UDim.new(1, 0)
+holdCorner.Parent = holdBtn
+
+-- Красная кнопка (-)
+local removeBtn = Instance.new("TextButton")
+removeBtn.Size = UDim2.new(0, 50, 0, 50)
+removeBtn.Position = UDim2.new(0, 179, 0.5, -25)
+removeBtn.BackgroundColor3 = Color3.fromRGB(220, 40, 40)
+removeBtn.BorderSizePixel = 0
+removeBtn.Text = "-"
+removeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+removeBtn.TextSize = 32
+removeBtn.Font = Enum.Font.GothamBold
+removeBtn.Parent = mainPanel
+
+local removeCorner = Instance.new("UICorner")
+removeCorner.CornerRadius = UDim.new(1, 0)
+removeCorner.Parent = removeBtn
+
+-- Информация о количестве точек
+local infoLabel = Instance.new("TextLabel")
+infoLabel.Size = UDim2.new(0, 40, 0, 20)
+infoLabel.Position = UDim2.new(0, 236, 0.5, -10)
+infoLabel.Text = "0"
+infoLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+infoLabel.TextSize = 16
+infoLabel.Font = Enum.Font.GothamBold
+infoLabel.BackgroundTransparency = 1
+infoLabel.Parent = mainPanel
+
+-- Кнопка инструкции
+local instrBtn = Instance.new("TextButton")
+instrBtn.Size = UDim2.new(0, 30, 0, 30)
+instrBtn.Position = UDim2.new(0, 262, 0.5, -15)
+instrBtn.Text = "?"
+instrBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+instrBtn.TextSize = 18
+instrBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+instrBtn.BorderSizePixel = 0
+instrBtn.Parent = mainPanel
+
+local instrCorner = Instance.new("UICorner")
+instrCorner.CornerRadius = UDim.new(1, 0)
+instrCorner.Parent = instrBtn
+
+-- ===== ТОЧКИ КЛИКОВ =====
+local pointsContainer = Instance.new("Frame")
+pointsContainer.Size = UDim2.new(1, 0, 1, 0)
+pointsContainer.BackgroundTransparency = 1
+pointsContainer.Parent = screenGui
+
+local pointObjects = {}
+
+-- ===== ФУНКЦИИ =====
+
+-- Создание точки клика (как на 2 скрине - синий кружок с точкой внутри)
+local function createClickPoint(position)
+    local point = Instance.new("Frame")
+    point.Size = UDim2.new(0, 45, 0, 45)
+    point.Position = UDim2.new(0, position.X - 22.5, 0, position.Y - 22.5)
+    point.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+    point.BackgroundTransparency = 0.4
+    point.BorderSizePixel = 2
+    point.BorderColor3 = Color3.fromRGB(0, 150, 255)
+    point.Parent = pointsContainer
+    point.ZIndex = 999
+    point.Active = true
+    point.Draggable = true
+    
+    local pointCorner = Instance.new("UICorner")
+    pointCorner.CornerRadius = UDim.new(1, 0)
+    pointCorner.Parent = point
+    
+    -- Центр точки (клик) - красная точка как на скрине
+    local center = Instance.new("Frame")
+    center.Size = UDim2.new(0, 8, 0, 8)
+    center.Position = UDim2.new(0.5, -4, 0.5, -4)
+    center.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    center.BackgroundTransparency = 0
+    center.BorderSizePixel = 0
+    center.Parent = point
+    
+    local centerCorner = Instance.new("UICorner")
+    centerCorner.CornerRadius = UDim.new(1, 0)
+    centerCorner.Parent = center
+    
+    -- Номер точки
+    local numberLabel = Instance.new("TextLabel")
+    numberLabel.Size = UDim2.new(1, 0, 1, 0)
+    numberLabel.Text = tostring(#clickPoints)
+    numberLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    numberLabel.TextSize = 14
+    numberLabel.Font = Enum.Font.GothamBold
+    numberLabel.BackgroundTransparency = 1
+    numberLabel.Parent = point
+    
+    -- Добавляем drag для точки
+    point.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDragging = true
+            dragPoint = point
+            dragOffset = Vector2.new(input.Position.X - point.AbsolutePosition.X, input.Position.Y - point.AbsolutePosition.Y)
+        end
+    end)
+    
+    point.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDragging = false
+            dragPoint = nil
+        end
+    end)
+    
+    table.insert(pointObjects, point)
+    return point
+end
+
+-- Обновление позиции точки при драге
+RunService.RenderStepped:Connect(function()
+    if isDragging and dragPoint then
+        local pos = mouse
+        dragPoint.Position = UDim2.new(0, pos.X - 22.5 - (dragOffset.X or 0), 0, pos.Y - 22.5 - (dragOffset.Y or 0))
+        -- Обновляем координаты в массиве
+        for i, obj in ipairs(pointObjects) do
+            if obj == dragPoint then
+                clickPoints[i] = Vector2.new(pos.X - (dragOffset.X or 0), pos.Y - (dragOffset.Y or 0))
+                break
+            end
+        end
+    end
+end)
+
+-- Добавление точки клика
+local function addClickPoint()
+    local pos = Vector2.new(mouse.X, mouse.Y)
+    -- Проверяем, не слишком близко к существующим точкам
+    for _, p in ipairs(clickPoints) do
+        if (p - pos).Magnitude < 30 then
+            return -- Слишком близко, игнорируем
+        end
+    end
+    table.insert(clickPoints, pos)
+    createClickPoint(pos)
+    updateInfo()
+end
+
+-- Удаление последней точки
+local function removeLastPoint()
+    if #clickPoints > 0 then
+        table.remove(clickPoints)
+        local obj = table.remove(pointObjects)
+        if obj then obj:Destroy() end
+        updateInfo()
+    end
+end
+
+-- Очистка всех точек
+local function clearAllPoints()
+    for _, obj in pairs(pointObjects) do
+        obj:Destroy()
+    end
+    pointObjects = {}
+    clickPoints = {}
+    updateInfo()
+end
+
+-- Обновление информации
+local function updateInfo()
+    infoLabel.Text = tostring(#clickPoints)
+end
+
+-- ===== ОСНОВНАЯ ЛОГИКА КЛИКЕРА =====
+
+-- Эмуляция клика (поддерживает и телефон)
+local function emulateClick(pos)
+    if isMobile then
+        -- Мобильная версия
+        local touch = {
+            Id = 1,
+            Position = pos,
+            Delta = Vector2.new(0, 0),
+            Pressure = 1
+        }
+        TouchInputService:SendEvent(Enum.UserInputType.Touch, Enum.KeyCode.Unknown, true, false, touch)
+        wait(0.02)
+        TouchInputService:SendEvent(Enum.UserInputType.Touch, Enum.KeyCode.Unknown, false, false, touch)
+    else
+        -- ПК версия
+        local touch = {
+            Id = 1,
+            Position = pos,
+            Delta = Vector2.new(0, 0),
+            Pressure = 1
+        }
+        TouchInputService:SendEvent(Enum.UserInputType.MouseButton1, Enum.KeyCode.Unknown, true, false, touch)
+        wait(0.02)
+        TouchInputService:SendEvent(Enum.UserInputType.MouseButton1, Enum.KeyCode.Unknown, false, false, touch)
+    end
+end
+
+-- Запуск кликера
+local function startClicker()
+    if isRunning then return end
+    if #clickPoints == 0 then
+        showNotification("⚠️ Добавьте точки клика!", Color3.fromRGB(200, 150, 40))
+        return
+    end
+    isRunning = true
+    toggleBtn.Text = "⏹"
+    toggleBtn.BackgroundColor3 = Color3.fromRGB(220, 40, 40)
+    currentPointIndex = 1
+    holdingDirection = 1
+    
+    clickerConnection = RunService.Heartbeat:Connect(function()
+        if not isRunning then return end
+        if #clickPoints == 0 then return end
+        
+        local currentPos = clickPoints[currentPointIndex]
+        if currentPos then
+            if isHolding then
+                -- Режим удержания (движение вверх-вниз как на 3 скрине)
+                local targetPos = currentPos + Vector2.new(0, 30 * holdingDirection)
+                emulateClick(targetPos)
+                holdingDirection = holdingDirection * -1
+                wait(0.15)
+            else
+                -- Обычный клик
+                emulateClick(currentPos)
+            end
+        end
+        
+        currentPointIndex = currentPointIndex + 1
+        if currentPointIndex > #clickPoints then
+            currentPointIndex = 1
+        end
+        
+        wait(0.05)
+    end)
+end
+
+-- Остановка кликера
+local function stopClicker()
+    isRunning = false
+    if clickerConnection then
+        clickerConnection:Disconnect()
+        clickerConnection = nil
+    end
+    toggleBtn.Text = "▶"
+    toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+end
+
+-- Переключение кликера
+local function toggleClicker()
+    if isRunning then
+        stopClicker()
+    else
+        startClicker()
+    end
+end
+
+-- ===== УВЕДОМЛЕНИЯ =====
+local function showNotification(text, color)
+    color = color or Color3.fromRGB(0, 150, 70)
+    local notif = Instance.new("ScreenGui")
+    notif.Name = "Notification"
+    notif.Parent = player:WaitForChild("PlayerGui")
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 400, 0, 60)
+    frame.Position = UDim2.new(0.5, -200, 0.5, -30)
+    frame.BackgroundColor3 = color
+    frame.Parent = notif
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = frame
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextSize = 16
+    label.Font = Enum.Font.GothamBold
+    label.BackgroundTransparency = 1
+    label.Parent = frame
+    
+    task.wait(2.5)
+    notif:Destroy()
+end
+
+-- ===== ИНСТРУКЦИЯ =====
+local function showInstructions()
+    local instr = Instance.new("ScreenGui")
+    instr.Name = "Instructions"
+    instr.Parent = player:WaitForChild("PlayerGui")
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 400, 0, 280)
+    frame.Position = UDim2.new(0.5, -200, 0.5, -140)
+    frame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    frame.Parent = instr
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = frame
+    
+    local text = Instance.new("TextLabel")
+    text.Size = UDim2.new(1, -20, 1, -20)
+    text.Position = UDim2.new(0, 10, 0, 10)
+    text.Text = [[📖 ИНСТРУКЦИЯ:
+
+🔵 Синяя кнопка (▶) - Вкл/Выкл кликер
+🟢 Зеленая кнопка (+) - Добавить точку клика
+🟠 Оранжевая кнопка (↕) - Режим удержания
+🔴 Красная кнопка (-) - Удалить последнюю точку
+
+Горячие клавиши:
+F1 - Вкл/Выкл
+F2 - Добавить точку
+F3 - Удалить точку
+F4 - Режим удержания
+
+Точки можно перетаскивать мышкой!
+Работает на ПК и телефоне! 📱]]
+    text.TextColor3 = Color3.fromRGB(255, 255, 255)
+    text.TextSize = 13
+    text.Font = Enum.Font.Gotham
+    text.BackgroundTransparency = 1
+    text.TextXAlignment = Enum.TextXAlignment.Left
+    text.Parent = frame
+    
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Size = UDim2.new(0, 60, 0, 30)
+    closeBtn.Position = UDim2.new(0.5, -30, 1, -40)
+    closeBtn.Text = "ЗАКРЫТЬ"
+    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+    closeBtn.BorderSizePixel = 0
+    closeBtn.Parent = frame
+    
+    local closeCorner = Instance.new("UICorner")
+    closeCorner.CornerRadius = UDim.new(0, 6)
+    closeCorner.Parent = closeBtn
+    
+    closeBtn.MouseButton1Click:Connect(function()
+        instr:Destroy()
+    end)
+end
+
+-- ===== НАСТРОЙКА КНОПОК =====
+
+-- Синяя кнопка (Вкл/Выкл)
+toggleBtn.MouseButton1Click:Connect(function()
+    toggleClicker()
+end)
+
+-- Зеленая кнопка (+)
+addBtn.MouseButton1Click:Connect(function()
+    addClickPoint()
+end)
+
+-- Оранжевая кнопка (Hold)
+holdBtn.MouseButton1Click:Connect(function()
+    isHolding = not isHolding
+    if isHolding then
+        holdBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 80)
+        showNotification("🔄 Режим удержания ВКЛЮЧЕН", Color3.fromRGB(0, 200, 80))
+    else
+        holdBtn.BackgroundColor3 = Color3.fromRGB(255, 140, 0)
+        showNotification("🔄 Режим удержания ВЫКЛЮЧЕН", Color3.fromRGB(255, 140, 0))
+    end
+end)
+
+-- Красная кнопка (-)
+removeBtn.MouseButton1Click:Connect(function()
+    removeLastPoint()
+end)
+
+-- Кнопка инструкции
+instrBtn.MouseButton1Click:Connect(function()
+    showInstructions()
+end)
+
+-- ===== ГОРЯЧИЕ КЛАВИШИ =====
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.F1 then
+        toggleClicker()
+    end
+    if input.KeyCode == Enum.KeyCode.F2 then
+        addClickPoint()
+    end
+    if input.KeyCode == Enum.KeyCode.F3 then
+        removeLastPoint()
+    end
+    if input.KeyCode == Enum.KeyCode.F4 then
+        isHolding = not isHolding
+        if isHolding then
+            holdBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 80)
+        else
+            holdBtn.BackgroundColor3 = Color3.fromRGB(255, 140, 0)
+        end
+    end
+end)
+
+-- ===== ПОДДЕРЖКА ТЕЛЕФОНА (как на 1 скрине) =====
+if isMobile then
+    -- Увеличиваем кнопки для телефона
+    mainPanel.Size = UDim2.new(0, 350, 0, 75)
+    mainPanel.Position = UDim2.new(0.5, -175, 0.8, 0)
+    
+    toggleBtn.Size = UDim2.new(0, 60, 0, 60)
+    toggleBtn.Position = UDim2.new(0, 8, 0.5, -30)
+    toggleBtn.TextSize = 28
+    
+    addBtn.Size = UDim2.new(0, 60, 0, 60)
+    addBtn.Position = UDim2.new(0, 75, 0.5, -30)
+    addBtn.TextSize = 36
+    
+    holdBtn.Size = UDim2.new(0, 60, 0, 60)
+    holdBtn.Position = UDim2.new(0, 142, 0.5, -30)
+    holdBtn.TextSize = 30
+    
+    removeBtn.Size = UDim2.new(0, 60, 0, 60)
+    removeBtn.Position = UDim2.new(0, 209, 0.5, -30)
+    removeBtn.TextSize = 36
+    
+    infoLabel.Size = UDim2.new(0, 50, 0, 25)
+    infoLabel.Position = UDim2.new(0, 276, 0.5, -12)
+    infoLabel.TextSize = 20
+    
+    instrBtn.Size = UDim2.new(0, 35, 0, 35)
+    instrBtn.Position = UDim2.new(0, 308, 0.5, -17)
+    instrBtn.TextSize = 20
+end
+
+-- ===== АВТООБНОВЛЕНИЕ ПОЗИЦИЙ ПРИ ИЗМЕНЕНИИ РАЗМЕРА ЭКРАНА =====
+UserInputService:GetPropertyChangedSignal("WindowFocused"):Connect(function()
+    screenSize = Vector2.new(mouse.ViewSizeX, mouse.ViewSizeY)
+end)
+
+-- ===== ЗАПУСК =====
+print("🖱️ Auto Clicker loaded!")
+print("📌 Поддерживает ПК и телефон!")
+print("📌 F1 - Вкл/Выкл")
+print("📌 F2 - Добавить точку клика")
+print("📌 F3 - Удалить последнюю точку")
+print("📌 F4 - Режим удержания")
