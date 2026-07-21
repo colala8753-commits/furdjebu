@@ -1,1 +1,417 @@
+-- MACROS RECORDER [Universal - Запись и воспроизведение действий]
+local player = game.Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local mouse = player:GetMouse()
 
+-- Удаляем старые GUI
+for _, v in pairs(player.PlayerGui:GetChildren()) do
+    if v.Name == "MacrosRecorder" then
+        v:Destroy()
+    end
+end
+
+-- ===== ПЕРЕМЕННЫЕ =====
+local isRecording = false
+local isPlaying = false
+local recordedActions = {}
+local startTime = 0
+local playIndex = 1
+local playStartTime = 0
+local recordingConnection = nil
+local playbackConnection = nil
+local isMobile = UserInputService.TouchEnabled
+local isGUIOpen = true
+local lastMousePos = Vector2.new(0, 0)
+
+-- ===== СОЗДАНИЕ GUI =====
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MacrosRecorder"
+screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- ===== ГЛАВНОЕ ОКНО =====
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 300, 0, 180)
+mainFrame.Position = UDim2.new(0.5, -150, 0.4, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+mainFrame.BackgroundTransparency = 0.15
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
+mainFrame.Active = true
+mainFrame.Draggable = true
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 12)
+mainCorner.Parent = mainFrame
+
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Thickness = 1
+mainStroke.Color = Color3.fromRGB(60, 60, 80)
+mainStroke.Parent = mainFrame
+
+-- Заголовок
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 35)
+titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+titleBar.BorderSizePixel = 0
+titleBar.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 12)
+titleCorner.Parent = titleBar
+
+local titleText = Instance.new("TextLabel")
+titleText.Size = UDim2.new(1, -50, 1, 0)
+titleText.Position = UDim2.new(0, 10, 0, 0)
+titleText.Text = "⚙️ Macros Recorder"
+titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleText.TextSize = 16
+titleText.Font = Enum.Font.GothamBold
+titleText.TextXAlignment = Enum.TextXAlignment.Left
+titleText.BackgroundTransparency = 1
+titleText.Parent = titleBar
+
+-- Кнопка закрытия
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -32, 0, 2)
+closeBtn.Text = "✕"
+closeBtn.TextSize = 16
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+closeBtn.BorderSizePixel = 0
+closeBtn.Parent = titleBar
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 6)
+closeCorner.Parent = closeBtn
+
+closeBtn.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+    if isRecording then stopRecording() end
+    if isPlaying then stopPlayback() end
+end)
+
+-- Кнопки
+local function createButton(text, yPos, color, callback)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 80, 0, 35)
+    btn.Position = UDim2.new(0, 20 + (yPos-1) * 90, 0, 50)
+    btn.BackgroundColor3 = color
+    btn.BorderSizePixel = 0
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 13
+    btn.Font = Enum.Font.GothamBold
+    btn.Parent = mainFrame
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 8)
+    btnCorner.Parent = btn
+    
+    btn.MouseButton1Click:Connect(callback)
+    return btn
+end
+
+-- Кнопка записи
+local recordBtn = createButton("🔴 ЗАПИСЬ", 1, Color3.fromRGB(200, 40, 40), function()
+    if isRecording then
+        stopRecording()
+    else
+        startRecording()
+    end
+end)
+
+-- Кнопка воспроизведения
+local playBtn = createButton("▶ ВОСПР.", 2, Color3.fromRGB(0, 120, 215), function()
+    if isPlaying then
+        stopPlayback()
+    else
+        startPlayback()
+    end
+end)
+
+-- Кнопка очистки
+local clearBtn = createButton("🗑 ОЧИСТИТЬ", 3, Color3.fromRGB(220, 140, 0), function()
+    clearMacros()
+end)
+
+-- Статус
+local statusLabel = Instance.new("TextLabel")
+statusLabel.Size = UDim2.new(1, -20, 0, 20)
+statusLabel.Position = UDim2.new(0, 10, 0, 100)
+statusLabel.Text = "⏸ Ожидание"
+statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+statusLabel.TextSize = 13
+statusLabel.Font = Enum.Font.Gotham
+statusLabel.BackgroundTransparency = 1
+statusLabel.Parent = mainFrame
+
+-- Количество действий
+local actionsLabel = Instance.new("TextLabel")
+actionsLabel.Size = UDim2.new(1, -20, 0, 20)
+actionsLabel.Position = UDim2.new(0, 10, 0, 125)
+actionsLabel.Text = "Действий: 0"
+actionsLabel.TextColor3 = Color3.fromRGB(150, 150, 180)
+actionsLabel.TextSize = 12
+actionsLabel.Font = Enum.Font.Gotham
+actionsLabel.BackgroundTransparency = 1
+actionsLabel.Parent = mainFrame
+
+-- Кнопка сворачивания
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 45, 0, 45)
+toggleBtn.Position = UDim2.new(0, 15, 0, 15)
+toggleBtn.Text = "⚙️"
+toggleBtn.TextSize = 22
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+toggleBtn.BorderSizePixel = 0
+toggleBtn.Parent = screenGui
+
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(0, 10)
+toggleCorner.Parent = toggleBtn
+
+toggleBtn.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
+    isGUIOpen = mainFrame.Visible
+end)
+
+-- ===== ФУНКЦИИ ЗАПИСИ =====
+
+-- Проверка, находится ли мышь над GUI
+local function isMouseOverGUI()
+    local mousePos = Vector2.new(mouse.X, mouse.Y)
+    
+    -- Проверяем главное окно
+    if mainFrame.Visible then
+        local absPos = mainFrame.AbsolutePosition
+        local absSize = mainFrame.AbsoluteSize
+        if mousePos.X >= absPos.X and mousePos.X <= absPos.X + absSize.X and
+           mousePos.Y >= absPos.Y and mousePos.Y <= absPos.Y + absSize.Y then
+            return true
+        end
+    end
+    
+    -- Проверяем кнопку сворачивания
+    local toggleAbsPos = toggleBtn.AbsolutePosition
+    local toggleAbsSize = toggleBtn.AbsoluteSize
+    if mousePos.X >= toggleAbsPos.X and mousePos.X <= toggleAbsPos.X + toggleAbsSize.X and
+       mousePos.Y >= toggleAbsPos.Y and mousePos.Y <= toggleAbsPos.Y + toggleAbsSize.Y then
+        return true
+    end
+    
+    return false
+end
+
+-- Запись действий
+local function recordAction(actionType, data)
+    local currentTime = tick() - startTime
+    table.insert(recordedActions, {
+        time = currentTime,
+        type = actionType,
+        data = data
+    })
+    updateUI()
+end
+
+-- Старт записи
+function startRecording()
+    if isPlaying then
+        stopPlayback()
+    end
+    
+    recordedActions = {}
+    startTime = tick()
+    isRecording = true
+    recordBtn.Text = "⏹ СТОП"
+    recordBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+    statusLabel.Text = "🔴 ЗАПИСЬ..."
+    statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+    updateUI()
+    
+    -- Запись кликов мыши (с проверкой на GUI)
+    recordingConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed then return end
+        if not isRecording then return end
+        
+        -- Игнорируем клики по GUI
+        if isMouseOverGUI() then
+            return
+        end
+        
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            recordAction("click", {x = mouse.X, y = mouse.Y, button = "left"})
+        elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
+            recordAction("click", {x = mouse.X, y = mouse.Y, button = "right"})
+        elseif input.KeyCode == Enum.KeyCode.Space then
+            recordAction("jump", {})
+        elseif input.KeyCode == Enum.KeyCode.W then
+            recordAction("key", {key = "W", state = "down"})
+        elseif input.KeyCode == Enum.KeyCode.A then
+            recordAction("key", {key = "A", state = "down"})
+        elseif input.KeyCode == Enum.KeyCode.S then
+            recordAction("key", {key = "S", state = "down"})
+        elseif input.KeyCode == Enum.KeyCode.D then
+            recordAction("key", {key = "D", state = "down"})
+        elseif input.KeyCode == Enum.KeyCode.LeftShift then
+            recordAction("key", {key = "Shift", state = "down"})
+        end
+    end)
+    
+    -- Запись отпускания клавиш
+    local releaseConnection = UserInputService.InputEnded:Connect(function(input)
+        if not isRecording then return end
+        
+        -- Игнорируем если курсор над GUI
+        if isMouseOverGUI() then
+            return
+        end
+        
+        if input.KeyCode == Enum.KeyCode.W then
+            recordAction("key", {key = "W", state = "up"})
+        elseif input.KeyCode == Enum.KeyCode.A then
+            recordAction("key", {key = "A", state = "up"})
+        elseif input.KeyCode == Enum.KeyCode.S then
+            recordAction("key", {key = "S", state = "up"})
+        elseif input.KeyCode == Enum.KeyCode.D then
+            recordAction("key", {key = "D", state = "up"})
+        elseif input.KeyCode == Enum.KeyCode.LeftShift then
+            recordAction("key", {key = "Shift", state = "up"})
+        end
+    end)
+    
+    -- Запись движения мыши (с проверкой на GUI)
+    local mouseConnection = RunService.RenderStepped:Connect(function()
+        if isRecording and mouse then
+            -- Записываем только если мышь не над GUI
+            if not isMouseOverGUI() then
+                local currentPos = Vector2.new(mouse.X, mouse.Y)
+                if (currentPos - lastMousePos).Magnitude > 5 then
+                    recordAction("move", {x = mouse.X, y = mouse.Y})
+                    lastMousePos = currentPos
+                end
+            end
+        end
+    end)
+    
+    -- Сохраняем соединения для остановки
+    recordingConnection.Release = releaseConnection
+    recordingConnection.Mouse = mouseConnection
+end
+
+-- Остановка записи
+function stopRecording()
+    isRecording = false
+    recordBtn.Text = "🔴 ЗАПИСЬ"
+    recordBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+    statusLabel.Text = "⏸ Запись остановлена"
+    statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    
+    if recordingConnection then
+        if recordingConnection.Release then
+            recordingConnection.Release:Disconnect()
+        end
+        if recordingConnection.Mouse then
+            recordingConnection.Mouse:Disconnect()
+        end
+        recordingConnection:Disconnect()
+        recordingConnection = nil
+    end
+    updateUI()
+end
+
+-- ===== ФУНКЦИИ ВОСПРОИЗВЕДЕНИЯ =====
+
+-- Старт воспроизведения
+function startPlayback()
+    if #recordedActions == 0 then
+        statusLabel.Text = "⚠️ Нет записанных действий!"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
+        task.wait(1)
+        statusLabel.Text = "⏸ Ожидание"
+        statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+        return
+    end
+    
+    if isRecording then
+        stopRecording()
+    end
+    
+    isPlaying = true
+    playBtn.Text = "⏹ СТОП"
+    playBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+    statusLabel.Text = "▶ ВОСПРОИЗВЕДЕНИЕ..."
+    statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+    playIndex = 1
+    playStartTime = tick()
+    
+    playbackConnection = RunService.Heartbeat:Connect(function()
+        if not isPlaying then return end
+        if playIndex > #recordedActions then
+            stopPlayback()
+            return
+        end
+        
+        local currentTime = tick() - playStartTime
+        local action = recordedActions[playIndex]
+        
+        if currentTime >= action.time then
+            executeAction(action)
+            playIndex = playIndex + 1
+        end
+    end)
+end
+
+-- Остановка воспроизведения
+function stopPlayback()
+    isPlaying = false
+    if playbackConnection then
+        playbackConnection:Disconnect()
+        playbackConnection = nil
+    end
+    playBtn.Text = "▶ ВОСПР."
+    playBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+    statusLabel.Text = "⏸ Воспроизведение остановлено"
+    statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    updateUI()
+end
+
+-- Выполнение действия
+function executeAction(action)
+    if action.type == "click" then
+        local pos = Vector2.new(action.data.x, action.data.y)
+        local touch = {
+            Id = 1,
+            Position = pos,
+            Delta = Vector2.new(0, 0),
+            Pressure = 1
+        }
+        
+        if isMobile then
+            UserInputService:SendEvent(Enum.UserInputType.Touch, Enum.KeyCode.Unknown, true, false, touch)
+            task.wait(0.02)
+            UserInputService:SendEvent(Enum.UserInputType.Touch, Enum.KeyCode.Unknown, false, false, touch)
+        else
+            UserInputService:SendEvent(Enum.UserInputType.MouseButton1, Enum.KeyCode.Unknown, true, false, touch)
+            task.wait(0.02)
+            UserInputService:SendEvent(Enum.UserInputType.MouseButton1, Enum.KeyCode.Unknown, false, false, touch)
+        end
+        
+    elseif action.type == "jump" then
+        local character = player.Character
+        if character and character:FindFirstChild("Humanoid") then
+            character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+        
+    elseif action.type == "key" then
+        local keyMap = {
+            W = Enum.KeyCode.W,
+            A = Enum.KeyCode.A,
+            S = Enum.KeyCode.S,
+            D = Enum.KeyCode.D,
+            Shift = Enum.KeyCode.LeftShift
