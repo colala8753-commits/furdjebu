@@ -53,6 +53,12 @@ local Modes = {
         Description = "Макросы для игр",
         Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/macros"))()',
         Game = "macros"
+    },
+    {
+        Name = "🧻 SKTD",
+        Description = "Skibidi Masters Tower Defense",
+        Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/sktd"))()',
+        Game = "sktd"
     }
 }
 
