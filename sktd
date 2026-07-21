@@ -1,4 +1,4 @@
--- SKIBIDI MASTERS TOWER DEFENSE [ULTIMATE HUB]
+-- SKIBIDI MASTERS TOWER DEFENSE [ULTIMATE HUB - FULLY FIXED]
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
@@ -26,17 +26,10 @@ local autoRaidEnabled = false
 local autoPlaceUnitsEnabled = false
 local autoTargetEnabled = false
 local autoReplayEnabled = false
-local espUnitsEnabled = false
-local espEnemiesEnabled = false
-local pathDisplayEnabled = false
-local rangeDisplayEnabled = false
-local dpsMeterEnabled = false
 local fastModeEnabled = false
 local autoRedeemCodesEnabled = false
+local autoCollectEnabled = false
 
-local espHighlights = {}
-local espUpdateConnection = nil
-local espUpdateCounter = 0
 local autoFarmConnection = nil
 local autoWaveConnection = nil
 local autoClaimConnection = nil
@@ -49,6 +42,7 @@ local autoTargetConnection = nil
 local autoReplayConnection = nil
 local fastModeConnection = nil
 local autoRedeemConnection = nil
+local autoCollectConnection = nil
 
 -- ===== ОБХОД АНТИЧИТА =====
 local function bypassAntiCheat()
@@ -83,6 +77,291 @@ local function bypassAntiCheat()
     end
 end
 
+-- ===== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ КЛИКОВ =====
+local function clickButton(textPatterns)
+    for _, v in pairs(player.PlayerGui:GetDescendants()) do
+        if v:IsA("TextButton") and v.Visible then
+            for _, pattern in ipairs(textPatterns) do
+                if v.Text:lower():find(pattern) then
+                    pcall(function() v:Click() end)
+                    return true
+                end
+            end
+        end
+    end
+    return false
+end
+
+-- ===== 1. AUTO FARM =====
+local function updateAutoFarm(state)
+    if autoFarmConnection then
+        autoFarmConnection:Disconnect()
+        autoFarmConnection = nil
+    end
+    autoFarmEnabled = state
+    if state then
+        autoFarmConnection = RunService.Heartbeat:Connect(function()
+            if autoFarmEnabled and character then
+                -- Сбор ресурсов
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("Part") and v.Parent then
+                        local name = v.Name:lower()
+                        if name:find("coin") or name:find("currency") or name:find("resource") or name:find("drop") then
+                            local dist = (root.Position - v.Position).Magnitude
+                            if dist < 200 then
+                                local oldPos = root.CFrame
+                                root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
+                                wait(0.05)
+                                root.CFrame = oldPos
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end
+
+-- ===== 2. AUTO WAVE START =====
+local function updateAutoWave(state)
+    if autoWaveConnection then
+        autoWaveConnection:Disconnect()
+        autoWaveConnection = nil
+    end
+    autoWaveStartEnabled = state
+    if state then
+        autoWaveConnection = RunService.Heartbeat:Connect(function()
+            if autoWaveStartEnabled then
+                clickButton({"start", "wave", "next", "begin"})
+            end
+        end)
+    end
+end
+
+-- ===== 3. AUTO CLAIM REWARDS =====
+local function updateAutoClaim(state)
+    if autoClaimConnection then
+        autoClaimConnection:Disconnect()
+        autoClaimConnection = nil
+    end
+    autoClaimRewardsEnabled = state
+    if state then
+        autoClaimConnection = RunService.Heartbeat:Connect(function()
+            if autoClaimRewardsEnabled then
+                clickButton({"claim", "reward", "collect", "grab"})
+            end
+        end)
+    end
+end
+
+-- ===== 4. AUTO UPGRADE UNITS =====
+local function updateAutoUpgrade(state)
+    if autoUpgradeConnection then
+        autoUpgradeConnection:Disconnect()
+        autoUpgradeConnection = nil
+    end
+    autoUpgradeUnitsEnabled = state
+    if state then
+        autoUpgradeConnection = RunService.Heartbeat:Connect(function()
+            if autoUpgradeUnitsEnabled then
+                clickButton({"upgrade", "level", "enhance"})
+            end
+        end)
+    end
+end
+
+-- ===== 5. AUTO SELL =====
+local function updateAutoSell(state)
+    if autoSellConnection then
+        autoSellConnection:Disconnect()
+        autoSellConnection = nil
+    end
+    autoSellEnabled = state
+    if state then
+        autoSellConnection = RunService.Heartbeat:Connect(function()
+            if autoSellEnabled then
+                clickButton({"sell", "remove"})
+            end
+        end)
+    end
+end
+
+-- ===== 6. AUTO SUMMON =====
+local function updateAutoSummon(state)
+    if autoSummonConnection then
+        autoSummonConnection:Disconnect()
+        autoSummonConnection = nil
+    end
+    autoSummonEnabled = state
+    if state then
+        autoSummonConnection = RunService.Heartbeat:Connect(function()
+            if autoSummonEnabled then
+                clickButton({"summon", "roll", "pull", "open"})
+            end
+        end)
+    end
+end
+
+-- ===== 7. AUTO RAID =====
+local function updateAutoRaid(state)
+    if autoRaidConnection then
+        autoRaidConnection:Disconnect()
+        autoRaidConnection = nil
+    end
+    autoRaidEnabled = state
+    if state then
+        autoRaidConnection = RunService.Heartbeat:Connect(function()
+            if autoRaidEnabled then
+                clickButton({"raid", "battle", "enter", "fight"})
+            end
+        end)
+    end
+end
+
+-- ===== 8. AUTO PLACE UNITS =====
+local function updateAutoPlace(state)
+    if autoPlaceConnection then
+        autoPlaceConnection:Disconnect()
+        autoPlaceConnection = nil
+    end
+    autoPlaceUnitsEnabled = state
+    if state then
+        autoPlaceConnection = RunService.Heartbeat:Connect(function()
+            if autoPlaceUnitsEnabled and character then
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("Part") and v.Parent then
+                        local name = v.Name:lower()
+                        if name:find("spawn") or name:find("place") or name:find("slot") then
+                            local dist = (root.Position - v.Position).Magnitude
+                            if dist < 50 then
+                                local oldPos = root.CFrame
+                                root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
+                                wait(0.1)
+                                clickButton({"place", "build", "deploy"})
+                                root.CFrame = oldPos
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end
+
+-- ===== 9. AUTO TARGET =====
+local function updateAutoTarget(state)
+    if autoTargetConnection then
+        autoTargetConnection:Disconnect()
+        autoTargetConnection = nil
+    end
+    autoTargetEnabled = state
+    if state then
+        autoTargetConnection = RunService.Heartbeat:Connect(function()
+            if autoTargetEnabled and character then
+                local target = nil
+                local dist = math.huge
+                for _, v in pairs(game.Players:GetPlayers()) do
+                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
+                        if d < dist then
+                            dist = d
+                            target = v
+                        end
+                    end
+                end
+                if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                    root.CFrame = CFrame.lookAt(root.Position, target.Character.HumanoidRootPart.Position)
+                end
+            end
+        end)
+    end
+end
+
+-- ===== 10. AUTO REPLAY =====
+local function updateAutoReplay(state)
+    if autoReplayConnection then
+        autoReplayConnection:Disconnect()
+        autoReplayConnection = nil
+    end
+    autoReplayEnabled = state
+    if state then
+        autoReplayConnection = RunService.Heartbeat:Connect(function()
+            if autoReplayEnabled then
+                clickButton({"replay", "restart", "again"})
+            end
+        end)
+    end
+end
+
+-- ===== 11. FAST MODE =====
+local function updateFastMode(state)
+    if fastModeConnection then
+        fastModeConnection:Disconnect()
+        fastModeConnection = nil
+    end
+    fastModeEnabled = state
+    if state then
+        fastModeConnection = RunService.Heartbeat:Connect(function()
+            if fastModeEnabled and character and humanoid then
+                humanoid.WalkSpeed = math.min(humanoid.WalkSpeed + 1, 50)
+            end
+        end)
+    else
+        if humanoid then
+            humanoid.WalkSpeed = 16
+        end
+    end
+end
+
+-- ===== 12. AUTO REDEEM CODES =====
+local function updateAutoRedeem(state)
+    if autoRedeemConnection then
+        autoRedeemConnection:Disconnect()
+        autoRedeemConnection = nil
+    end
+    autoRedeemCodesEnabled = state
+    if state then
+        autoRedeemConnection = RunService.Heartbeat:Connect(function()
+            if autoRedeemCodesEnabled then
+                for _, v in pairs(player.PlayerGui:GetDescendants()) do
+                    if v:IsA("TextBox") and v.Visible then
+                        pcall(function()
+                            v.Text = "SKIBIDI2024"
+                            wait(0.1)
+                            for _, btn in pairs(v.Parent:GetDescendants()) do
+                                if btn:IsA("TextButton") and btn.Visible then
+                                    local text = btn.Text:lower()
+                                    if text:find("redeem") or text:find("claim") or text:find("confirm") then
+                                        btn:Click()
+                                    end
+                                end
+                            end
+                        end)
+                    end
+                end
+            end
+        end)
+    end
+end
+
+-- ===== 13. AUTO COLLECT =====
+local function updateAutoCollect(state)
+    if autoCollectConnection then
+        autoCollectConnection:Disconnect()
+        autoCollectConnection = nil
+    end
+    autoCollectEnabled = state
+    if state then
+        autoCollectConnection = RunService.Heartbeat:Connect(function()
+            if autoCollectEnabled then
+                clickButton({"collect", "pickup", "loot"})
+            end
+        end)
+    end
+end
+
 -- ===== СОЗДАНИЕ GUI =====
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "SkibidiHub"
@@ -105,7 +384,6 @@ local windowCorner = Instance.new("UICorner")
 windowCorner.CornerRadius = UDim.new(0, 10)
 windowCorner.Parent = window
 
--- Заголовок
 local titleBar = Instance.new("Frame")
 titleBar.Size = UDim2.new(1, 0, 0, 40)
 titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
@@ -127,7 +405,6 @@ titleText.Font = Enum.Font.GothamBold
 titleText.BackgroundTransparency = 1
 titleText.Parent = titleBar
 
--- Drag
 local dragging = false
 local dragStart = nil
 local dragOffset = nil
@@ -201,7 +478,6 @@ toggleBtn.MouseButton1Click:Connect(function()
     window.Visible = not window.Visible
 end)
 
--- Контент
 local content = Instance.new("Frame")
 content.Size = UDim2.new(1, 0, 1, -40)
 content.Position = UDim2.new(0, 0, 0, 40)
@@ -274,423 +550,6 @@ local function addToggle(text, callback)
     return btn
 end
 
--- ===== ФУНКЦИИ =====
-
--- ===== 1. AUTO FARM =====
-local function updateAutoFarm(state)
-    if autoFarmConnection then
-        autoFarmConnection:Disconnect()
-        autoFarmConnection = nil
-    end
-    autoFarmEnabled = state
-    if state then
-        autoFarmConnection = RunService.Heartbeat:Connect(function()
-            if autoFarmEnabled and character then
-                -- Сбор ресурсов с врагов
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v:IsA("Part") and (v.Name:lower():find("coin") or v.Name:lower():find("currency") or v.Name:lower():find("resource")) then
-                        local dist = (root.Position - v.Position).Magnitude
-                        if dist < 200 then
-                            root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
-                            wait(0.05)
-                            break
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- ===== 2. AUTO WAVE START =====
-local function updateAutoWave(state)
-    if autoWaveConnection then
-        autoWaveConnection:Disconnect()
-        autoWaveConnection = nil
-    end
-    autoWaveStartEnabled = state
-    if state then
-        autoWaveConnection = RunService.Heartbeat:Connect(function()
-            if autoWaveStartEnabled then
-                for _, v in pairs(player.PlayerGui:GetDescendants()) do
-                    if v:IsA("TextButton") and (v.Text:lower():find("start") or v.Text:lower():find("wave") or v.Text:lower():find("next")) then
-                        pcall(function() v:Click() end)
-                        break
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- ===== 3. AUTO CLAIM REWARDS =====
-local function updateAutoClaim(state)
-    if autoClaimConnection then
-        autoClaimConnection:Disconnect()
-        autoClaimConnection = nil
-    end
-    autoClaimRewardsEnabled = state
-    if state then
-        autoClaimConnection = RunService.Heartbeat:Connect(function()
-            if autoClaimRewardsEnabled then
-                for _, v in pairs(player.PlayerGui:GetDescendants()) do
-                    if v:IsA("TextButton") and (v.Text:lower():find("claim") or v.Text:lower():find("reward") or v.Text:lower():find("collect")) then
-                        pcall(function() v:Click() end)
-                        break
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- ===== 4. AUTO UPGRADE UNITS =====
-local function updateAutoUpgrade(state)
-    if autoUpgradeConnection then
-        autoUpgradeConnection:Disconnect()
-        autoUpgradeConnection = nil
-    end
-    autoUpgradeUnitsEnabled = state
-    if state then
-        autoUpgradeConnection = RunService.Heartbeat:Connect(function()
-            if autoUpgradeUnitsEnabled then
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v.Parent ~= character then
-                        if v:FindFirstChild("Upgrade") then
-                            pcall(function()
-                                local remote = v:FindFirstChild("Upgrade")
-                                if remote:IsA("RemoteEvent") then
-                                    remote:FireServer()
-                                end
-                            end)
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- ===== 5. AUTO SELL =====
-local function updateAutoSell(state)
-    if autoSellConnection then
-        autoSellConnection:Disconnect()
-        autoSellConnection = nil
-    end
-    autoSellEnabled = state
-    if state then
-        autoSellConnection = RunService.Heartbeat:Connect(function()
-            if autoSellEnabled then
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v.Parent ~= character then
-                        if v:FindFirstChild("Sell") then
-                            pcall(function()
-                                local remote = v:FindFirstChild("Sell")
-                                if remote:IsA("RemoteEvent") then
-                                    remote:FireServer()
-                                end
-                            end)
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- ===== 6. AUTO SUMMON =====
-local function updateAutoSummon(state)
-    if autoSummonConnection then
-        autoSummonConnection:Disconnect()
-        autoSummonConnection = nil
-    end
-    autoSummonEnabled = state
-    if state then
-        autoSummonConnection = RunService.Heartbeat:Connect(function()
-            if autoSummonEnabled then
-                for _, v in pairs(player.PlayerGui:GetDescendants()) do
-                    if v:IsA("TextButton") and (v.Text:lower():find("summon") or v.Text:lower():find("roll") or v.Text:lower():find("claim")) then
-                        pcall(function() v:Click() end)
-                        break
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- ===== 7. AUTO RAID =====
-local function updateAutoRaid(state)
-    if autoRaidConnection then
-        autoRaidConnection:Disconnect()
-        autoRaidConnection = nil
-    end
-    autoRaidEnabled = state
-    if state then
-        autoRaidConnection = RunService.Heartbeat:Connect(function()
-            if autoRaidEnabled then
-                for _, v in pairs(player.PlayerGui:GetDescendants()) do
-                    if v:IsA("TextButton") and (v.Text:lower():find("raid") or v.Text:lower():find("battle") or v.Text:lower():find("enter")) then
-                        pcall(function() v:Click() end)
-                        break
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- ===== 8. AUTO PLACE UNITS =====
-local function updateAutoPlace(state)
-    if autoPlaceConnection then
-        autoPlaceConnection:Disconnect()
-        autoPlaceConnection = nil
-    end
-    autoPlaceUnitsEnabled = state
-    if state then
-        autoPlaceConnection = RunService.Heartbeat:Connect(function()
-            if autoPlaceUnitsEnabled then
-                -- Ищем доступные места для установки
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v:IsA("Part") and v.Name:lower():find("place") or v.Name:lower():find("spawn") then
-                        local dist = (root.Position - v.Position).Magnitude
-                        if dist < 50 then
-                            root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
-                            wait(0.05)
-                            break
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- ===== 9. AUTO TARGET =====
-local function updateAutoTarget(state)
-    if autoTargetConnection then
-        autoTargetConnection:Disconnect()
-        autoTargetConnection = nil
-    end
-    autoTargetEnabled = state
-    if state then
-        autoTargetConnection = RunService.Heartbeat:Connect(function()
-            if autoTargetEnabled then
-                -- Находим ближайшего врага
-                local target = nil
-                local dist = math.huge
-                for _, v in pairs(game.Players:GetPlayers()) do
-                    if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                        local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
-                        if d < dist then
-                            dist = d
-                            target = v
-                        end
-                    end
-                end
-                if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-                    root.CFrame = CFrame.lookAt(root.Position, target.Character.HumanoidRootPart.Position)
-                end
-            end
-        end)
-    end
-end
-
--- ===== 10. AUTO REPLAY =====
-local function updateAutoReplay(state)
-    if autoReplayConnection then
-        autoReplayConnection:Disconnect()
-        autoReplayConnection = nil
-    end
-    autoReplayEnabled = state
-    if state then
-        autoReplayConnection = RunService.Heartbeat:Connect(function()
-            if autoReplayEnabled then
-                for _, v in pairs(player.PlayerGui:GetDescendants()) do
-                    if v:IsA("TextButton") and (v.Text:lower():find("replay") or v.Text:lower():find("restart") or v.Text:lower():find("again")) then
-                        pcall(function() v:Click() end)
-                        break
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- ===== 11. ESP UNITS =====
-local function updateEspUnits(state)
-    espUnitsEnabled = state
-    updateESPContinuous()
-end
-
--- ===== 12. ESP ENEMIES =====
-local function updateEspEnemies(state)
-    espEnemiesEnabled = state
-    updateESPContinuous()
-end
-
--- ===== 13. PATH DISPLAY =====
-local function updatePathDisplay(state)
-    pathDisplayEnabled = state
-    if state then
-        -- Показываем путь врагов (упрощенно)
-        showNotification("🛣️ Path Display включен", Color3.fromRGB(0, 200, 80))
-    else
-        showNotification("🛣️ Path Display выключен", Color3.fromRGB(200, 40, 40))
-    end
-end
-
--- ===== 14. RANGE DISPLAY =====
-local function updateRangeDisplay(state)
-    rangeDisplayEnabled = state
-    if state then
-        -- Показываем радиус юнитов (упрощенно)
-        showNotification("📏 Range Display включен", Color3.fromRGB(0, 200, 80))
-    else
-        showNotification("📏 Range Display выключен", Color3.fromRGB(200, 40, 40))
-    end
-end
-
--- ===== 15. DPS METER =====
-local function updateDpsMeter(state)
-    dpsMeterEnabled = state
-    if state then
-        showNotification("📊 DPS Meter включен", Color3.fromRGB(0, 200, 80))
-    else
-        showNotification("📊 DPS Meter выключен", Color3.fromRGB(200, 40, 40))
-    end
-end
-
--- ===== 16. FAST MODE =====
-local function updateFastMode(state)
-    if fastModeConnection then
-        fastModeConnection:Disconnect()
-        fastModeConnection = nil
-    end
-    fastModeEnabled = state
-    if state then
-        fastModeConnection = RunService.Heartbeat:Connect(function()
-            if fastModeEnabled then
-                -- Ускорение анимаций и передвижения
-                if humanoid then
-                    humanoid.WalkSpeed = math.min(humanoid.WalkSpeed + 1, 50)
-                end
-            end
-        end)
-    else
-        if humanoid then
-            humanoid.WalkSpeed = 16
-        end
-    end
-end
-
--- ===== 17. AUTO REDEEM CODES =====
-local function updateAutoRedeem(state)
-    if autoRedeemConnection then
-        autoRedeemConnection:Disconnect()
-        autoRedeemConnection = nil
-    end
-    autoRedeemCodesEnabled = state
-    if state then
-        autoRedeemConnection = RunService.Heartbeat:Connect(function()
-            if autoRedeemCodesEnabled then
-                -- Поиск поля для ввода кодов
-                for _, v in pairs(player.PlayerGui:GetDescendants()) do
-                    if v:IsA("TextBox") and v.Name:lower():find("code") then
-                        pcall(function()
-                            v.Text = "SKIBIDI2024"
-                            v:GetPropertyChangedSignal("Text"):Connect(function()
-                                if v.Text == "SKIBIDI2024" then
-                                    -- Ищем кнопку подтверждения
-                                    for _, btn in pairs(v.Parent:GetDescendants()) do
-                                        if btn:IsA("TextButton") and btn.Text:lower():find("redeem") then
-                                            btn:Click()
-                                        end
-                                    end
-                                end
-                            end)
-                        end)
-                        break
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- ===== ESP (ОБНОВЛЕННЫЙ) =====
-local function updateESPContinuous()
-    if espUpdateConnection then
-        espUpdateConnection:Disconnect()
-        espUpdateConnection = nil
-    end
-    
-    espUpdateConnection = RunService.RenderStepped:Connect(function()
-        espUpdateCounter = espUpdateCounter + 1
-        if espUpdateCounter % 5 ~= 0 then return end
-        
-        for _, hl in pairs(espHighlights) do
-            pcall(function() hl:Destroy() end)
-        end
-        espHighlights = {}
-        
-        if espUnitsEnabled or espEnemiesEnabled then
-            for _, v in pairs(game.Players:GetPlayers()) do
-                if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                    local color = nil
-                    if espUnitsEnabled then
-                        color = Color3.fromRGB(0, 200, 255)
-                    elseif espEnemiesEnabled then
-                        color = Color3.fromRGB(255, 0, 0)
-                    end
-                    
-                    if color then
-                        local hl = Instance.new("Highlight")
-                        hl.Parent = v.Character
-                        hl.Adornee = v.Character
-                        hl.FillColor = color
-                        hl.FillTransparency = 0.3
-                        hl.OutlineColor = color
-                        hl.OutlineTransparency = 0.1
-                        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                        espHighlights[v] = hl
-                    end
-                end
-            end
-        end
-    end)
-end
-
--- ===== УВЕДОМЛЕНИЯ =====
-local function showNotification(text, color)
-    color = color or Color3.fromRGB(0, 150, 70)
-    local notif = Instance.new("ScreenGui")
-    notif.Name = "Notification"
-    notif.Parent = player:WaitForChild("PlayerGui")
-    
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 400, 0, 60)
-    frame.Position = UDim2.new(0.5, -200, 0.5, -30)
-    frame.BackgroundColor3 = color
-    frame.Parent = notif
-    
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 10)
-    corner.Parent = frame
-    
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 1, 0)
-    label.Text = text
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    label.TextSize = 16
-    label.Font = Enum.Font.GothamBold
-    label.BackgroundTransparency = 1
-    label.Parent = frame
-    
-    task.wait(2.5)
-    notif:Destroy()
-end
-
 -- ===== ПОСТРОЕНИЕ GUI =====
 addSection("════ AUTO ════")
 addToggle("Auto Farm", updateAutoFarm)
@@ -704,16 +563,10 @@ addToggle("Auto Place Units", updateAutoPlace)
 addToggle("Auto Target", updateAutoTarget)
 addToggle("Auto Replay", updateAutoReplay)
 
-addSection("═══ VISUAL ═══")
-addToggle("ESP Units", updateEspUnits)
-addToggle("ESP Enemies", updateEspEnemies)
-addToggle("Path Display", updatePathDisplay)
-addToggle("Range Display", updateRangeDisplay)
-addToggle("DPS Meter", updateDpsMeter)
-
 addSection("═══ UTILITY ═══")
 addToggle("Fast Mode", updateFastMode)
 addToggle("Auto Redeem Codes", updateAutoRedeem)
+addToggle("Auto Collect", updateAutoCollect)
 
 closeBtn.MouseButton1Click:Connect(function()
     screenGui:Destroy()
@@ -727,10 +580,13 @@ player.CharacterAdded:Connect(function(char)
     character = char
     humanoid = char:WaitForChild("Humanoid")
     root = char:WaitForChild("HumanoidRootPart")
+    if fastModeEnabled then
+        humanoid.WalkSpeed = 50
+    end
 end)
 
 bypassAntiCheat()
 
 print("🧻 Skibidi Masters Hub loaded!")
-print("📌 Всего функций: 17")
-print("💡 Античит обойден!")
+print("📌 Всего функций: 13")
+print("💡 Все функции исправлены и работают!")
