@@ -8,6 +8,8 @@ local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
 local mouse = player:GetMouse()
 local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
 
 for _, v in pairs(player.PlayerGui:GetChildren()) do
     if v.Name == "SkibidiHub" then
@@ -44,6 +46,26 @@ local fastModeConnection = nil
 local autoRedeemConnection = nil
 local autoCollectConnection = nil
 
+local remoteEvent = nil
+local remoteFunction = nil
+
+-- Поиск ремоутов
+local function findRemotes()
+    for _, v in pairs(ReplicatedStorage:GetDescendants()) do
+        if v:IsA("RemoteEvent") then
+            remoteEvent = v
+            break
+        end
+    end
+    for _, v in pairs(ReplicatedStorage:GetDescendants()) do
+        if v:IsA("RemoteFunction") then
+            remoteFunction = v
+            break
+        end
+    end
+end
+findRemotes()
+
 -- ===== ОБХОД АНТИЧИТА =====
 local function bypassAntiCheat()
     local oldNamecall
@@ -77,19 +99,59 @@ local function bypassAntiCheat()
     end
 end
 
--- ===== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ КЛИКОВ =====
-local function clickButton(textPatterns)
+-- ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
+
+-- Поиск кнопок в GUI
+local function findButtons(textPatterns)
+    local found = {}
     for _, v in pairs(player.PlayerGui:GetDescendants()) do
-        if v:IsA("TextButton") and v.Visible then
+        if v:IsA("TextButton") and v.Visible and v.Active then
             for _, pattern in ipairs(textPatterns) do
                 if v.Text:lower():find(pattern) then
-                    pcall(function() v:Click() end)
-                    return true
+                    table.insert(found, v)
                 end
             end
         end
     end
+    return found
+end
+
+-- Клик по кнопке
+local function clickButton(textPatterns, waitTime)
+    waitTime = waitTime or 0.1
+    local btns = findButtons(textPatterns)
+    for _, btn in ipairs(btns) do
+        pcall(function()
+            btn:Click()
+            task.wait(waitTime)
+            return true
+        end)
+    end
     return false
+end
+
+-- Поиск объектов в Workspace
+local function findInWorkspace(namePatterns)
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and v.Parent then
+            for _, pattern in ipairs(namePatterns) do
+                if v.Name:lower():find(pattern) then
+                    return v
+                end
+            end
+        end
+    end
+    return nil
+end
+
+-- Телепорт к объекту
+local function teleportToObject(obj)
+    if not obj then return false end
+    local oldPos = root.CFrame
+    root.CFrame = obj.CFrame * CFrame.new(0, 3, 0)
+    task.wait(0.05)
+    root.CFrame = oldPos
+    return true
 end
 
 -- ===== 1. AUTO FARM =====
@@ -102,21 +164,9 @@ local function updateAutoFarm(state)
     if state then
         autoFarmConnection = RunService.Heartbeat:Connect(function()
             if autoFarmEnabled and character then
-                -- Сбор ресурсов
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v:IsA("Part") and v.Parent then
-                        local name = v.Name:lower()
-                        if name:find("coin") or name:find("currency") or name:find("resource") or name:find("drop") then
-                            local dist = (root.Position - v.Position).Magnitude
-                            if dist < 200 then
-                                local oldPos = root.CFrame
-                                root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
-                                wait(0.05)
-                                root.CFrame = oldPos
-                                break
-                            end
-                        end
-                    end
+                local coin = findInWorkspace({"coin", "currency", "resource", "drop", "gem"})
+                if coin then
+                    teleportToObject(coin)
                 end
             end
         end)
@@ -133,7 +183,7 @@ local function updateAutoWave(state)
     if state then
         autoWaveConnection = RunService.Heartbeat:Connect(function()
             if autoWaveStartEnabled then
-                clickButton({"start", "wave", "next", "begin"})
+                clickButton({"start", "wave", "next", "begin", "skip"})
             end
         end)
     end
@@ -149,13 +199,13 @@ local function updateAutoClaim(state)
     if state then
         autoClaimConnection = RunService.Heartbeat:Connect(function()
             if autoClaimRewardsEnabled then
-                clickButton({"claim", "reward", "collect", "grab"})
+                clickButton({"claim", "reward", "collect", "grab", "get"})
             end
         end)
     end
 end
 
--- ===== 4. AUTO UPGRADE UNITS =====
+-- ===== 4. AUTO UPGRADE UNITS (FIXED) =====
 local function updateAutoUpgrade(state)
     if autoUpgradeConnection then
         autoUpgradeConnection:Disconnect()
@@ -165,7 +215,20 @@ local function updateAutoUpgrade(state)
     if state then
         autoUpgradeConnection = RunService.Heartbeat:Connect(function()
             if autoUpgradeUnitsEnabled then
-                clickButton({"upgrade", "level", "enhance"})
+                -- Ищем юнитов в Workspace
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v.Parent ~= character then
+                        -- Пробуем через Remote
+                        if remoteEvent then
+                            pcall(function()
+                                remoteEvent:FireServer("Upgrade", v)
+                            end)
+                        end
+                        -- Ищем кнопку апгрейда в GUI
+                        clickButton({"upgrade", "level", "enhance", "improve"})
+                        break
+                    end
+                end
             end
         end)
     end
@@ -181,13 +244,18 @@ local function updateAutoSell(state)
     if state then
         autoSellConnection = RunService.Heartbeat:Connect(function()
             if autoSellEnabled then
-                clickButton({"sell", "remove"})
+                if remoteEvent then
+                    pcall(function()
+                        remoteEvent:FireServer("Sell")
+                    end)
+                end
+                clickButton({"sell", "remove", "delete"})
             end
         end)
     end
 end
 
--- ===== 6. AUTO SUMMON =====
+-- ===== 6. AUTO SUMMON (FIXED) =====
 local function updateAutoSummon(state)
     if autoSummonConnection then
         autoSummonConnection:Disconnect()
@@ -197,7 +265,14 @@ local function updateAutoSummon(state)
     if state then
         autoSummonConnection = RunService.Heartbeat:Connect(function()
             if autoSummonEnabled then
-                clickButton({"summon", "roll", "pull", "open"})
+                if remoteEvent then
+                    pcall(function()
+                        remoteEvent:FireServer("Summon")
+                        remoteEvent:FireServer("Roll")
+                        remoteEvent:FireServer("Pull")
+                    end)
+                end
+                clickButton({"summon", "roll", "pull", "open", "claim", "spin"})
             end
         end)
     end
@@ -213,13 +288,20 @@ local function updateAutoRaid(state)
     if state then
         autoRaidConnection = RunService.Heartbeat:Connect(function()
             if autoRaidEnabled then
-                clickButton({"raid", "battle", "enter", "fight"})
+                if remoteEvent then
+                    pcall(function()
+                        remoteEvent:FireServer("Raid")
+                        remoteEvent:FireServer("Battle")
+                        remoteEvent:FireServer("Enter")
+                    end)
+                end
+                clickButton({"raid", "battle", "enter", "fight", "start"})
             end
         end)
     end
 end
 
--- ===== 8. AUTO PLACE UNITS =====
+-- ===== 8. AUTO PLACE UNITS (FIXED) =====
 local function updateAutoPlace(state)
     if autoPlaceConnection then
         autoPlaceConnection:Disconnect()
@@ -229,21 +311,16 @@ local function updateAutoPlace(state)
     if state then
         autoPlaceConnection = RunService.Heartbeat:Connect(function()
             if autoPlaceUnitsEnabled and character then
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v:IsA("Part") and v.Parent then
-                        local name = v.Name:lower()
-                        if name:find("spawn") or name:find("place") or name:find("slot") then
-                            local dist = (root.Position - v.Position).Magnitude
-                            if dist < 50 then
-                                local oldPos = root.CFrame
-                                root.CFrame = v.CFrame * CFrame.new(0, 2, 0)
-                                wait(0.1)
-                                clickButton({"place", "build", "deploy"})
-                                root.CFrame = oldPos
-                                break
-                            end
-                        end
+                local place = findInWorkspace({"spawn", "place", "slot", "position"})
+                if place then
+                    teleportToObject(place)
+                    task.wait(0.05)
+                    if remoteEvent then
+                        pcall(function()
+                            remoteEvent:FireServer("Place", place)
+                        end)
                     end
+                    clickButton({"place", "build", "deploy"})
                 end
             end
         end)
@@ -262,7 +339,7 @@ local function updateAutoTarget(state)
             if autoTargetEnabled and character then
                 local target = nil
                 local dist = math.huge
-                for _, v in pairs(game.Players:GetPlayers()) do
+                for _, v in pairs(Players:GetPlayers()) do
                     if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
                         local d = (root.Position - v.Character.HumanoidRootPart.Position).Magnitude
                         if d < dist then
@@ -279,7 +356,7 @@ local function updateAutoTarget(state)
     end
 end
 
--- ===== 10. AUTO REPLAY =====
+-- ===== 10. AUTO REPLAY (FIXED) =====
 local function updateAutoReplay(state)
     if autoReplayConnection then
         autoReplayConnection:Disconnect()
@@ -289,7 +366,13 @@ local function updateAutoReplay(state)
     if state then
         autoReplayConnection = RunService.Heartbeat:Connect(function()
             if autoReplayEnabled then
-                clickButton({"replay", "restart", "again"})
+                if remoteEvent then
+                    pcall(function()
+                        remoteEvent:FireServer("Replay")
+                        remoteEvent:FireServer("Restart")
+                    end)
+                end
+                clickButton({"replay", "restart", "again", "retry"})
             end
         end)
     end
@@ -329,15 +412,8 @@ local function updateAutoRedeem(state)
                     if v:IsA("TextBox") and v.Visible then
                         pcall(function()
                             v.Text = "SKIBIDI2024"
-                            wait(0.1)
-                            for _, btn in pairs(v.Parent:GetDescendants()) do
-                                if btn:IsA("TextButton") and btn.Visible then
-                                    local text = btn.Text:lower()
-                                    if text:find("redeem") or text:find("claim") or text:find("confirm") then
-                                        btn:Click()
-                                    end
-                                end
-                            end
+                            task.wait(0.1)
+                            clickButton({"redeem", "claim", "confirm"})
                         end)
                     end
                 end
@@ -356,7 +432,12 @@ local function updateAutoCollect(state)
     if state then
         autoCollectConnection = RunService.Heartbeat:Connect(function()
             if autoCollectEnabled then
-                clickButton({"collect", "pickup", "loot"})
+                if remoteEvent then
+                    pcall(function()
+                        remoteEvent:FireServer("Collect")
+                    end)
+                end
+                clickButton({"collect", "pickup", "loot", "grab"})
             end
         end)
     end
