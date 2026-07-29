@@ -1,1 +1,2080 @@
-local _0x1a2b=game:GetService("Players");local _0x3c4d=_0x1a2b.LocalPlayer;local _0x5e6f=_0x3c4d.Character or _0x3c4d.CharacterAdded:Wait();local _0x7g8h=_0x5e6f:WaitForChild("Humanoid");local _0x9i0j=_0x5e6f:WaitForChild("HumanoidRootPart");local _0x1k2l=game:GetService("UserInputService");local _0x3m4n=game:GetService("RunService");local _0x5o6p=game:GetService("VirtualUser");if game.CoreGui:FindFirstChild("FurdjeHub")then game.CoreGui.FurdjeHub:Destroy()end;for _,_0x7q8r in pairs(workspace:GetChildren())do if _0x7q8r.Name:find("Furdje_WayPoint_")then _0x7q8r:Destroy()end end;local _0x9s0t=_0x3c4d.Idled:Connect(function()_0x5o6p:CaptureController();_0x5o6p:ClickButton2(Vector2.new())end);local _0x1u2v="EN";local _0x3w4x={RU={ChooseLang="Выберите язык",ThemeTitle="Цветовая палитра интерфейса",WorldLabel="Мир: [ %s ]",AutoFarmTab="Авто Фарм",ThemeTab="Темы",AdminTab="AdminPanel",MovementTab="Moovement",AutoFarmToggle="Авто Фарм",SpeedLabel="Скорость: %d",DistLabel="WinsFarmer:",SavePosBtn="+ Сохранить позицию",CopyPosBtn="Скопировать позиции",Copied="Скопировано в буфер!",EmptyList="Список пуст!",NoPoints="Нет точек!",SelectDist="Выбрать WinsFarmer",PointPrefix="ТОЧКА",AdminTitle="--- ДЛЯ FURDJEHUB ---",EnterKey="Введите ключ доступа...",UnlockBtn="Разблокировать",WrongKey="Неверный ключ!",SuccessKey="Доступ разрешен!",CheckPosToggle="Включить Chekpozition",CheckModelToggle="Check Model (Клик по детали)",InfJumpToggle="Infinity Jump",FlyToggle="Fly (Джойстик/WASD)",FlySpeedLabel="Скорость полета: %d",Themes={"Синий Космос","Фиолетовый Кибер","Кислотный Лайм","Пылкая Роза","Янтарный Неон","Белый Фантом"},CFGTab="CFG",CFGName="Название CFG",CFGSave="💾 Сохранить",CFGLoad="📂 Загрузить",CFGList="📋 Список CFG",CFGDelete="Удалить",CFGEmpty="Нет сохранений",CFGSaved="Сохранено!",CFGLoaded="Загружено!",CFGDeleted="Удалено!",CFGNotFound="Не найден!"},EN={ChooseLang="Choose language",ThemeTitle="Interface Color Palette",WorldLabel="World: [ %s ]",AutoFarmTab="Auto Farm",ThemeTab="Themes",AdminTab="AdminPanel",MovementTab="Moovement",AutoFarmToggle="Auto Farm",SpeedLabel="Speed: %d",DistLabel="WinsFarmer:",SavePosBtn="+ Save Position",CopyPosBtn="Copy Positions",Copied="Copied to clipboard!",EmptyList="List is empty!",NoPoints="No points!",SelectDist="Select WinsFarmer",PointPrefix="POINT",AdminTitle="--- FOR FURDJEHUB ---",EnterKey="Enter access key...",UnlockBtn="Unlock",WrongKey="Invalid key!",SuccessKey="Access granted!",CheckPosToggle="Enable Chekpozition",CheckModelToggle="Check Model (Click part)",InfJumpToggle="Infinity Jump",FlyToggle="Fly (Joystick/WASD)",FlySpeedLabel="Fly Speed: %d",Themes={"Blue Space","Purple Cyber","Acid Lime","Fiery Rose","Amber Neon","White Phantom"},CFGTab="CFG",CFGName="CFG Name",CFGSave="💾 Save",CFGLoad="📂 Load",CFGList="📋 CFG List",CFGDelete="Delete",CFGEmpty="No saves",CFGSaved="Saved!",CFGLoaded="Loaded!",CFGDeleted="Deleted!",CFGNotFound="Not found!"}};local function _0x5y6z(key)return _0x3w4x[_0x1u2v][key]end;local _0x7a8b={};local _0x9c0d={};local _0x1e2f="1 World";local _0x3g4h=nil;local _0x5i6j=110;local _0x7k8l=false;local _0x9m0n=nil;local _0x1o2p=nil;local _0x3q4r=false;local _0x5s6t=false;local _0x7u8v=Color3.fromRGB(0,150,255);local _0x9w0x=false;local _0x1y2z=false;local _0x3a4b=50;local _0x5c6d,_0x7e8f,_0x9g0h;local _0x1i2j=false;local _0x3k4l=nil;local _0x5m6n=_0x3c4d:GetMouse();local _0x7o8p={["1 World"]={["+1 wins"]={Vector3.new(2.8,8.5,74.3),Vector3.new(-22.3,10.4,286)},["+3 wins"]={Vector3.new(-2.1,8.5,74.2),Vector3.new(2.7,8.5,295.7),Vector3.new(58,8.5,362),Vector3.new(53,8.5,444.3),Vector3.new(-22.2,9.8,518.4)},["+10 wins"]={Vector3.new(3.1,8.5,74.8),Vector3.new(2.3,8.5,296.5),Vector3.new(55.6,8.5,336.6),Vector3.new(47.5,8.5,454.1),Vector3.new(-1.6,8.5,487.5),Vector3.new(-4.8,8.5,527.7),Vector3.new(-21.6,8.5,528),Vector3.new(-22.6,30.8,624.1),Vector3.new(-21.5,76.8,752.7),Vector3.new(-18.3,78.7,774.5)}},["2 World"]={["+250k wins"]={Vector3.new(-396.8,504.7,-60.1),Vector3.new(-411.7,499.8,171.9),Vector3.new(-414,498.1,189.9)},["+400k wins"]={Vector3.new(-399.4,504.7,-57.6),Vector3.new(-398.1,499.8,209.2),Vector3.new(-417.6,501.4,445.3)},["+1,5m wins"]={Vector3.new(-399.4,504.7,-57.6),Vector3.new(-398.1,499.8,209.2),Vector3.new(-396.3,499.8,450),Vector3.new(-398.5,499.7,465.5),Vector3.new(-343.3,499.7,464.7),Vector3.new(-349.3,526.8,576.9),Vector3.new(-454.1,526.8,574.8),Vector3.new(-455.3,551.8,485.5),Vector3.new(-454.8,553.8,467.6),Vector3.new(-350,553.8,464.7),Vector3.new(-349.6,553.8,477.8),Vector3.new(-347.2,580.8,574.4),Vector3.new(-452.8,580.8,577),Vector3.new(-453.2,580.8,565.6),Vector3.new(-454.1,605.9,485.4),Vector3.new(-454.7,607.8,467.2),Vector3.new(-400.6,607.8,467.7),Vector3.new(-399.4,607.6,621.4),Vector3.new(-399.3,607.6,672.4),Vector3.new(-401.2,607.2,825.2),Vector3.new(-401,607.2,859.3),Vector3.new(-317,607.2,1013.9),Vector3.new(-312.5,607.2,1149.9),Vector3.new(-400.4,607.2,1248.3),Vector3.new(-411.5,607.4,1264.2),Vector3.new(-413.7,609,1260.5)},["+2,5m wins"]={Vector3.new(-398.3,504.7,-55.6),Vector3.new(-395.6,499.8,207.1),Vector3.new(-393.8,499.8,451.7),Vector3.new(-348.7,499.7,467.9),Vector3.new(-348.3,526.8,575.4),Vector3.new(-454.6,526.8,574.6),Vector3.new(-451.9,553.8,467.1),Vector3.new(-347.8,553.8,467.5),Vector3.new(-349.7,580.8,577.1),Vector3.new(-452.2,580.8,574.6),Vector3.new(-452.4,607.8,467.3),Vector3.new(-397.4,607.8,466.1),Vector3.new(-398.8,607.6,621.8),Vector3.new(-400.2,607.2,858),Vector3.new(-300.5,607.2,911.8),Vector3.new(-311.3,607.2,1134.4),Vector3.new(-398.4,607.2,1246.4),Vector3.new(-398.1,618.4,1331.4),Vector3.new(-399,607.2,1429.9),Vector3.new(-390.3,607.2,1475.1),Vector3.new(-363,628,1543.5),Vector3.new(-363.2,628,1602.1),Vector3.new(-361.4,605.1,1697.2),Vector3.new(-361.8,605.1,1752.7),Vector3.new(-362.1,616.7,1792.1),Vector3.new(-398.3,607.2,1860.9),Vector3.new(-397,607.7,1924.8),Vector3.new(-398,619.3,1960),Vector3.new(-398.2,607.2,2040.1),Vector3.new(-398.3,607.2,2097.8),Vector3.new(-398.4,619,2140.1),Vector3.new(-398.6,607.2,2216.9),Vector3.new(-398.5,607.2,2270.2),Vector3.new(-398.4,618.6,2316.5),Vector3.new(-399.6,623.1,2365.9),Vector3.new(-417.3,621,2415.6)},["+4m wins"]={Vector3.new(-398.3,504.7,-55.6),Vector3.new(-395.6,499.8,207.1),Vector3.new(-393.8,499.8,451.7),Vector3.new(-348.7,499.7,467.9),Vector3.new(-348.3,526.8,575.4),Vector3.new(-454.6,526.8,574.6),Vector3.new(-451.9,553.8,467.1),Vector3.new(-347.8,553.8,467.5),Vector3.new(-349.7,580.8,577.1),Vector3.new(-452.2,580.8,574.6),Vector3.new(-452.4,607.8,467.3),Vector3.new(-397.4,607.8,466.1),Vector3.new(-398.8,607.6,621.8),Vector3.new(-400.2,607.2,858),Vector3.new(-300.5,607.2,911.8),Vector3.new(-311.3,607.2,1134.4),Vector3.new(-398.4,607.2,1246.4),Vector3.new(-398.1,618.4,1331.4),Vector3.new(-399,607.2,1429.9),Vector3.new(-390.3,607.2,1475.1),Vector3.new(-363,628,1543.5),Vector3.new(-363.2,628,1602.1),Vector3.new(-361.4,605.1,1697.2),Vector3.new(-361.8,605.1,1752.7),Vector3.new(-362.1,616.7,1792.1),Vector3.new(-398.3,607.2,1860.9),Vector3.new(-397,607.7,1924.8),Vector3.new(-398,619.3,1960),Vector3.new(-398.2,607.2,2040.1),Vector3.new(-398.3,607.2,2097.8),Vector3.new(-398.4,619,2140.1),Vector3.new(-398.6,607.2,2216.9),Vector3.new(-398.5,607.2,2270.2),Vector3.new(-398.4,618.6,2316.5),Vector3.new(-399.6,623.1,2365.9),Vector3.new(-399.7,623.1,2433.8),Vector3.new(-399.7,623.1,2636.1),Vector3.new(-417.3,620.8,2650.8)},["+6m wins"]={Vector3.new(-398.3,504.7,-55.6),Vector3.new(-395.6,499.8,207.1),Vector3.new(-393.8,499.8,451.7),Vector3.new(-348.7,499.7,467.9),Vector3.new(-348.3,526.8,575.4),Vector3.new(-454.6,526.8,574.6),Vector3.new(-451.9,553.8,467.1),Vector3.new(-347.8,553.8,467.5),Vector3.new(-349.7,580.8,577.1),Vector3.new(-452.2,580.8,574.6),Vector3.new(-452.4,607.8,467.3),Vector3.new(-397.4,607.8,466.1),Vector3.new(-398.8,607.6,621.8),Vector3.new(-400.2,607.2,858),Vector3.new(-300.5,607.2,911.8),Vector3.new(-311.3,607.2,1134.4),Vector3.new(-398.4,607.2,1246.4),Vector3.new(-398.1,618.4,1331.4),Vector3.new(-399,607.2,1429.9),Vector3.new(-390.3,607.2,1475.1),Vector3.new(-363,628,1543.5),Vector3.new(-363.2,628,1602.1),Vector3.new(-361.4,605.1,1697.2),Vector3.new(-361.8,605.1,1752.7),Vector3.new(-362.1,616.7,1792.1),Vector3.new(-398.3,607.2,1860.9),Vector3.new(-397,607.7,1924.8),Vector3.new(-398,619.3,1960),Vector3.new(-398.2,607.2,2040.1),Vector3.new(-398.3,607.2,2097.8),Vector3.new(-398.4,619,2140.1),Vector3.new(-398.6,607.2,2216.9),Vector3.new(-398.5,607.2,2270.2),Vector3.new(-398.4,618.6,2316.5),Vector3.new(-399.6,623.1,2365.9),Vector3.new(-399.7,623.1,2433.8),Vector3.new(-399.7,623.1,2636.1),Vector3.new(-398.7,623.1,2666.7),Vector3.new(-403,623.1,3093.9),Vector3.new(-417.3,621.2,3158.6)},["+10m wins"]={Vector3.new(-398.3,504.7,-55.6),Vector3.new(-395.6,499.8,207.1),Vector3.new(-393.8,499.8,451.7),Vector3.new(-348.7,499.7,467.9),Vector3.new(-348.3,526.8,575.4),Vector3.new(-454.6,526.8,574.6),Vector3.new(-451.9,553.8,467.1),Vector3.new(-347.8,553.8,467.5),Vector3.new(-349.7,580.8,577.1),Vector3.new(-452.2,580.8,574.6),Vector3.new(-452.4,607.8,467.3),Vector3.new(-397.4,607.8,466.1),Vector3.new(-398.8,607.6,621.8),Vector3.new(-400.2,607.2,858),Vector3.new(-300.5,607.2,911.8),Vector3.new(-311.3,607.2,1134.4),Vector3.new(-398.4,607.2,1246.4),Vector3.new(-398.1,618.4,1331.4),Vector3.new(-399,607.2,1429.9),Vector3.new(-390.3,607.2,1475.1),Vector3.new(-363,628,1543.5),Vector3.new(-363.2,628,1602.1),Vector3.new(-361.4,605.1,1697.2),Vector3.new(-361.8,605.1,1752.7),Vector3.new(-362.1,616.7,1792.1),Vector3.new(-398.3,607.2,1860.9),Vector3.new(-397,607.7,1924.8),Vector3.new(-398,619.3,1960),Vector3.new(-398.2,607.2,2040.1),Vector3.new(-398.3,607.2,2097.8),Vector3.new(-398.4,619,2140.1),Vector3.new(-398.6,607.2,2216.9),Vector3.new(-398.5,607.2,2270.2),Vector3.new(-398.4,618.6,2316.5),Vector3.new(-399.6,623.1,2365.9),Vector3.new(-399.7,623.1,2433.8),Vector3.new(-399.7,623.1,2636.1),Vector3.new(-398.7,623.1,2666.7),Vector3.new(-403,623.1,3093.9),Vector3.new(-401.7,623.1,3172.2),Vector3.new(-399,623.1,3325.1),Vector3.new(-346,623.1,3324.2),Vector3.new(-196.7,623.1,3330.7),Vector3.new(-191.2,623.1,3256.3),Vector3.new(-114.2,623.1,3261.9),Vector3.new(-116.3,623.1,3412.3),Vector3.new(-257.5,623.1,3409.8),Vector3.new(-261,623.1,3608.9),Vector3.new(-529.8,623.1,3607.1),Vector3.new(-535.7,623.1,3790.1),Vector3.new(-118.6,623.1,3798.5),Vector3.new(-119.2,623.1,3867.5),Vector3.new(-59.9,621.2,3883.2)},["+15m wins"]={Vector3.new(-396.7,504.7,-54.7),Vector3.new(-396.5,499.8,450.4),Vector3.new(-396.1,499.7,466.2),Vector3.new(-346.2,499.7,465),Vector3.new(-347.7,526.8,575.3),Vector3.new(-454.8,526.8,574.9),Vector3.new(-454,553.8,469.2),Vector3.new(-349.9,553.8,467.2),Vector3.new(-348.2,580.8,576.5),Vector3.new(-450.7,580.8,577.1),Vector3.new(-450,607.8,466.3),Vector3.new(-403.6,607.8,466.9),Vector3.new(-400.4,607.6,622.8),Vector3.new(-400.5,607.2,859.9),Vector3.new(-309.8,607.2,918.2),Vector3.new(-307,607.2,1192.4),Vector3.new(-400.3,607.2,1247.9),Vector3.new(-400.5,618.9,1332.9),Vector3.new(-400.7,607.2,1431.3),Vector3.new(-360.7,628,1544.8),Vector3.new(-362.1,628,1604.5),Vector3.new(-360,605.1,1695.9),Vector3.new(-362.9,617,1793.1),Vector3.new(-400.5,607.2,1860.4),Vector3.new(-400,607.2,1921.3),Vector3.new(-400.1,619.3,1960.1),Vector3.new(-400.3,607.2,2040),Vector3.new(-400.5,607.2,2099.5),Vector3.new(-400.6,619.3,2141.1),Vector3.new(-400.8,607.2,2218),Vector3.new(-400.9,607.2,2276.1),Vector3.new(-400.3,618.6,2316.2),Vector3.new(-398.8,623.1,2433.6),Vector3.new(-395.9,623.1,2668.2),Vector3.new(-401,623.1,3174.8),Vector3.new(-400.7,623.1,3332.6),Vector3.new(-181.5,623.1,3331.3),Vector3.new(-181.7,623.1,3261.6),Vector3.new(-106.9,623.1,3261.4),Vector3.new(-114.6,623.1,3437.5),Vector3.new(-268,623.1,3441.3),Vector3.new(-265.2,623.1,3611.6),Vector3.new(-531.9,623.1,3620),Vector3.new(-535.2,623.1,3801.1),Vector3.new(-130.8,623.1,3799.8),Vector3.new(-130.7,623.1,3864.4),Vector3.new(-46.1,623.2,3864.2),Vector3.new(1189.7,623.4,3865.5),Vector3.new(1228.4,621.6,3908.9)},["+25m wins"]={Vector3.new(-396.7,504.7,-54.7),Vector3.new(-396.5,499.8,450.4),Vector3.new(-396.1,499.7,466.2),Vector3.new(-346.2,499.7,465),Vector3.new(-347.7,526.8,575.3),Vector3.new(-454.8,526.8,574.9),Vector3.new(-454,553.8,469.2),Vector3.new(-349.9,553.8,467.2),Vector3.new(-348.2,580.8,576.5),Vector3.new(-450.7,580.8,577.1),Vector3.new(-450,607.8,466.3),Vector3.new(-403.6,607.8,466.9),Vector3.new(-400.4,607.6,622.8),Vector3.new(-400.5,607.2,859.9),Vector3.new(-309.8,607.2,918.2),Vector3.new(-307,607.2,1192.4),Vector3.new(-400.3,607.2,1247.9),Vector3.new(-400.5,618.9,1332.9),Vector3.new(-400.7,607.2,1431.3),Vector3.new(-360.7,628,1544.8),Vector3.new(-362.1,628,1604.5),Vector3.new(-360,605.1,1695.9),Vector3.new(-362.9,617,1793.1),Vector3.new(-400.5,607.2,1860.4),Vector3.new(-400,607.2,1921.3),Vector3.new(-400.1,619.3,1960.1),Vector3.new(-400.3,607.2,2040),Vector3.new(-400.5,607.2,2099.5),Vector3.new(-400.6,619.3,2141.1),Vector3.new(-400.8,607.2,2218),Vector3.new(-400.9,607.2,2276.1),Vector3.new(-400.3,618.6,2316.2),Vector3.new(-398.8,623.1,2433.6),Vector3.new(-395.9,623.1,2668.2),Vector3.new(-401,623.1,3174.8),Vector3.new(-400.7,623.1,3332.6),Vector3.new(-181.5,623.1,3331.3),Vector3.new(-181.7,623.1,3261.6),Vector3.new(-106.9,623.1,3261.4),Vector3.new(-114.6,623.1,3437.5),Vector3.new(-268,623.1,3441.3),Vector3.new(-265.2,623.1,3611.6),Vector3.new(-531.9,623.1,3620),Vector3.new(-535.2,623.1,3801.1),Vector3.new(-130.8,623.1,3799.8),Vector3.new(-130.7,623.1,3864.4),Vector3.new(-46.1,623.2,3864.2),Vector3.new(1189.7,623.4,3865.5),Vector3.new(1263.6,623.4,3864.6),Vector3.new(1327.3,600,3862.8),Vector3.new(1565,622.1,3789.3),Vector3.new(1770.8,638.8,3940.2),Vector3.new(1971.2,615.5,3805.8),Vector3.new(2115.6,614.4,3954.5),Vector3.new(2313.9,603,3869.1),Vector3.new(2400.2,625.5,3887.9)},["+40m wins"]={Vector3.new(-396.7,504.7,-54.7),Vector3.new(-396.5,499.8,450.4),Vector3.new(-396.1,499.7,466.2),Vector3.new(-346.2,499.7,465),Vector3.new(-347.7,526.8,575.3),Vector3.new(-454.8,526.8,574.9),Vector3.new(-454,553.8,469.2),Vector3.new(-349.9,553.8,467.2),Vector3.new(-348.2,580.8,576.5),Vector3.new(-450.7,580.8,577.1),Vector3.new(-450,607.8,466.3),Vector3.new(-403.6,607.8,466.9),Vector3.new(-400.4,607.6,622.8),Vector3.new(-400.5,607.2,859.9),Vector3.new(-309.8,607.2,918.2),Vector3.new(-307,607.2,1192.4),Vector3.new(-400.3,607.2,1247.9),Vector3.new(-400.5,618.9,1332.9),Vector3.new(-400.7,607.2,1431.3),Vector3.new(-360.7,628,1544.8),Vector3.new(-362.1,628,1604.5),Vector3.new(-360,605.1,1695.9),Vector3.new(-362.9,617,1793.1),Vector3.new(-400.5,607.2,1860.4),Vector3.new(-400,607.2,1921.3),Vector3.new(-400.1,619.3,1960.1),Vector3.new(-400.3,607.2,2040),Vector3.new(-400.5,607.2,2099.5),Vector3.new(-400.6,619.3,2141.1),Vector3.new(-400.8,607.2,2218),Vector3.new(-400.9,607.2,2276.1),Vector3.new(-400.3,618.6,2316.2),Vector3.new(-398.8,623.1,2433.6),Vector3.new(-395.9,623.1,2668.2),Vector3.new(-401,623.1,3174.8),Vector3.new(-400.7,623.1,3332.6),Vector3.new(-181.5,623.1,3331.3),Vector3.new(-181.7,623.1,3261.6),Vector3.new(-106.9,623.1,3261.4),Vector3.new(-114.6,623.1,3437.5),Vector3.new(-268,623.1,3441.3),Vector3.new(-265.2,623.1,3611.6),Vector3.new(-531.9,623.1,3620),Vector3.new(-535.2,623.1,3801.1),Vector3.new(-130.8,623.1,3799.8),Vector3.new(-130.7,623.1,3864.4),Vector3.new(-46.1,623.2,3864.2),Vector3.new(1189.7,623.4,3865.5),Vector3.new(1263.6,623.4,3864.6),Vector3.new(1327.3,600,3862.8),Vector3.new(1565,622.1,3789.3),Vector3.new(1770.8,638.8,3940.2),Vector3.new(1971.2,615.5,3805.8),Vector3.new(2115.6,614.4,3954.5),Vector3.new(2313.9,603,3869.1),Vector3.new(2384,627.4,3868.7),Vector3.new(2418.4,627.4,3868.8),Vector3.new(2450.3,627.3,3868.2),Vector3.new(2499.6,639.3,3869.5),Vector3.new(2548.9,639.3,3870),Vector3.new(2722.7,634.3,3870),Vector3.new(2749,575.3,3867.8),Vector3.new(2826.7,575.3,3868.8),Vector3.new(2859.8,580.9,3868.9),Vector3.new(2920.1,605.2,3869.2),Vector3.new(2960.3,576.3,3870.3),Vector3.new(3005.1,576.3,3869.4),Vector3.new(3048.9,591.6,3869.5),Vector3.new(3171.6,577.4,3868.7),Vector3.new(3215.8,592.3,3874.4),Vector3.new(3269.2,590.6,3887.9)},["+60m wins"]={Vector3.new(-396.7,504.7,-54.7),Vector3.new(-396.5,499.8,450.4),Vector3.new(-396.1,499.7,466.2),Vector3.new(-346.2,499.7,465),Vector3.new(-347.7,526.8,575.3),Vector3.new(-454.8,526.8,574.9),Vector3.new(-454,553.8,469.2),Vector3.new(-349.9,553.8,467.2),Vector3.new(-348.2,580.8,576.5),Vector3.new(-450.7,580.8,577.1),Vector3.new(-450,607.8,466.3),Vector3.new(-403.6,607.8,466.9),Vector3.new(-400.4,607.6,622.8),Vector3.new(-400.5,607.2,859.9),Vector3.new(-309.8,607.2,918.2),Vector3.new(-307,607.2,1192.4),Vector3.new(-400.3,607.2,1247.9),Vector3.new(-400.5,618.9,1332.9),Vector3.new(-400.7,607.2,1431.3),Vector3.new(-360.7,628,1544.8),Vector3.new(-362.1,628,1604.5),Vector3.new(-360,605.1,1695.9),Vector3.new(-362.9,617,1793.1),Vector3.new(-400.5,607.2,1860.4),Vector3.new(-400,607.2,1921.3),Vector3.new(-400.1,619.3,1960.1),Vector3.new(-400.3,607.2,2040),Vector3.new(-400.5,607.2,2099.5),Vector3.new(-400.6,619.3,2141.1),Vector3.new(-400.8,607.2,2218),Vector3.new(-400.9,607.2,2276.1),Vector3.new(-400.3,618.6,2316.2),Vector3.new(-398.8,623.1,2433.6),Vector3.new(-395.9,623.1,2668.2),Vector3.new(-401,623.1,3174.8),Vector3.new(-400.7,623.1,3332.6),Vector3.new(-181.5,623.1,3331.3),Vector3.new(-181.7,623.1,3261.6),Vector3.new(-106.9,623.1,3261.4),Vector3.new(-114.6,623.1,3437.5),Vector3.new(-268,623.1,3441.3),Vector3.new(-265.2,623.1,3611.6),Vector3.new(-531.9,623.1,3620),Vector3.new(-535.2,623.1,3801.1),Vector3.new(-130.8,623.1,3799.8),Vector3.new(-130.7,623.1,3864.4),Vector3.new(-46.1,623.2,3864.2),Vector3.new(1189.7,623.4,3865.5),Vector3.new(1263.6,623.4,3864.6),Vector3.new(1327.3,600,3862.8),Vector3.new(1565,622.1,3789.3),Vector3.new(1770.8,638.8,3940.2),Vector3.new(1971.2,615.5,3805.8),Vector3.new(2115.6,614.4,3954.5),Vector3.new(2313.9,603,3869.1),Vector3.new(2384,627.4,3868.7),Vector3.new(2418.4,627.4,3868.8),Vector3.new(2450.3,627.3,3868.2),Vector3.new(2499.6,639.3,3869.5),Vector3.new(2548.9,639.3,3870),Vector3.new(2722.7,634.3,3870),Vector3.new(2749,575.3,3867.8),Vector3.new(2826.7,575.3,3868.8),Vector3.new(2859.8,580.9,3868.9),Vector3.new(2920.1,605.2,3869.2),Vector3.new(2960.3,576.3,3870.3),Vector3.new(3005.1,576.3,3869.4),Vector3.new(3048.9,591.6,3869.5),Vector3.new(3171.6,577.4,3868.7),Vector3.new(3215.8,592.3,3874.4),Vector3.new(3289.1,592.3,3875.2),Vector3.new(3289.1,628.2,3875.2),Vector3.new(3289.1,676.1,3875.2),Vector3.new(3338.7,672.4,3872.4),Vector3.new(3337.6,672.4,5142.9),Vector3.new(4600.9,672.4,5143.1),Vector3.new(4624.1,672.4,5143),Vector3.new(4634.4,567.4,5141.7),Vector3.new(4634.1,565.7,5159.4)}},["3 World"]={["+300m wins"]={Vector3.new(-1433.5,-159.7,-878.9),Vector3.new(-1431,-157.1,-831.9),Vector3.new(-1429.5,-126,-733),Vector3.new(-1430.1,-69.9,-538.4),Vector3.new(-1481.8,-71.7,-515.8)},["+500m wins"]={Vector3.new(-1433.2,-159.7,-877.5),Vector3.new(-1431,-157.6,-833.5),Vector3.new(-1430.4,-125.1,-730.1),Vector3.new(-1430.9,-69.9,-537.4),Vector3.new(-1453.9,-69.9,-492.7),Vector3.new(-1453.9,-58.4,-392.5),Vector3.new(-1453.9,-57.4,-264.7),Vector3.new(-1453.9,-57.4,-186.8),Vector3.new(-1480.8,-59.4,-15.8)},["+800m wins"]={Vector3.new(-1434.9,-159.7,-875.9),Vector3.new(-1430.2,-158.8,-837.1),Vector3.new(-1427.6,-125.2,-730.4),Vector3.new(-1427,-69.9,-538.6),Vector3.new(-1455.2,-69.9,-493.3),Vector3.new(-1455.9,-70.4,-444.3),Vector3.new(-1456.7,-58.5,-393),Vector3.new(-1458.4,-57.4,-266.1),Vector3.new(-1456.8,-57.4,-186.8),Vector3.new(-1452.9,-57.6,7.6),Vector3.new(-1451.4,-48.6,84.7),Vector3.new(-1451.4,83,84.7),Vector3.new(-1475.2,92.3,95.5),Vector3.new(-1475.2,212.8,95.6),Vector3.new(-1472.1,214.6,143.2),Vector3.new(-1469.4,222.8,178.5),Vector3.new(-1464.9,223,229.5),Vector3.new(-1463.9,215,260),Vector3.new(-1480.8,212.6,332.1)},["+1.25b wins"]={Vector3.new(-1434.1,-159.6,-879),Vector3.new(-1431.8,-157.7,-834.2),Vector3.new(-1430.5,-125.6,-732.2),Vector3.new(-1427.6,-69.8,-540.1),Vector3.new(-1454.8,-69.8,-495.1),Vector3.new(-1454.8,-70.3,-444.5),Vector3.new(-1455.3,-58.9,-395),Vector3.new(-1454.4,-57.5,4.5),Vector3.new(-1454.5,-55.8,84.8),Vector3.new(-1454.5,84.8,84.8),Vector3.new(-1475,102.7,96),Vector3.new(-1475,212,96),Vector3.new(-1473.6,214.7,141.2),Vector3.new(-1457.4,222.5,176.7),Vector3.new(-1455.8,223.3,228.9),Vector3.new(-1455.8,214.7,270.6),Vector3.new(-1455.8,214.5,627.8),Vector3.new(-1455.8,365.5,627.8),Vector3.new(-1434.2,359.7,490.7),Vector3.new(-1336,360.8,494.3),Vector3.new(-1246.3,328.8,517.1),Vector3.new(-1236,323.2,600.3),Vector3.new(-1220.6,342.9,810.9),Vector3.new(-1361.8,363,834.8),Vector3.new(-1403.6,373.5,724.7),Vector3.new(-1403.6,545.5,724.7),Vector3.new(-1431.3,530.6,759.6)}},["Bbnos World"]={["+25k cash"]={Vector3.new(-129.9,59.1,-236.7),Vector3.new(184.7,59.2,-234),Vector3.new(317.6,59.2,-318.6),Vector3.new(415,59.2,-233.6),Vector3.new(488.4,62.7,-234.2),Vector3.new(1086.1,167.3,-703.8),Vector3.new(1074.7,167.3,772.4),Vector3.new(307.9,167.3,775),Vector3.new(-461.4,167.3,774.6),Vector3.new(-488.5,171.3,775.4),Vector3.new(-172.2,307.4,-897.1),Vector3.new(546.5,307.4,-896.3),Vector3.new(549,307.4,-968),Vector3.new(673.3,307.4,-964.5),Vector3.new(672,307.4,-899.3),Vector3.new(743,307.4,-897.9),Vector3.new(1561.5,307.4,-895.7),Vector3.new(1562.6,306.3,-105.2),Vector3.new(1831,306.3,-102.5),Vector3.new(1829.7,309.1,168.9),Vector3.new(1827.3,812.2,169.5),Vector3.new(1821.8,810.4,947.2),Vector3.new(1662.9,810.4,942.6),Vector3.new(1577.5,810.4,917.7),Vector3.new(1557.9,817.9,908.8),Vector3.new(1440,810.4,861.5),Vector3.new(1403.8,810.4,858.5),Vector3.new(1376.6,817.6,857.1),Vector3.new(1184.3,810.3,854.8),Vector3.new(1088.1,810.3,853.3),Vector3.new(944.4,807.3,851.2),Vector3.new(930.9,810.3,852.2),Vector3.new(912.7,810.3,921.8),Vector3.new(862.8,810.4,952.3),Vector3.new(807.2,812,903.5)},["+50k cash"]={Vector3.new(759.5,810.4,948.4),Vector3.new(716.1,810.4,946.7),Vector3.new(719.7,810.4,572.4),Vector3.new(584.8,810.4,566.2),Vector3.new(587.7,810.4,464.5),Vector3.new(390.5,810.4,465),Vector3.new(394.7,810.4,729.3),Vector3.new(510.2,810.4,732.8),Vector3.new(506.6,810.4,848),Vector3.new(309.8,810.4,845.7),Vector3.new(308.6,810.4,939.3),Vector3.new(120.7,810.4,947.6),Vector3.new(103.5,812.5,946.4)}}};local _0x9q0r={["+1 wins"]=1,["+3 wins"]=2,["+10 wins"]=3,["+250k wins"]=4,["+400k wins"]=5,["+1,5m wins"]=6,["+2,5m wins"]=7,["+4m wins"]=8,["+6m wins"]=9,["+10m wins"]=10,["+15m wins"]=11,["+25m wins"]=12,["+40m wins"]=13,["+60m wins"]=14,["+300m wins"]=15,["+500m wins"]=16,["+800m wins"]=17,["+1.25b wins"]=18,["+25k cash"]=19,["+50k cash"]=20};local function _0x1s2t(name)if((name=="LavaPart")or(name=="Lava_Stage3")or(name=="MovingWall"))then return true;end if((name=="DoorWall1")or(name=="GreenDoorKillPart")or(name=="RedDoorKillPart")or(name=="YellowDoorKillPart")or(name=="DoorWall2")or(name=="DoorWall3"))then return true;end if((name=="Stage2LocalNPC_Local")or(name=="Tumbleweed")or(name=="vanilla")or(name=="EyesLaser")or(name=="Stage11LocalNPC_Local")or(name=="Stage14LocalNPC_Local"))then return true;end local _0x3u4v=name:match("^MovingWall(%d+)$");if _0x3u4v then local _0x5w6x=tonumber(_0x3u4v);if(_0x5w6x and(_0x5w6x>=1)and(_0x5w6x<=15))then return true;end end return false;end local function _0x7y8z()task.spawn(function()local _0x9a0b=0;local _0x1c2d=workspace:GetDescendants();for _0x3e4f=1,#_0x1c2d do local _0x5g6h=_0x1c2d[_0x3e4f];if(_0x5g6h and _0x5g6h.Parent)then if _0x1s2t(_0x5g6h.Name)then _0x5g6h:Destroy();end end _0x9a0b=_0x9a0b+1;if((_0x9a0b%300)==0)then task.wait();end end end);if not _0x1o2p then _0x1o2p=workspace.DescendantAdded:Connect(function(_0x7i8j)if _0x1s2t(_0x7i8j.Name)then task.defer(function()if(_0x7i8j and _0x7i8j.Parent)then _0x7i8j:Destroy();end end);end end);end end _0x7y8z();local function _0x9k0l(state)if state then if not _0x9m0n then _0x9m0n=_0x3m4n.Stepped:Connect(function()local _0x1m2n=_0x3c4d.Character;if _0x1m2n then for _,_0x3o4p in pairs(_0x1m2n:GetDescendants())do if(_0x3o4p:IsA("BasePart")and _0x3o4p.CanCollide)then _0x3o4p.CanCollide=false;end end end end);end else if _0x9m0n then _0x9m0n:Disconnect();_0x9m0n=nil;end local _0x5q6r=_0x3c4d.Character;if(_0x5q6r and _0x5q6r:FindFirstChild("HumanoidRootPart"))then _0x5q6r.HumanoidRootPart.CanCollide=true;end end end local function _0x7s8t(targetPos)local _0x9u0v=_0x3c4d.Character;if(not _0x9u0v or not _0x9u0v:FindFirstChild("HumanoidRootPart"))then return false;end local _0x1w2x=_0x9u0v.HumanoidRootPart;local _0x3y4z=Instance.new("BodyVelocity");_0x3y4z.MaxForce=Vector3.new(8999999488,8999999488,8999999488);_0x3y4z.Parent=_0x1w2x;local _0x5a6b=false;while _0x7k8l and not _0x5a6b do if(not _0x9u0v or not _0x9u0v:FindFirstChild("HumanoidRootPart"))then break;end local _0x7c8d=(_0x1w2x.Position-targetPos).Magnitude;if(_0x7c8d<=6)then _0x5a6b=true;else local _0x9e0f=(targetPos-_0x1w2x.Position).Unit;_0x3y4z.Velocity=_0x9e0f*_0x5i6j;end task.wait(0.02);end if _0x3y4z then _0x3y4z:Destroy();end return _0x5a6b;end local function _0x1g2h()task.spawn(function()while _0x7k8l do local _0x3i4j=_0x7o8p[_0x1e2f];local _0x5k6l=_0x3i4j and _0x3i4j[_0x3g4h];if(_0x5k6l and(#_0x5k6l>0))then _0x9k0l(true);if((_0x1e2f=="Bbnos World")and(_0x3g4h=="+50k cash"))then local _0x7m8n={[1]=12,[2]="wins"};local _0x9o0p,err=pcall(function()game:GetService("ReplicatedStorage").Remotes.RequestCheckpointTp:FireServer(unpack(_0x7m8n));end);if _0x9o0p then print("Ремоут на чекпоинт успешно отправлен!");else warn("Ошибка при отправке ремоута: ",err);end task.wait(0.5);end for _0x1q2r,_0x3s4t in ipairs(_0x5k6l)do if not _0x7k8l then break;end _0x7s8t(_0x3s4t);if((_0x1e2f=="Bbnos World")and(_0x3g4h=="+50k cash")and(_0x1q2r==#_0x5k6l))then task.wait(1);end end else task.wait(1);end task.wait(0.1);end _0x9k0l(false);local _0x5u6v=_0x3c4d.Character;if(_0x5u6v and _0x5u6v:FindFirstChild("Humanoid"))then _0x5u6v.Humanoid.WalkSpeed=16;end end);end _0x1k2l.JumpRequest:Connect(function()if _0x9w0x then local _0x7w8x=_0x3c4d.Character;if _0x7w8x then local _0x9y0z=_0x7w8x:FindFirstChildOfClass("Humanoid");if _0x9y0z then _0x9y0z:ChangeState(Enum.HumanoidStateType.Jumping);end end end end);local function _0x1a2b(state)_0x1y2z=state;local _0x3c4d=_0x3c4d.Character;if(not _0x3c4d or not _0x3c4d:FindFirstChild("HumanoidRootPart"))then return;end local _0x5e6f=_0x3c4d.HumanoidRootPart;local _0x7g8h=_0x3c4d:FindFirstChildOfClass("Humanoid");if _0x1y2z then _0x5c6d=Instance.new("BodyVelocity");_0x5c6d.MaxForce=Vector3.new(8999999488,8999999488,8999999488);_0x5c6d.Parent=_0x5e6f;_0x7e8f=Instance.new("BodyGyro");_0x7e8f.MaxTorque=Vector3.new(8999999488,8999999488,8999999488);_0x7e8f.P=90000;_0x7e8f.Parent=_0x5e6f;if _0x7g8h then _0x7g8h.PlatformStand=true;end _0x9g0h=_0x3m4n.RenderStepped:Connect(function()local _0x9i0j=workspace.CurrentCamera;if(not _0x7g8h or not _0x5e6f)then return;end local _0x1k2l=_0x7g8h.MoveDirection;if(_0x1k2l.Magnitude==0)then local _0x3m4n=Vector3.new(0,0,0);if _0x1k2l:IsKeyDown(Enum.KeyCode.W)then _0x3m4n=_0x3m4n+_0x9i0j.CFrame.LookVector;end if _0x1k2l:IsKeyDown(Enum.KeyCode.S)then _0x3m4n=_0x3m4n-_0x9i0j.CFrame.LookVector;end if _0x1k2l:IsKeyDown(Enum.KeyCode.A)then _0x3m4n=_0x3m4n-_0x9i0j.CFrame.RightVector;end if _0x1k2l:IsKeyDown(Enum.KeyCode.D)then _0x3m4n=_0x3m4n+_0x9i0j.CFrame.RightVector;end if(_0x3m4n.Magnitude>0)then _0x1k2l=_0x3m4n.Unit;end end if(_0x1k2l.Magnitude>0)then _0x5c6d.Velocity=_0x1k2l*_0x3a4b;else _0x5c6d.Velocity=Vector3.new(0,0,0);end _0x7e8f.CFrame=_0x9i0j.CFrame;end);else if _0x5c6d then _0x5c6d:Destroy();end if _0x7e8f then _0x7e8f:Destroy();end if _0x9g0h then _0x9g0h:Disconnect();end if _0x7g8h then _0x7g8h.PlatformStand=false;end end end local _0x5o6p=0.8;local _0x7q8r=Instance.new("ScreenGui");_0x7q8r.Name="FurdjeHub";_0x7q8r.Parent=game:GetService("CoreGui");_0x7q8r.ZIndexBehavior=Enum.ZIndexBehavior.Sibling;local _0x9s0t=Instance.new("Frame");_0x9s0t.Name="ShadowFrame";_0x9s0t.Parent=_0x7q8r;_0x9s0t.BackgroundColor3=Color3.fromRGB(0,0,0);_0x9s0t.AnchorPoint=Vector2.new(0.5,0.5);_0x9s0t.Position=UDim2.new(0.5,4,0.5,6);_0x9s0t.Size=UDim2.new(0,646,0,426);_0x9s0t.BackgroundTransparency=0.45;_0x9s0t.Visible=false;Instance.new("UICorner",_0x9s0t).CornerRadius=UDim.new(0,16);local _0x1u2v=Instance.new("UIScale",_0x9s0t);_0x1u2v.Scale=0.3;local _0x3w4x=Instance.new("Frame");_0x3w4x.Name="MainFrame";_0x3w4x.Parent=_0x7q8r;_0x3w4x.BackgroundColor3=Color3.fromRGB(11,11,16);_0x3w4x.BackgroundTransparency=0.1;_0x3w4x.AnchorPoint=Vector2.new(0.5,0.5);_0x3w4x.Position=UDim2.new(0.5,0,0.5,0);_0x3w4x.Size=UDim2.new(0,640,0,420);_0x3w4x.BorderSizePixel=0;_0x3w4x.ClipsDescendants=false;_0x3w4x.Visible=false;Instance.new("UICorner",_0x3w4x).CornerRadius=UDim.new(0,14);local _0x5y6z=Instance.new("ImageLabel");_0x5y6z.Name="BackgroundImage";_0x5y6z.Parent=_0x3w4x;_0x5y6z.BackgroundTransparency=1;_0x5y6z.Size=UDim2.new(1,0,1,0);_0x5y6z.Image="rbxassetid://121149051147413";_0x5y6z.ScaleType=Enum.ScaleType.Crop;_0x5y6z.ImageTransparency=0.35;_0x5y6z.ZIndex=0;Instance.new("UICorner",_0x5y6z).CornerRadius=UDim.new(0,14);local _0x7a8b=Instance.new("UIScale",_0x3w4x);_0x7a8b.Scale=0.3;local _0x9c0d=Instance.new("UIGradient");_0x9c0d.Rotation=90;_0x9c0d.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0.1),NumberSequenceKeypoint.new(1,0.5)});_0x9c0d.Parent=_0x3w4x;local _0x1e2f=Instance.new("UIStroke");_0x1e2f.Parent=_0x3w4x;_0x1e2f.Color=Color3.fromRGB(35,35,50);_0x1e2f.Thickness=1.5;local function _0x3g4h(forceState)if(forceState~=nil)then _0x3q4r=forceState;else _0x3q4r=not _0x3q4r;end if _0x3q4r then _0x3w4x.Visible=true;if not _0x3q4r then _0x9s0t.Visible=true;end _0x7u8v:Create(_0x7a8b,_0x7u8v.new(0.45,Enum.EasingStyle.Back,Enum.EasingDirection.Out),{Scale=_0x5o6p}):Play();_0x7u8v:Create(_0x1u2v,_0x7u8v.new(0.45,Enum.EasingStyle.Back,Enum.EasingDirection.Out),{Scale=_0x5o6p}):Play();else local _0x5i6j=_0x7u8v:Create(_0x7a8b,_0x7u8v.new(0.25,Enum.EasingStyle.Quart,Enum.EasingDirection.In),{Scale=0.2});_0x7u8v:Create(_0x1u2v,_0x7u8v.new(0.25,Enum.EasingStyle.Quart,Enum.EasingDirection.In),{Scale=0.2}):Play();_0x5i6j:Play();_0x5i6j.Completed:Connect(function()if not _0x3q4r then _0x3w4x.Visible=false;_0x9s0t.Visible=false;end end);end end local _0x7k8l=Instance.new("Frame");_0x7k8l.Name="ToggleWidget";_0x7k8l.Parent=_0x7q8r;_0x7k8l.BackgroundColor3=Color3.fromRGB(15,15,22);_0x7k8l.BackgroundTransparency=0.15;_0x7k8l.Position=UDim2.new(0.5,-80,0.08,0);_0x7k8l.Size=UDim2.new(0,160,0,44);_0x7k8l.Visible=false;Instance.new("UICorner",_0x7k8l).CornerRadius=UDim.new(0,10);local _0x9m0n=Instance.new("UIScale",_0x7k8l);_0x9m0n.Scale=0.85;local _0x1o2p=Instance.new("UIStroke");_0x1o2p.Parent=_0x7k8l;_0x1o2p.Color=Color3.fromRGB(45,45,65);_0x1o2p.Thickness=1.5;local _0x3q4r=Instance.new("TextLabel");_0x3q4r.Parent=_0x7k8l;_0x3q4r.BackgroundTransparency=1;_0x3q4r.Size=UDim2.new(1,0,1,0);_0x3q4r.Font=Enum.Font.GothamBold;_0x3q4r.Text="FurdjeHub";_0x3q4r.TextColor3=Color3.fromRGB(255,255,255);_0x3q4r.TextSize=17;local _0x5s6t=Instance.new("UIGradient");_0x5s6t.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,_0x7u8v),ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255))});_0x5s6t.Parent=_0x3q4r;_0x7k8l.InputBegan:Connect(function(input)if((input.UserInputType==Enum.UserInputType.MouseButton1)or(input.UserInputType==Enum.UserInputType.Touch))then _0x7u8v:Create(_0x9m0n,_0x7u8v.new(0.15),{Scale=0.78}):Play();end end);_0x7k8l.InputEnded:Connect(function(input)if((input.UserInputType==Enum.UserInputType.MouseButton1)or(input.UserInputType==Enum.UserInputType.Touch))then _0x7u8v:Create(_0x9m0n,_0x7u8v.new(0.15),{Scale=0.85}):Play();end end);local _0x9w0x,_0x1y2z,_0x3a4b,_0x5c6d;local _0x7e8f=0;_0x7k8l.InputBegan:Connect(function(input)if((input.UserInputType==Enum.UserInputType.MouseButton1)or(input.UserInputType==Enum.UserInputType.Touch))then _0x9w0x=true;_0x1y2z=input.Position;_0x3a4b=_0x7k8l.Position;_0x7e8f=tick();end end);_0x7k8l.InputChanged:Connect(function(input)if((input.UserInputType==Enum.UserInputType.MouseMovement)or(input.UserInputType==Enum.UserInputType.Touch))then _0x5c6d=input;end end);_0x1k2l.InputChanged:Connect(function(input)if((input==_0x5c6d)and _0x9w0x)then local _0x9g0h=input.Position-_0x1y2z;_0x7k8l.Position=UDim2.new(_0x3a4b.X.Scale,_0x3a4b.X.Offset+_0x9g0h.X,_0x3a4b.Y.Scale,_0x3a4b.Y.Offset+_0x9g0h.Y);end end);_0x7k8l.InputEnded:Connect(function(input)if((input.UserInputType==Enum.UserInputType.MouseButton1)or(input.UserInputType==Enum.UserInputType.Touch))then _0x9w0x=false;if((tick()-_0x7e8f)<0.25)then _0x3g4h();end end end);local _0x1i2j=Instance.new("Frame");_0x1i2j.Name="LangFrame";_0x1i2j.Parent=_0x7q8r;_0x1i2j.BackgroundColor3=Color3.fromRGB(12,12,18);_0x1i2j.BackgroundTransparency=0.15;_0x1i2j.AnchorPoint=Vector2.new(0.5,0.5);_0x1i2j.Position=UDim2.new(0.5,0,0.5,0);_0x1i2j.Size=UDim2.new(0,380,0,230);_0x1i2j.Visible=true;Instance.new("UICorner",_0x1i2j).CornerRadius=UDim.new(0,14);Instance.new("UIStroke",_0x1i2j).Color=Color3.fromRGB(45,45,60);local _0x3k4l=Instance.new("UIScale",_0x1i2j);_0x3k4l.Scale=0.8;local _0x5m6n=Instance.new("TextLabel");_0x5m6n.Parent=_0x1i2j;_0x5m6n.BackgroundTransparency=1;_0x5m6n.Position=UDim2.new(0,0,0,25);_0x5m6n.Size=UDim2.new(1,0,0,30);_0x5m6n.Font=Enum.Font.GothamBold;_0x5m6n.Text="Choose language / Выберите язык";_0x5m6n.TextColor3=Color3.fromRGB(255,255,255);_0x5m6n.TextSize=17;local function _0x7o8p(emoji,text,posX,langCode)local _0x9q0r=Instance.new("TextButton");_0x9q0r.Parent=_0x1i2j;_0x9q0r.BackgroundColor3=Color3.fromRGB(20,20,28);_0x9q0r.BackgroundTransparency=0.15;_0x9q0r.Position=UDim2.new(0,posX,0,75);_0x9q0r.Size=UDim2.new(0,110,0,110);_0x9q0r.Text="";Instance.new("UICorner",_0x9q0r).CornerRadius=UDim.new(1,0);Instance.new("UIStroke",_0x9q0r).Color=Color3.fromRGB(45,45,65);local _0x1s2t=Instance.new("TextLabel");_0x1s2t.Parent=_0x9q0r;_0x1s2t.BackgroundTransparency=1;_0x1s2t.Size=UDim2.new(1,0,1,0);_0x1s2t.Font=Enum.Font.Gotham;_0x1s2t.Text=emoji;_0x1s2t.TextSize=55;local _0x3u4v=Instance.new("TextLabel");_0x3u4v.Parent=_0x9q0r;_0x3u4v.BackgroundTransparency=1;_0x3u4v.Position=UDim2.new(0,0,1,10);_0x3u4v.Size=UDim2.new(1,0,0,20);_0x3u4v.Font=Enum.Font.GothamSemibold;_0x3u4v.Text=text;_0x3u4v.TextColor3=Color3.fromRGB(200,200,220);_0x3u4v.TextSize=15;_0x9q0r.MouseButton1Click:Connect(function()_0x1u2v=langCode;_G.ApplyLanguage();_0x7u8v:Create(_0x3k4l,_0x7u8v.new(0.25,Enum.EasingStyle.Quart,Enum.EasingDirection.In),{Scale=0}):Play();task.wait(0.2);_0x1i2j.Visible=false;_0x7k8l.Visible=true;_0x3g4h(true);end);end _0x7o8p("RU","Русский",65,"RU");_0x7o8p("EN","English",205,"EN");local _0x5w6x,_0x7y8z,_0x9a0b,_0x1c2d;_0x3w4x.InputBegan:Connect(function(input)if((input.UserInputType==Enum.UserInputType.MouseButton1)or(input.UserInputType==Enum.UserInputType.Touch))then _0x5w6x=true;_0x7y8z=input.Position;_0x9a0b=_0x3w4x.Position;end end);_0x3w4x.InputChanged:Connect(function(input)if((input.UserInputType==Enum.UserInputType.MouseMovement)or(input.UserInputType==Enum.UserInputType.Touch))then _0x1c2d=input;end end);_0x1k2l.InputChanged:Connect(function(input)if((input==_0x1c2d)and _0x5w6x)then local _0x3e4f=input.Position-_0x7y8z;local _0x5g6h=UDim2.new(_0x9a0b.X.Scale,_0x9a0b.X.Offset+_0x3e4f.X,_0x9a0b.Y.Scale,_0x9a0b.Y.Offset+_0x3e4f.Y);_0x3w4x.Position=_0x5g6h;_0x9s0t.Position=UDim2.new(_0x5g6h.X.Scale,_0x5g6h.X.Offset+4,_0x5g6h.Y.Scale,_0x5g6h.Y.Offset+6);end end);_0x3w4x.InputEnded:Connect(function(input)if((input.UserInputType==Enum.UserInputType.MouseButton1)or(input.UserInputType==Enum.UserInputType.Touch))then _0x5w6x=false;end end);local _0x7i8j=Instance.new("Frame");_0x7i8j.Parent=_0x3w4x;_0x7i8j.BackgroundTransparency=1;_0x7i8j.Position=UDim2.new(1,-75,0,14);_0x7i8j.Size=UDim2.new(0,65,0,26);_0x7i8j.ZIndex=20;local _0x9k0l=Instance.new("TextButton");_0x9k0l.Parent=_0x7i8j;_0x9k0l.BackgroundColor3=Color3.fromRGB(25,18,22);_0x9k0l.Position=UDim2.new(1,-26,0,0);_0x9k0l.Size=UDim2.new(0,26,0,26);_0x9k0l.Font=Enum.Font.GothamBold;_0x9k0l.Text="X";_0x9k0l.TextColor3=Color3.fromRGB(250,80,80);_0x9k0l.TextSize=18;Instance.new("UICorner",_0x9k0l).CornerRadius=UDim.new(0,6);_0x9k0l.MouseButton1Click:Connect(function()_0x7k8l=false;_0x9k0l(false);if _0x1o2p then _0x1o2p:Disconnect();end if _0x5c6d then _0x1a2b(false);end if _0x9s0t then _0x9s0t:Disconnect();end if _0x3k4l then _0x3k4l:Disconnect();end _0x3g4h(false);task.wait(0.3);_0x7q8r:Destroy();end);local _0x1m2n=Instance.new("TextButton");_0x1m2n.Parent=_0x7i8j;_0x1m2n.BackgroundColor3=Color3.fromRGB(18,18,26);_0x1m2n.Position=UDim2.new(1,-58,0,0);_0x1m2n.Size=UDim2.new(0,26,0,26);_0x1m2n.Font=Enum.Font.GothamBold;_0x1m2n.Text="-";_0x1m2n.TextColor3=Color3.fromRGB(160,160,180);_0x1m2n.TextSize=18;Instance.new("UICorner",_0x1m2n).CornerRadius=UDim.new(0,6);_0x1m2n.MouseButton1Click:Connect(function()_0x3q4r=not _0x3q4r;if _0x3q4r then _0x7u8v:Create(_0x3w4x,_0x7u8v.new(0.35,Enum.EasingStyle.Quart),{Size=UDim2.new(0,640,0,52)}):Play();_0x7u8v:Create(_0x9s0t,_0x7u8v.new(0.35,Enum.EasingStyle.Quart),{Size=UDim2.new(0,646,0,58)}):Play();_0x1m2n.Text="+";else _0x7u8v:Create(_0x3w4x,_0x7u8v.new(0.35,Enum.EasingStyle.Quart),{Size=UDim2.new(0,640,0,420)}):Play();_0x7u8v:Create(_0x9s0t,_0x7u8v.new(0.35,Enum.EasingStyle.Quart),{Size=UDim2.new(0,646,0,426)}):Play();_0x1m2n.Text="-";end end);local _0x3o4p=Instance.new("Frame");_0x3o4p.Parent=_0x3w4x;_0x3o4p.BackgroundColor3=Color3.fromRGB(15,15,22);_0x3o4p.BackgroundTransparency=0.1;_0x3o4p.Size=UDim2.new(0,170,1,0);_0x3o4p.BorderSizePixel=0;Instance.new("UICorner",_0x3o4p).CornerRadius=UDim.new(0,14);local _0x5q6r=Instance.new("UIGradient");_0x5q6r.Rotation=90;_0x5q6r.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0),NumberSequenceKeypoint.new(1,0.4)});_0x5q6r.Parent=_0x3o4p;local _0x7s8t=Instance.new("Frame");_0x7s8t.Parent=_0x3o4p;_0x7s8t.BackgroundColor3=Color3.fromRGB(15,15,22);_0x7s8t.BackgroundTransparency=0.1;_0x7s8t.Position=UDim2.new(1,-12,0,0);_0x7s8t.Size=UDim2.new(0,12,1,0);_0x7s8t.BorderSizePixel=0;local _0x9u0v=Instance.new("UIGradient");_0x9u0v.Rotation=90;_0x9u0v.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0),NumberSequenceKeypoint.new(1,0.4)});_0x9u0v.Parent=_0x7s8t;local _0x1w2x=Instance.new("TextLabel");_0x1w2x.Parent=_0x3o4p;_0x1w2x.BackgroundTransparency=1;_0x1w2x.Position=UDim2.new(0,0,0,16);_0x1w2x.Size=UDim2.new(1,0,0,26);_0x1w2x.Font=Enum.Font.GothamBold;_0x1w2x.Text="FurdjeHub";_0x1w2x.TextColor3=Color3.fromRGB(255,255,255);_0x1w2x.TextSize=20;local _0x3y4z=Instance.new("UIGradient");_0x3y4z.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,_0x7u8v),ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255))});_0x3y4z.Parent=_0x1w2x;local _0x5a6b=Instance.new("Frame");_0x5a6b.Parent=_0x3o4p;_0x5a6b.BackgroundColor3=Color3.fromRGB(255,255,255);_0x5a6b.Position=UDim2.new(0.1,0,0,52);_0x5a6b.Size=UDim2.new(0.8,0,0,1);local _0x7c8d=Instance.new("UIGradient");_0x7c8d.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.fromRGB(25,25,35)),ColorSequenceKeypoint.new(0.5,_0x7u8v),ColorSequenceKeypoint.new(1,Color3.fromRGB(25,25,35))});_0x7c8d.Parent=_0x5a6b;local _0x9e0f=Instance.new("Frame");_0x9e0f.Parent=_0x3o4p;_0x9e0f.BackgroundTransparency=1;_0x9e0f.Position=UDim2.new(0,12,0,72);_0x9e0f.Size=UDim2.new(1,-24,1,-85);local _0x1g2h=Instance.new("UIListLayout");_0x1g2h.Parent=_0x9e0f;_0x1g2h.SortOrder=Enum.SortOrder.LayoutOrder;_0x1g2h.Padding=UDim.new(0,10);local _0x3i4j=Instance.new("Frame");_0x3i4j.Parent=_0x3w4x;_0x3i4j.BackgroundTransparency=1;_0x3i4j.ClipsDescendants=false;_0x3i4j.Position=UDim2.new(0,185,0,15);_0x3i4j.Size=UDim2.new(1,-200,1,-30);local _0x5k6l=Instance.new("Frame");_0x5k6l.Parent=_0x3i4j;_0x5k6l.BackgroundTransparency=1;_0x5k6l.ClipsDescendants=false;_0x5k6l.Size=UDim2.new(1,0,1,0);_0x5k6l.Visible=true;local _0x7m8n=Instance.new("Frame");_0x7m8n.Parent=_0x3i4j;_0x7m8n.BackgroundTransparency=1;_0x7m8n.Size=UDim2.new(1,0,1,0);_0x7m8n.Visible=false;local _0x9o0p=Instance.new("Frame");_0x9o0p.Parent=_0x3i4j;_0x9o0p.BackgroundTransparency=1;_0x9o0p.Size=UDim2.new(1,0,1,0);_0x9o0p.Visible=false;local _0x1q2r=Instance.new("Frame");_0x1q2r.Parent=_0x3i4j;_0x1q2r.BackgroundTransparency=1;_0x1q2r.Size=UDim2.new(1,0,1,0);_0x1q2r.Visible=false;local _0x3s4t={};local function _0x5u6v(text,page)local _0x7w8x=Instance.new("TextButton");_0x7w8x.Parent=_0x9e0f;_0x7w8x.BackgroundColor3=Color3.fromRGB(20,20,28);_0x7w8x.BackgroundTransparency=0.15;_0x7w8x.Size=UDim2.new(1,0,0,40);_0x7w8x.Font=Enum.Font.GothamSemibold;_0x7w8x.Text=text;_0x7w8x.TextColor3=Color3.fromRGB(150,150,170);_0x7w8x.TextSize=14;Instance.new("UICorner",_0x7w8x).CornerRadius=UDim.new(0,10);_0x7w8x.MouseButton1Click:Connect(function()for _,_0x9y0z in pairs(_0x3s4t)do _0x7u8v:Create(_0x9y0z,_0x7u8v.new(0.2),{BackgroundColor3=Color3.fromRGB(20,20,28),TextColor3=Color3.fromRGB(150,150,170)}):Play();end _0x7u8v:Create(_0x7w8x,_0x7u8v.new(0.2),{BackgroundColor3=_0x7u8v,TextColor3=Color3.fromRGB(255,255,255)}):Play();_0x5k6l.Visible=page==_0x5k6l;_0x7m8n.Visible=page==_0x7m8n;_0x9o0p.Visible=page==_0x9o0p;_0x1q2r.Visible=page==_0x1q2r;end);table.insert(_0x3s4t,_0x7w8x);return _0x7w8x;end local _0x9y0z=_0x5u6v("AutoFarm",_0x5k6l);local _0x1a2b=_0x5u6v("Moovement",_0x7m8n);local _0x3c4d=_0x5u6v("Theme",_0x9o0p);local _0x5e6f=_0x5u6v("AdminPanel",_0x1q2r);_0x9y0z.BackgroundColor3=_0x7u8v;_0x9y0z.TextColor3=Color3.fromRGB(255,255,255);local _0x7g8h=Instance.new("ScrollingFrame");_0x7g8h.Parent=_0x9o0p;_0x7g8h.BackgroundTransparency=1;_0x7g8h.Size=UDim2.new(1,0,1,0);_0x7g8h.ScrollBarThickness=0;local _0x9i0j=Instance.new("UIListLayout");_0x9i0j.Parent=_0x7g8h;_0x9i0j.SortOrder=Enum.SortOrder.LayoutOrder;_0x9i0j.Padding=UDim.new(0,10);local _0x1k2l=Instance.new("TextLabel");_0x1k2l.Parent=_0x7g8h;_0x1k2l.BackgroundTransparency=1;_0x1k2l.Size=UDim2.new(1,0,0,32);_0x1k2l.Font=Enum.Font.GothamBold;_0x1k2l.TextColor3=Color3.fromRGB(255,255,255);_0x1k2l.TextSize=16;_0x1k2l.TextXAlignment=Enum.TextXAlignment.Left;local _0x3m4n={};local function _0x5o6p(color1,color2)local _0x7q8r=Instance.new("TextButton");_0x7q8r.Parent=_0x7g8h;_0x7q8r.BackgroundColor3=Color3.fromRGB(16,16,23);_0x7q8r.BackgroundTransparency=0.15;_0x7q8r.Size=UDim2.new(1,-10,0,52);_0x7q8r.Text="";Instance.new("UICorner",_0x7q8r).CornerRadius=UDim.new(0,10);local _0x9s0t=Instance.new("Frame");_0x9s0t.Parent=_0x7q8r;_0x9s0t.Size=UDim2.new(0,26,0,26);_0x9s0t.Position=UDim2.new(0,16,0.5,-13);Instance.new("UICorner",_0x9s0t).CornerRadius=UDim.new(1,0);local _0x1u2v=Instance.new("UIGradient");_0x1u2v.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,color1),ColorSequenceKeypoint.new(1,color2)});_0x1u2v.Parent=_0x9s0t;local _0x3w4x=Instance.new("TextLabel");_0x3w4x.Parent=_0x7q8r;_0x3w4x.BackgroundTransparency=1;_0x3w4x.Position=UDim2.new(0,56,0,0);_0x3w4x.Size=UDim2.new(1,-70,1,0);_0x3w4x.Font=Enum.Font.GothamSemibold;_0x3w4x.TextColor3=Color3.fromRGB(190,190,210);_0x3w4x.TextSize=15;_0x3w4x.TextXAlignment=Enum.TextXAlignment.Left;_0x7q8r.MouseButton1Click:Connect(function()_0x7u8v=color1;_0x3y4z.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,color1),ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255))});_0x5s6t.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,color1),ColorSequenceKeypoint.new(1,Color3.fromRGB(255,255,255))});_0x7c8d.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.fromRGB(25,25,35)),ColorSequenceKeypoint.new(0.5,color1),ColorSequenceKeypoint.new(1,Color3.fromRGB(25,25,35))});for _,_0x7a8b in pairs(_0x3s4t)do if(_0x7a8b.BackgroundColor3~=Color3.fromRGB(20,20,28))then _0x7u8v:Create(_0x7a8b,_0x7u8v.new(0.3),{BackgroundColor3=color1}):Play();end end _G.UpdateColors(color1);end);table.insert(_0x3m4n,_0x3w4x);end _0x5o6p(Color3.fromRGB(0,150,255),Color3.fromRGB(0,70,200));_0x5o6p(Color3.fromRGB(168,85,247),Color3.fromRGB(100,30,180));_0x5o6p(Color3.fromRGB(34,197,94),Color3.fromRGB(20,100,50));_0x5o6p(Color3.fromRGB(236,72,153),Color3.fromRGB(150,20,80));_0x5o6p(Color3.fromRGB(245,158,11),Color3.fromRGB(160,80,0));_0x5o6p(Color3.fromRGB(220,220,230),Color3.fromRGB(100,100,110));_0x7g8h.CanvasSize=UDim2.new(0,0,0,_0x9i0j.AbsoluteContentSize.Y+40);local _0x9c0d=Instance.new("ScrollingFrame");_0x9c0d.Parent=_0x7m8n;_0x9c0d.BackgroundTransparency=1;_0x9c0d.Size=UDim2.new(1,0,1,0);_0x9c0d.ScrollBarThickness=0;_0x9c0d.CanvasSize=UDim2.new(0,0,0,230);local _0x1e2f=Instance.new("Frame");_0x1e2f.Parent=_0x9c0d;_0x1e2f.BackgroundColor3=Color3.fromRGB(16,16,23);_0x1e2f.BackgroundTransparency=0.15;_0x1e2f.Position=UDim2.new(0,0,0,10);_0x1e2f.Size=UDim2.new(0.96,0,0,56);Instance.new("UICorner",_0x1e2f).CornerRadius=UDim.new(0,10);local _0x3g4h=Instance.new("TextLabel");_0x3g4h.Parent=_0x1e2f;_0x3g4h.BackgroundTransparency=1;_0x3g4h.Position=UDim2.new(0,16,0,0);_0x3g4h.Size=UDim2.new(0.7,0,1,0);_0x3g4h.Font=Enum.Font.GothamBold;_0x3g4h.TextColor3=Color3.fromRGB(255,255,255);_0x3g4h.TextSize=15;_0x3g4h.TextXAlignment=Enum.TextXAlignment.Left;local _0x5i6j=Instance.new("TextButton");_0x5i6j.Parent=_0x1e2f;_0x5i6j.BackgroundColor3=Color3.fromRGB(40,40,55);_0x5i6j.Position=UDim2.new(1,-65,0.5,-14);_0x5i6j.Size=UDim2.new(0,50,0,28);_0x5i6j.Text="";Instance.new("UICorner",_0x5i6j).CornerRadius=UDim.new(0,14);local _0x7k8l=Instance.new("Frame");_0x7k8l.Parent=_0x5i6j;_0x7k8l.BackgroundColor3=Color3.fromRGB(255,255,255);_0x7k8l.Position=UDim2.new(0,3,0.5,-11);_0x7k8l.Size=UDim2.new(0,22,0,22);Instance.new("UICorner",_0x7k8l).CornerRadius=UDim.new(0,11);_0x5i6j.MouseButton1Click:Connect(function()_0x9w0x=not _0x9w0x;if _0x9w0x then _0x7u8v:Create(_0x5i6j,_0x7u8v.new(0.2),{BackgroundColor3=Color3.fromRGB(34,197,94)}):Play();_0x7u8v:Create(_0x7k8l,_0x7u8v.new(0.2),{Position=UDim2.new(0,25,0.5,-11)}):Play();else _0x7u8v:Create(_0x5i6j,_0x7u8v.new(0.2),{BackgroundColor3=Color3.fromRGB(40,40,55)}):Play();_0x7u8v:Create(_0x7k8l,_0x7u8v.new(0.2),{Position=UDim2.new(0,3,0.5,-11)}):Play();end end);local _0x9m0n=Instance.new("Frame");_0x9m0n.Parent=_0x9c0d;_0x9m0n.BackgroundColor3=Color3.fromRGB(16,16,23);_0x9m0n.BackgroundTransparency=0.15;_0x9m0n.Position=UDim2.new(0,0,0,78);_0x9m0n.Size=UDim2.new(0.96,0,0,56);Instance.new("UICorner",_0x9m0n).CornerRadius=UDim.new(0,10);local _0x1o2p=Instance.new("TextLabel");_0x1o2p.Parent=_0x9m0n;_0x1o2p.BackgroundTransparency=1;_0x1o2p.Position=UDim2.new(0,16,0,0);_0x1o2p.Size=UDim2.new(0.7,0,1,0);_0x1o2p.Font=Enum.Font.GothamBold;_0x1o2p.TextColor3=Color3.fromRGB(255,255,255);_0x1o2p.TextSize=15;_0x1o2p.TextXAlignment=Enum.TextXAlignment.Left;local _0x3q4r=Instance.new("TextButton");_0x3q4r.Parent=_0x9m0n;_0x3q4r.BackgroundColor3=Color3.fromRGB(40,40,55);_0x3q4r.Position=UDim2.new(1,-65,0.5,-14);_0x3q4r.Size=UDim2.new(0,50,0,28);_0x3q4r.Text="";Instance.new("UICorner",_0x3q4r).CornerRadius=UDim.new(0,14);local _0x5s6t=Instance.new("Frame");_0x5s6t.Parent=_0x3q4r;_0x5s6t.BackgroundColor3=Color3.fromRGB(255,255,255);_0x5s6t.Position=UDim2.new(0,3,0.5,-11);_0x5s6t.Size=UDim2.new(0,22,0,22);Instance.new("UICorner",_0x5s6t).CornerRadius=UDim.new(0,11);_0x3q4r.MouseButton1Click:Connect(function()_0x1y2z=not _0x1y2z;if _0x1y2z then _0x7u8v:Create(_0x3q4r,_0x7u8v.new(0.2),{BackgroundColor3=Color3.fromRGB(34,197,94)}):Play();_0x7u8v:Create(_0x5s6t,_0x7u8v.new(0.2),{Position=UDim2.new(0,25,0.5,-11)}):Play();_0x1a2b(true);else _0x7u8v:Create(_0x3q4r,_0x7u8v.new(0.2),{BackgroundColor3=Color3.fromRGB(40,40,55)}):Play();_0x7u8v:Create(_0x5s6t,_0x7u8v.new(0.2),{Position=UDim2.new(0,3,0.5,-11)}):Play();_0x1a2b(false);end end);local _0x9w0x=Instance.new("Frame");_0x9w0x.Parent=_0x9c0d;_0x9w0x.BackgroundColor3=Color3.fromRGB(16,16,23);_0x9w0x.BackgroundTransparency=0.15;_0x9w0x.Position=UDim2.new(0,0,0,148);_0x9w0x.Size=UDim2.new(0.96,0,0,68);Instance.new("UICorner",_0x9w0x).CornerRadius=UDim.new(0,10);local _0x1y2z=Instance.new("TextLabel");_0x1y2z.Parent=_0x9w0x;_0x1y2z.BackgroundTransparency=1;_0x1y2z.Position=UDim2.new(0,16,0,8);_0x1y2z.Size=UDim2.new(1,-32,0,20);_0x1y2z.Font=Enum.Font.GothamSemibold;_0x1y2z.TextColor3=Color3.fromRGB(200,200,220);_0x1y2z.TextSize=13;_0x1y2z.TextXAlignment=Enum.TextXAlignment.Left;local _0x3a4b=Instance.new("TextButton");_0x3a4b.Parent=_0x9w0x;_0x3a4b.BackgroundColor3=Color3.fromRGB(32,32,45);_0x3a4b.Position=UDim2.new(0,16,0,36);_0x3a4b.Size=UDim2.new(1,-32,0,16);_0x3a4b.Text="";Instance.new("UICorner",_0x3a4b).CornerRadius=UDim.new(0,8);local _0x5c6d=Instance.new("Frame");_0x5c6d.Parent=_0x3a4b;_0x5c6d.BackgroundColor3=_0x7u8v;_0x5c6d.Size=UDim2.new(_0x3a4b/300,0,1,0);Instance.new("UICorner",_0x5c6d).CornerRadius=UDim.new(0,8);local _0x7e8f=false;local function _0x9g0h(input)local _0x1i2j=math.clamp((input.Position.X-_0x3a4b.AbsolutePosition.X)/_0x3a4b.AbsoluteSize.X,0,1);_0x3a4b=math.floor(_0x1i2j*300);_0x1y2z.Text=string.format(_0x5y6z("FlySpeedLabel"),_0x3a4b);_0x7u8v:Create(_0x5c6d,_0x7u8v.new(0.05),{Size=UDim2.new(_0x1i2j,0,1,0)}):Play();end _0x3a4b.InputBegan:Connect(function(input)if((input.UserInputType==Enum.UserInputType.MouseButton1)or(input.UserInputType==Enum.UserInputType.Touch))then _0x7e8f=true;_0x9g0h(input);end end);_0x1k2l.InputChanged:Connect(function(input)if(_0x7e8f and((input.UserInputType==Enum.UserInputType.MouseMovement)or(input.UserInputType==Enum.UserInputType.Touch)))then _0x9g0h(input);end end);_0x1k2l.InputEnded:Connect(function(input)if((input.UserInputType==Enum.UserInputType.MouseButton1)or(input.UserInputType==Enum.UserInputType.Touch))then _0x7e8f=false;end end);local _0x3k4l=Instance.new("Frame");_0x3k4l.Parent=_0x5k6l;_0x3k4l.BackgroundTransparency=1;_0x3k4l.Size=UDim2.new(0.96,0,1,0);local _0x5m6n=Instance.new("TextLabel");_0x5m6n.Parent=_0x3k4l;_0x5m6n.BackgroundTransparency=1;_0x5m6n.Size=UDim2.new(1,0,0,20);_0x5m6n.Font=Enum.Font.GothamSemibold;_0x5m6n.TextColor3=Color3.fromRGB(200,200,220);_0x5m6n.TextSize=14;_0x5m6n.TextXAlignment=Enum.TextXAlignment.Left;local _0x7o8p=Instance.new("Frame");_0x7o8p.Parent=_0x3k4l;_0x7o8p.BackgroundColor3=Color3.fromRGB(16,16,23);_0x7o8p.BackgroundTransparency=0.15;_0x7o8p.Position=UDim2.new(0,0,0,26);_0x7o8p.Size=UDim2.new(1,0,0,44);Instance.new("UICorner",_0x7o8p).CornerRadius=UDim.new(0,10);local _0x9q0r=Instance.new("TextLabel");_0x9q0r.Parent=_0x3k4l;_0x9q0r.BackgroundTransparency=1;_0x9q0r.Position=UDim2.new(0,0,0,310);_0x9q0r.Size=UDim2.new(1,0,0,50);_0x9q0r.Font=Enum.Font.GothamSemibold;_0x9q0r.Text="Что бы использовать +50k cash фарм вам нужно сначала на фармить 50k денег а после включать функцию потому что она не будет работать без этого";_0x9q0r.TextColor3=Color3.fromRGB(240,80,80);_0x9q0r.TextSize=11;_0x9q0r.TextWrapped=true;_0x9q0r.Visible=false;local _0x1s2t={};local _0x3u4v=Instance.new("ScrollingFrame");local _0x5w6x=Instance.new("TextButton");local _0x7y8z=Instance.new("TextLabel");local _0x9a0b=Instance.new("Frame");local function _0x1c2d()for _,_0x3e4f in pairs(_0x3u4v:GetChildren())do if _0x3e4f:IsA("TextButton")then _0x3e4f:Destroy();end end local _0x5g6h={};if _0x7o8p[_0x1e2f]then for _0x7i8j,_ in pairs(_0x7o8p[_0x1e2f])do table.insert(_0x5g6h,_0x7i8j);end table.sort(_0x5g6h,function(_0x9k0l,_0x1m2n)return(_0x9q0r[_0x9k0l]or 99)<(_0x9q0r[_0x1m2n]or 99);end);end if(#_0x5g6h==0)then _0x5w6x.Text="   ".._0x5y6z("NoPoints").." v";_0x3g4h=nil;return;end for _,_0x3o4p in pairs(_0x5g6h)do local _0x5q6r=Instance.new("TextButton");_0x5q6r.Parent=_0x3u4v;_0x5q6r.BackgroundColor3=Color3.fromRGB(22,22,30);_0x5q6r.BackgroundTransparency=0.15;_0x5q6r.Size=UDim2.new(1,0,0,36);_0x5q6r.Font=Enum.Font.GothamSemibold;_0x5q6r.Text="            ".._0x3o4p;_0x5q6r.TextColor3=Color3.fromRGB(200,200,220);_0x5q6r.TextSize=14;_0x5q6r.TextXAlignment=Enum.TextXAlignment.Left;_0x5q6r.ZIndex=51;Instance.new("UICorner",_0x5q6r).CornerRadius=UDim.new(0,8);local _0x7s8t=Instance.new("ImageLabel");_0x7s8t.Parent=_0x5q6r;_0x7s8t.BackgroundTransparency=1;_0x7s8t.Position=UDim2.new(0,10,0.5,-12);_0x7s8t.Size=UDim2.new(0,24,0,24);_0x7s8t.Image="rbxassetid://85025550755267";_0x7s8t.ScaleType=Enum.ScaleType.Fit;_0x7s8t.ZIndex=52;_0x5q6r.MouseButton1Click:Connect(function()_0x3g4h=_0x3o4p;_0x5w6x.Text="   ".._0x3o4p.." v";_0x3u4v.Visible=false;end);end _0x3g4h=_0x5g6h[1];_0x5w6x.Text="   ".._0x3g4h.." v";end local function _0x9u0v(text,posXScale,widthScale,index)local _0x1w2x=Instance.new("TextButton");_0x1w2x.Parent=_0x7o8p;_0x1w2x.BackgroundTransparency=1;_0x1w2x.Position=UDim2.new(posXScale,3,0,3);_0x1w2x.Size=UDim2.new(widthScale,-6,1,-6);_0x1w2x.Font=Enum.Font.GothamBold;_0x1w2x.Text=text;_0x1w2x.TextColor3=((index==1)and Color3.fromRGB(255,255,255))or Color3.fromRGB(140,140,160);_0x1w2x.TextSize=14;if(index==1)then _0x1w2x.BackgroundTransparency=0.15;_0x1w2x.BackgroundColor3=Color3.fromRGB(30,30,42);Instance.new("UICorner",_0x1w2x).CornerRadius=UDim.new(0,8);end _0x1w2x.MouseButton1Click:Connect(function()_0x1e2f=text;_0x5m6n.Text=string.format(_0x5y6z("WorldLabel"),text);if(text=="Bbnos World")then _0x9q0r.Visible=true;else _0x9q0r.Visible=false;end for _,_0x3y4z in pairs(_0x1s2t)do _0x3y4z.BackgroundTransparency=1;_0x3y4z.TextColor3=Color3.fromRGB(140,140,160);end _0x1w2x.BackgroundTransparency=0.15;_0x1w2x.BackgroundColor3=Color3.fromRGB(30,30,42);_0x1w2x.TextColor3=Color3.fromRGB(255,255,255);_0x1c2d();local _0x5a6b=110;if(_0x1e2f=="2 World")then _0x5a6b=190;elseif(_0x1e2f=="Bbnos World")then _0x5a6b=300;end if(_0x5i6j>_0x5a6b)then _0x5i6j=_0x5a6b;end _0x7y8z.Text=string.format(_0x5y6z("SpeedLabel"),_0x5i6j);_0x7u8v:Create(_0x9a0b,_0x7u8v.new(0.2),{Size=UDim2.new(_0x5i6j/_0x5a6b,0,1,0)}):Play();end);table.insert(_0x1s2t,_0x1w2x);end _0x9u0v("1 World",0,0.25,1);_0x9u0v("2 World",0.25,0.25,2);_0x9u0v("3 World",0.5,0.25,3);_0x9u0v("Bbnos World",0.75,0.25,4);local _0x7c8d=Instance.new("Frame");_0x7c8d.Parent=_0x3k4l;_0x7c8d.BackgroundColor3=Color3.fromRGB(16,16,23);_0x7c8d.BackgroundTransparency=0.15;_0x7c8d.Position=UDim2.new(0,0,0,82);_0x7c8d.Size=UDim2.new(1,0,0,56);Instance.new("UICorner",_0x7c8d).CornerRadius=UDim.new(0,10);local _0x9e0f=Instance.new("TextLabel");_0x9e0f.Parent=_0x7c8d;_0x9e0f.BackgroundTransparency=1;_0x9e0f.Position=UDim2.new(0,16,0,0);_0x9e0f.Size=UDim2.new(0.7,0,1,0);_0x9e0f.Font=Enum.Font.GothamBold;_0x9e0f.TextColor3=Color3.fromRGB(255,255,255);_0x9e0f.TextSize=15;_0x9e0f.TextXAlignment=Enum.TextXAlignment.Left;local _0x1g2h=Instance.new("TextButton");_0x1g2h.Parent=_0x7c8d;_0x1g2h.BackgroundColor3=Color3.fromRGB(40,40,55);_0x1g2h.Position=UDim2.new(1,-65,0.5,-14);_0x1g2h.Size=UDim2.new(0,50,0,28);_0x1g2h.Text="";Instance.new("UICorner",_0x1g2h).CornerRadius=UDim.new(0,14);local _0x3i4j=Instance.new("Frame");_0x3i4j.Parent=_0x1g2h;_0x3i4j.BackgroundColor3=Color3.fromRGB(255,255,255);_0x3i4j.Position=UDim2.new(0,3,0.5,-11);_0x3i4j.Size=UDim2.new(0,22,0,22);Instance.new("UICorner",_0x3i4j).CornerRadius=UDim.new(0,11);_0x1g2h.MouseButton1Click:Connect(function()if not _0x3g4h then return;end _0x7k8l=not _0x7k8l;if _0x7k8l then _0x7u8v:Create(_0x1g2h,_0x7u8v.new(0.2),{BackgroundColor3=Color3.fromRGB(34,197,94)}):Play();_0x7u8v:Create(_0x3i4j,_0x7u8v.new(0.2),{Position=UDim2.new(0,25,0.5,-11)}):Play();_0x1g2h();else _0x7u8v:Create(_0x1g2h,_0x7u8v.new(0.2),{BackgroundColor3=Color3.fromRGB(40,40,55)}):Play();_0x7u8v:Create(_0x3i4j,_0x7u8v.new(0.2),{Position=UDim2.new(0,3,0.5,-11)}):Play();_0x9k0l(false);end end);local _0x5k6l=Instance.new("Frame");_0x5k6l.Parent=_0x3k4l;_0x5k6l.BackgroundColor3=Color3.fromRGB(16,16,23);_0x5k6l.BackgroundTransparency=0.15;_0x5k6l.Position=UDim2.new(0,0,0,150);_0x5k6l.Size=UDim2.new(1,0,0,68);Instance.new("UICorner",_0x5k6l).CornerRadius=UDim.new(0,10);_0x7y8z.Parent=_0x5k6l;_0x7y8z.BackgroundTransparency=1;_0x7y8z.Position=UDim2.new(0,16,0,8);_0x7y8z.Size=UDim2.new(1,-32,0,20);_0x7y8z.Font=Enum.Font.GothamSemibold;_0x7y8z.TextColor3=Color3.fromRGB(200,200,220);_0x7y8z.TextSize=13;_0x7y8z.TextXAlignment=Enum.TextXAlignment.Left;local _0x7m8n=Instance.new("TextButton");_0x7m8n.Parent=_0x5k6l;_0x7m8n.BackgroundColor3=Color3.fromRGB(32,32,45);_0x7m8n.Position=UDim2.new(0,16,0,36);_0x7m8n.Size=UDim2.new(1,-32,0,16);_0x7m8n.Text="";Instance.new("UICorner",_0x7m8n).CornerRadius=UDim.new(0,8);_0x9a0b.Parent=_0x7m8n;_0x9a0b.BackgroundColor3=_0x7u8v;_0x9a0b.Size=UDim2.new(1,0,1,0);Instance.new("UICorner",_0x9a0b).CornerRadius=UDim.new(0,8);local _0x9o0p=false;local function _0x1q2r(input)local _0x3s4t=math.clamp((input.Position.X-_0x7m8n.AbsolutePosition.X)/_0x7m8n.AbsoluteSize.X,0,1);local _0x5u6v=110;if(_0x1e2f=="2 World")then _0x5u6v=190;elseif(_0x1e2f=="Bbnos World")then _0x5u6v=300;end _0x5i6j=math.floor(_0x3s4t*_0x5u6v);_0x7y8z.Text=string.format(_0x5y6z("SpeedLabel"),_0x5i6j);_0x7u8v:Create(_0x9a0b,_0x7u8v.new(0.05),{Size=UDim2.new(_0x3s4t,0,1,0)}):Play();end _0x7m8n.InputBegan:Connect(function(input)if((input.UserInputType==Enum.UserInputType.MouseButton1)or(input.UserInputType==Enum.UserInputType.Touch))then _0x9o0p=true;_0x1q2r(input);end end);_0x1k2l.InputChanged:Connect(function(input)if(_0x9o0p and((input.UserInputType==Enum.UserInputType.MouseMovement)or(input.UserInputType==Enum.UserInputType.Touch)))then _0x1q2r(input);end end);_0x1k2l.InputEnded:Connect(function(input)if((input.UserInputType==Enum.UserInputType.MouseButton1)or(input.UserInputType==Enum.UserInputType.Touch))then _0x9o0p=false;end end);local _0x7w8x=Instance.new("TextLabel");_0x7w8x.Parent=_0x3k4l;_0x7w8x.BackgroundTransparency=1;_0x7w8x.Position=UDim2.new(0,0,0,230);_0x7w8x.Size=UDim2.new(1,0,0,20);_0x7w8x.Font=Enum.Font.GothamSemibold;_0x7w8x.TextColor3=Color3.fromRGB(200,200,220);_0x7w8x.TextSize=14;_0x7w8x.TextXAlignment=Enum.TextXAlignment.Left;_0x5w6x.Parent=_0x3k4l;_0x5w6x.BackgroundColor3=Color3.fromRGB(16,16,23);_0x5w6x.BackgroundTransparency=0.15;_0x5w6x.Position=UDim2.new(0,0,0,256);_0x5w6x.Size=UDim2.new(1,0,0,46);_0x5w6x.Font=Enum.Font.GothamBold;_0x5w6x.TextColor3=Color3.fromRGB(255,255,255);_0x5w6x.TextSize=14;_0x5w6x.TextXAlignment=Enum.TextXAlignment.Left;_0x5w6x.ZIndex=10;Instance.new("UICorner",_0x5w6x).CornerRadius=UDim.new(0,10);_0x3u4v.Parent=_0x3k4l;_0x3u4v.BackgroundColor3=Color3.fromRGB(14,14,20);_0x3u4v.BackgroundTransparency=0.1;_0x3u4v.Position=UDim2.new(0,0,0,308);_0x3u4v.Size=UDim2.new(1,0,0,120);_0x3u4v.Visible=false;_0x3u4v.ZIndex=50;_0x3u4v.CanvasSize=UDim2.new(0,0,0,0);_0x3u4v.AutomaticCanvasSize=Enum.AutomaticSize.Y;_0x3u4v.ScrollBarThickness=4;_0x3u4v.BorderSizePixel=0;Instance.new("UICorner",_0x3u4v).CornerRadius=UDim.new(0,10);Instance.new("UIStroke",_0x3u4v).Color=Color3.fromRGB(45,45,60);local _0x9y0z=Instance.new("UIListLayout");_0x9y0z.Parent=_0x3u4v;_0x9y0z.SortOrder=Enum.SortOrder.LayoutOrder;_0x9y0z.Padding=UDim.new(0,5);local _0x1a2b=Instance.new("UIPadding");_0x1a2b.Parent=_0x3u4v;_0x1a2b.PaddingTop=UDim.new(0,6);_0x1a2b.PaddingLeft=UDim.new(0,6);_0x1a2b.PaddingRight=UDim.new(0,6);_0x1a2b.PaddingBottom=UDim.new(0,6);_0x5w6x.MouseButton1Click:Connect(function()_0x3u4v.Visible=not _0x3u4v.Visible;end);local _0x3c4d=Instance.new("Frame");_0x3c4d.Parent=_0x1q2r;_0x3c4d.BackgroundTransparency=1;_0x3c4d.Position=UDim2.new(0,20,0,20);_0x3c4d.Size=UDim2.new(1,-40,0,240);local _0x5e6f=Instance.new("TextLabel");_0x5e6f.Parent=_0x3c4d;_0x5e6f.BackgroundTransparency=1;_0x5e6f.Size=UDim2.new(1,0,0,34);_0x5e6f.Font=Enum.Font.GothamBold;_0x5e6f.Text="[!] FURDJEHUB";_0x5e6f.TextColor3=Color3.fromRGB(255,80,80);_0x5e6f.TextSize=18;local _0x7g8h=Instance.new("TextBox");_0x7g8h.Parent=_0x3c4d;_0x7g8h.BackgroundColor3=Color3.fromRGB(16,16,23);_0x7g8h.BackgroundTransparency=0.15;_0x7g8h.Position=UDim2.new(0,0,0,55);_0x7g8h.Size=UDim2.new(1,0,0,50);_0x7g8h.Font=Enum.Font.GothamSemibold;_0x7g8h.Text="";_0x7g8h.TextColor3=Color3.fromRGB(255,255,255);_0x7g8h.TextSize=16;_0x7g8h.ClearTextOnFocus=false;Instance.new("UICorner",_0x7g8h).CornerRadius=UDim.new(0,10);local _0x9i0j=Instance.new("TextButton");_0x9i0j.Parent=_0x3c4d;_0x9i0j.BackgroundColor3=_0x7u8v;_0x9i0j.Position=UDim2.new(0,0,0,120);_0x9i0j.Size=UDim2.new(1,0,0,48);_0x9i0j.Font=Enum.Font.GothamBold;_0x9i0j.TextColor3=Color3.fromRGB(255,255,255);_0x9i0j.TextSize=16;Instance.new("UICorner",_0x9i0j).CornerRadius=UDim.new(0,10);local _0x1k2l=Instance.new("TextLabel");_0x1k2l.Parent=_0x3c4d;_0x1k2l.BackgroundTransparency=1;_0x1k2l.Position=UDim2.new(0,0,0,180);_0x1k2l.Size=UDim2.new(1,0,0,24);_0x1k2l.Font=Enum.Font.GothamSemibold;_0x1k2l.Text="";_0x1k2l.TextColor3=Color3.fromRGB(255,80,80);_0x1k2l.TextSize=15;local _0x3m4n=Instance.new("Frame");_0x3m4n.Parent=_0x1q2r;_0x3m4n.BackgroundTransparency=1;_0x3m4n.Size=UDim2.new(1,0,1,0);_0x3m4n.Visible=false;local _0x5o6p=Instance.new("TextLabel");_0x5o6p.Parent=_0x3m4n;_0x5o6p.BackgroundTransparency=1;_0x5o6p.Size=UDim2.new(1,0,0,28);_0x5o6p.Font=Enum.Font.GothamBold;_0x5o6p.TextColor3=Color3.fromRGB(245,158,11);_0x5o6p.TextSize=17;local _0x7q8r=Instance.new("Frame");_0x7q8r.Parent=_0x3m4n;_0x7q8r.BackgroundColor3=Color3.fromRGB(16,16,23);_0x7q8r.BackgroundTransparency=0.15;_0x7q8r.Position=UDim2.new(0,0,0,38);_0x7q8r.Size=UDim2.new(0.96,0,0,54);Instance.new("UICorner",_0x7q8r).CornerRadius=UDim.new(0,10);local _0x9s0t=Instance.new("TextLabel");_0x9s0t.Parent=_0x7q8r;_0x9s0t.BackgroundTransparency=1;_0x9s0t.Position=UDim2.new(0,16,0,0);_0x9s0t.Size=UDim2.new(0.7,0,1,0);_0x9s0t.Font=Enum.Font.GothamBold;_0x9s0t.TextColor3=Color3.fromRGB(255,255,255);_0x9s0t.TextSize=15;_0x9s0t.TextXAlignment=Enum.TextXAlignment.Left;local _0x1u2v=Instance.new("TextButton");_0x1u2v.Parent=_0x7q8r;_0x1u2v.BackgroundColor3=Color3.fromRGB(40,40,55);_0x1u2v.Position=UDim2.new(1,-65,0.5,-14);_0x1u2v.Size=UDim2.new(0,50,0,28);_0x1u2v.Text="";Instance.new("UICorner",_0x1u2v).CornerRadius=UDim.new(0,14);local _0x3w4x=Instance.new("Frame");_0x3w4x.Parent=_0x1u2v;_0x3w4x.BackgroundColor3=Color3.fromRGB(255,255,255);_0x3w4x.Position=UDim2.new(0,3,0.5,-11);_0x3w4x.Size=UDim2.new(0,22,0,22);Instance.new("UICorner",_0x3w4x).CornerRadius=UDim.new(0,11);local _0x5y6z=false;_0x1u2v.MouseButton1Click:Connect(function()_0x1i2j=not _0x1i2j;if _0x1i2j then _0x7u8v:Create(_0x1u2v,_0x7u8v.new(0.2),{BackgroundColor3=Color3.fromRGB(34,197,94)}):Play();_0x7u8v:Create(_0x3w4x,_0x7u8v.new(0.2),{Position=UDim2.new(0,25,0.5,-11)}):Play();if not _0x3k4l then _0x3k4l=_0x5m6n.Button1Down:Connect(function()if _0x5m6n.Target and _0x5m6n.Target.Parent then local _0x7a8b=_0x5m6n.Target.Parent;local _0x9c0d=_0x7a8b:FindFirstChildOfClass("Humanoid");if _0x9c0d then _0x9c0d.Health=0;elseif _0x7a8b:FindFirstChild("HumanoidRootPart")then local _0x1e2f=_0x7a8b.HumanoidRootPart;_0x1e2f.CFrame=CFrame.new(0,50000,0);end end end);end else _0x7u8v:Create(_0x1u2v,_0x7u8v.new(0.2),{BackgroundColor3=Color3.fromRGB(40,40,55)}):Play();_0x7u8v:Create(_0x3w4x,_0x7u8v.new(0.2),{Position=UDim2.new(0,3,0.5,-11)}):Play();if _0x3k4l then _0x3k4l:Disconnect();_0x3k4l=nil;end end end);local _0x7a8b=Instance.new("Frame");_0x7a8b.Parent=_0x3m4n;_0x7a8b.BackgroundColor3=Color3.fromRGB(16,16,23);_0x7a8b.BackgroundTransparency=0.15;_0x7a8b.Position=UDim2.new(0,0,0,105);_0x7a8b.Size=UDim2.new(0.96,0,0,54);Instance.new("UICorner",_0x7a8b).CornerRadius=UDim.new(0,10);local _0x9c0d=Instance.new("TextLabel");_0x9c0d.Parent=_0x7a8b;_0x9c0d.BackgroundTransparency=1;_0x9c0d.Position=UDim2.new(0,16,0,0);_0x9c0d.Size=UDim2.new(0.7,0,1,0);_0x9c0d.Font=Enum.Font.GothamBold;_0x9c0d.TextColor3=Color3.fromRGB(255,255,255);_0x9c0d.TextSize=15;_0x9c0d.TextXAlignment=Enum.TextXAlignment.Left;local _0x1e2f=Instance.new("TextButton");_0x1e2f.Parent=_0x7a8b;_0x1e2f.BackgroundColor3=Color3.fromRGB(40,40,55);_0x1e2f.Position=UDim2.new(1,-65,0.5,-14);_0x1e2f.Size=UDim2.new(0,50,0,28);_0x1e2f.Text="";Instance.new("UICorner",_0x1e2f).CornerRadius=UDim.new(0,14);local _0x3g4h=Instance.new("Frame");_0x3g4h.Parent=_0x1e2f;_0x3g4h.BackgroundColor3=Color3.fromRGB(255,255,255);_0x3g4h.Position=UDim2.new(0,3,0.5,-11);_0x3g4h.Size=UDim2.new(0,22,0,22);Instance.new("UICorner",_0x3g4h).CornerRadius=UDim.new(0,11);local function _0x5i6j()local _0x7k8l=_0x3c4d.Character;if(_0x7k8l and _0x7k8l:FindFirstChild("HumanoidRootPart"))then local _0x9m0n=_0x7k8l.HumanoidRootPart.Position;local _0x1o2p="Furdje_WayPoint_"..tostring(#_0x7a8b+1);local _0x3q4r=Instance.new("Part");_0x3q4r.Name=_0x1o2p;_0x3q4r.Position=_0x9m0n;_0x3q4r.Anchored=true;_0x3q4r.Transparency=0.7;_0x3q4r.BrickColor=BrickColor.new("Bright blue");_0x3q4r.Size=Vector3.new(2,2,2);_0x3q4r.Parent=workspace;table.insert(_0x7a8b,{_0x3q4r,_0x9m0n});_0x9c0d[_0x3q4r]=_0x9m0n;end end _0x1e2f.MouseButton1Click:Connect(function()_0x5s6t=not _0x5s6t;if _0x5s6t then _0x7u8v:Create(_0x1e2f,_0x7u8v.new(0.2),{BackgroundColor3=Color3.fromRGB(34,197,94)}):Play();_0x7u8v:Create(_0x3g4h,_0x7u8v.new(0.2),{Position=UDim2.new(0,25,0.5,-11)}):Play();_0x5i6j();else _0x7u8v:Create(_0x1e2f,_0x7u8v.new(0.2),{BackgroundColor3=Color3.fromRGB(40,40,55)}):Play();_0x7u8v:Create(_0x3g4h,_0x7u8v.new(0.2),{Position=UDim2.new(0,3,0.5,-11)}):Play();end end);local _0x5s6t=Instance.new("TextButton");_0x5s6t.Parent=_0x3m4n;_0x5s6t.BackgroundColor3=Color3.fromRGB(16,16,23);_0x5s6t.BackgroundTransparency=0.15;_0x5s6t.Position=UDim2.new(0,0,0,172);_0x5s6t.Size=UDim2.new(0.96,0,0,46);_0x5s6t.Font=Enum.Font.GothamBold;_0x5s6t.TextColor3=Color3.fromRGB(255,255,255);_0x5s6t.TextSize=15;Instance.new("UICorner",_0x5s6t).CornerRadius=UDim.new(0,10);_0x5s6t.MouseButton1Click:Connect(function()local _0x9w0x="";for _,_0x1y2z in pairs(_0x7a8b)do local _0x3a4b=_0x1y2z[2];_0x9w0x=_0x9w0x..string.format("Vector3.new(%.1f,%.1f,%.1f),\n",_0x3a4b.X,_0x3a4b.Y,_0x3a4b.Z);end if(_0x9w0x~="")then setclipboard(_0x9w0x);_0x1k2l.Text=_0x5y6z("Copied");_0x1k2l.TextColor3=Color3.fromRGB(34,197,94);else _0x1k2l.Text=_0x5y6z("EmptyList");_0x1k2l.TextColor3=Color3.fromRGB(240,80,80);end end);local function _0x9w0x()_0x3m4n.Visible=false;_0x3c4d.Visible=true;_0x5o6p.Text="";_0x1k2l.Text="";_0x7g8h.Text="";end _0x9i0j.MouseButton1Click:Connect(function()local _0x1y2z=_0x7g8h.Text;if(_0x1y2z=="furdjehub")then _0x3c4d.Visible=false;_0x3m4n.Visible=true;_0x5o6p.Text="Admin Panel (Unlocked)";_0x1k2l.Text=_0x5y6z("SuccessKey");_0x1k2l.TextColor3=Color3.fromRGB(34,197,94);else _0x1k2l.Text=_0x5y6z("WrongKey");_0x1k2l.TextColor3=Color3.fromRGB(255,80,80);end end);_0x7g8h.FocusLost:Connect(function(_0x3a4b)if _0x3a4b then _0x9i0j:Click();end end);local function _0x3a4b()_0x5m6n.Text=_0x5y6z("ChooseLang");_0x1k2l.Text=_0x5y6z("ThemeTitle");_0x5m6n.Text=string.format(_0x5y6z("WorldLabel"),_0x1e2f);_0x9y0z.Text=_0x5y6z("AutoFarmTab");_0x1a2b.Text=_0x5y6z("MovementTab");_0x3c4d.Text=_0x5y6z("ThemeTab");_0x5e6f.Text=_0x5y6z("AdminTab");_0x3q4r.Text="FurdjeHub";_0x3g4h.Text=_0x5y6z("InfJumpToggle");_0x1o2p.Text=_0x5y6z("FlyToggle");_0x1y2z.Text=string.format(_0x5y6z("FlySpeedLabel"),_0x3a4b);_0x9s0t.Text=_0x5y6z("CheckPosToggle");_0x9c0d.Text=_0x5y6z("SavePosBtn");_0x5s6t.Text=_0x5y6z("CopyPosBtn");_0x9e0f.Text=_0x5y6z("AutoFarmToggle");_0x7w8x.Text=_0x5y6z("SelectDist");end local _0x5c6d=Instance.new("Frame");_0x5c6d.Parent=_0x3i4j;_0x5c6d.BackgroundTransparency=1;_0x5c6d.Size=UDim2.new(1,0,1,0);_0x5c6d.Visible=false;local _0x7e8f=Instance.new("TextLabel");_0x7e8f.Parent=_0x5c6d;_0x7e8f.BackgroundTransparency=1;_0x7e8f.Size=UDim2.new(1,0,0,28);_0x7e8f.Font=Enum.Font.GothamBold;_0x7e8f.TextColor3=Color3.fromRGB(255,255,255);_0x7e8f.TextSize=17;local _0x9g0h=Instance.new("Frame");_0x9g0h.Parent=_0x5c6d;_0x9g0h.BackgroundColor3=Color3.fromRGB(16,16,23);_0x9g0h.BackgroundTransparency=0.15;_0x9g0h.Position=UDim2.new(0,0,0,38);_0x9g0h.Size=UDim2.new(0.96,0,0,54);Instance.new("UICorner",_0x9g0h).CornerRadius=UDim.new(0,10);local _0x1i2j=Instance.new("TextLabel");_0x1i2j.Parent=_0x9g0h;_0x1i2j.BackgroundTransparency=1;_0x1i2j.Position=UDim2.new(0,16,0,0);_0x1i2j.Size=UDim2.new(0.7,0,1,0);_0x1i2j.Font=Enum.Font.GothamBold;_0x1i2j.TextColor3=Color3.fromRGB(255,255,255);_0x1i2j.TextSize=15;_0x1i2j.TextXAlignment=Enum.TextXAlignment.Left;local _0x3k4l=Instance.new("TextButton");_0x3k4l.Parent=_0x9g0h;_0x3k4l.BackgroundColor3=Color3.fromRGB(40,40,55);_0x3k4l.Position=UDim2.new(1,-65,0.5,-14);_0x3k4l.Size=UDim2.new(0,50,0,28);_0x3k4l.Text="";Instance.new("UICorner",_0x3k4l).CornerRadius=UDim.new(0,14);local _0x5m6n=Instance.new("Frame");_0x5m6n.Parent=_0x3k4l;_0x5m6n.BackgroundColor3=Color3.fromRGB(255,255,255);_0x5m6n.Position=UDim2.new(0,3,0.5,-11);_0x5m6n.Size=UDim2.new(0,22,0,22);Instance.new("UICorner",_0x5m6n).CornerRadius=UDim.new(0,11);_0x3k4l.MouseButton1Click:Connect(function()_0x7k8l=not _0x7k8l;if _0x7k8l then _0x7u8v:Create(_0x3k4l,_0x7u8v.new(0.2),{BackgroundColor3=Color3.fromRGB(34,197,94)}):Play();_0x7u8v:Create(_0x5m6n,_0x7u8v.new(0.2),{Position=UDim2.new(0,25,0.5,-11)}):Play();_0x1g2h();else _0x7u8v:Create(_0x3k4l,_0x7u8v.new(0.2),{BackgroundColor3=Color3.fromRGB(40,40,55)}):Play();_0x7u8v:Create(_0x5m6n,_0x7u8v.new(0.2),{Position=UDim2.new(0,3,0.5,-11)}):Play();_0x9k0l(false);end end);local _0x7o8p=Instance.new("Frame");_0x7o8p.Parent=_0x5c6d;_0x7o8p.BackgroundColor3=Color3.fromRGB(16,16,23);_0x7o8p.BackgroundTransparency=0.15;_0x7o8p.Position=UDim2.new(0,0,0,105);_0x7o8p.Size=UDim2.new(0.96,0,0,54);Instance.new("UICorner",_0x7o8p).CornerRadius=UDim.new(0,10);local _0x9q0r=Instance.new("TextLabel");_0x9q0r.Parent=_0x7o8p;_0x9q0r.BackgroundTransparency=1;_0x9q0r.Position=UDim2.new(0,16,0,0);_0x9q0r.Size=UDim2.new(0.7,0,1,0);_0x9q0r.Font=Enum.Font.GothamBold;_0x9q0r.TextColor3=Color3.fromRGB(255,255,255);_0x9q0r.TextSize=15;_0x9q0r.TextXAlignment=Enum.TextXAlignment.Left;local _0x1s2t=Instance.new("TextButton");_0x1s2t.Parent=_0x7o8p;_0x1s2t.BackgroundColor3=Color3.fromRGB(40,40,55);_0x1s2t.Position=UDim2.new(1,-65,0.5,-14);_0x1s2t.Size=UDim2.new(0,50,0,28);_0x1s2t.Text="";Instance.new("UICorner",_0x1s2t).CornerRadius=UDim.new(0,14);local _0x3u4v=Instance.new("Frame");_0x3u4v.Parent=_0x1s2t;_0x3u4v.BackgroundColor3=Color3.fromRGB(255,255,255);_0x3u4v.Position=UDim2.new(0,3,0.5,-11);_0x3u4v.Size=UDim2.new(0,22,0,22);Instance.new("UICorner",_0x3u4v).CornerRadius=UDim.new(0,11);_0x1s2t.MouseButton1Click:Connect(function()_0x1y2z=not _0x1y2z;if _0x1y2z then _0x7u8v:Create(_0x1s2t,_0x7u8v.new(0.2),{BackgroundColor3=Color3.fromRGB(34,197,94)}):Play();_0x7u8v:Create(_0x3u4v,_0x7u8v.new(0.2),{Position=UDim2.new(0,25,0.5,-11)}):Play();_0x1a2b(true);else _0x7u8v:Create(_0x1s2t,_0x7u8v.new(0.2),{BackgroundColor3=Color3.fromRGB(40,40,55)}):Play();_0x7u8v:Create(_0x3u4v,_0x7u8v.new(0.2),{Position=UDim2.new(0,3,0.5,-11)}):Play();_0x1a2b(false);end end);local _0x5w6x=Instance.new("Frame");_0x5w6x.Parent=_0x5c6d;_0x5w6x.BackgroundColor3=Color3.fromRGB(16,16,23);_0x5w6x.BackgroundTransparency=0.15;_0x5w6x.Position=UDim2.new(0,0,0,172);_0x5w6x.Size=UDim2.new(0.96,0,0,68);Instance.new("UICorner",_0x5w6x).CornerRadius=UDim.new(0,10);local _0x7y8z=Instance.new("TextLabel");_0x7y8z.Parent=_0x5w6x;_0x7y8z.BackgroundTransparency=1;_0x7y8z.Position=UDim2.new(0,16,0,8);_0x7y8z.Size=UDim2.new(1,-32,0,20);_0x7y8z.Font=Enum.Font.GothamSemibold;_0x7y8z.TextColor3=Color3.fromRGB(200,200,220);_0x7y8z.TextSize=13;_0x7y8z.TextXAlignment=Enum.TextXAlignment.Left;local _0x9a0b=Instance.new("TextButton");_0x9a0b.Parent=_0x5w6x;_0x9a0b.BackgroundColor3=Color3.fromRGB(32,32,45);_0x9a0b.Position=UDim2.new(0,16,0,36);_0x9a0b.Size=UDim2.new(1,-32,0,16);_0x9a0b.Text="";Instance.new("UICorner",_0x9a0b).CornerRadius=UDim.new(0,8);local _0x1c2d=Instance.new("Frame");_0x1c2d.Parent=_0x9a0b;_0x1c2d.BackgroundColor3=_0x7u8v;_0x1c2d.Size=UDim2.new(_0x5i6j/110,0,1,0);Instance.new("UICorner",_0x1c2d).CornerRadius=UDim.new(0,8);local _0x3e4f=false;local function _0x5g6h(input)local _0x7i8j=math.clamp((input.Position.X-_0x9a0b.AbsolutePosition.X)/_0x9a0b.AbsoluteSize.X,0,1);_0x5i6j=math.floor(_0x7i8j*110);_0x7y8z.Text=string.format(_0x5y6z("SpeedLabel"),_0x5i6j);_0x7u8v:Create(_0x1c2d,_0x7u8v.new(0.05),{Size=UDim2.new(_0x7i8j,0,1,0)}):Play();end _0x9a0b.InputBegan:Connect(function(input)if((input.UserInputType==Enum.UserInputType.MouseButton1)or(input.UserInputType==Enum.UserInputType.Touch))then _0x3e4f=true;_0x5g6h(input);end end);_0x1k2l.InputChanged:Connect(function(input)if(_0x3e4f and((input.UserInputType==Enum.UserInputType.MouseMovement)or(input.UserInputType==Enum.UserInputType.Touch)))then _0x5g6h(input);end end);_0x1k2l.InputEnded:Connect(function(input)if((input.UserInputType==Enum.UserInputType.MouseButton1)or(input.UserInputType==Enum.UserInputType.Touch))then _0x3e4f=false;end end);local function _0x9k0l()_0x5m6n.Text=_0x5y6z("ChooseLang");_0x1k2l.Text=_0x5y6z("ThemeTitle");_0x5m6n.Text=string.format(_0x5y6z("WorldLabel"),_0x1e2f);_0x9y0z.Text=_0x5y6z("AutoFarmTab");_0x1a2b.Text=_0x5y6z("MovementTab");_0x3c4d.Text=_0x5y6z("ThemeTab");_0x5e6f.Text=_0x5y6z("AdminTab");_0x3q4r.Text="FurdjeHub";_0x3g4h.Text=_0x5y6z("InfJumpToggle");_0x1o2p.Text=_0x5y6z("FlyToggle");_0x1y2z.Text=string.format(_0x5y6z("FlySpeedLabel"),_0x3a4b);_0x9s0t.Text=_0x5y6z("CheckPosToggle");_0x9c0d.Text=_0x5y6z("SavePosBtn");_0x5s6t.Text=_0x5y6z("CopyPosBtn");_0x9e0f.Text=_0x5y6z("AutoFarmToggle");_0x7w8x.Text=_0x5y6z("SelectDist");end _G.ApplyLanguage=_0x9k0l;_0x9k0l();_0x1c2d();_0x3a4b();local function _0x7i8j()_0x7k8l=false;_0x9k0l(false);if _0x1o2p then _0x1o2p:Disconnect();end if _0x5c6d then _0x1a2b(false);end if _0x9s0t then _0x9s0t:Disconnect();end if _0x3k4l then _0x3k4l:Disconnect();end _0x3g4h(false);task.wait(0.3);_0x7q8r:Destroy();end;local _0x9i0j=Instance.new("Frame");_0x9i0j.Parent=_0x3i4j;_0x9i0j.BackgroundTransparency=1;_0x9i0j.Size=UDim2.new(1,0,1,0);_0x9i0j.Visible=false;local _0x1k2l=Instance.new("ScrollingFrame");_0x1k2l.Parent=_0x9i0j;_0x1k2l.BackgroundTransparency=1;_0x1k2l.Size=UDim2.new(1,0,1,0);_0x1k2l.ScrollBarThickness=0;_0x1k2l.CanvasSize=UDim2.new(0,0,0,350);local _0x3m4n=Instance.new("TextLabel");_0x3m4n.Parent=_0x1k2l;_0x3m4n.BackgroundTransparency=1;_0x3m4n.Size=UDim2.new(1,0,0,24);_0x3m4n.Font=Enum.Font.GothamBold;_0x3m4n.TextColor3=Color3.fromRGB(200,200,220);_0x3m4n.TextSize=14;_0x3m4n.TextXAlignment=Enum.TextXAlignment.Left;local _0x5o6p=Instance.new("TextBox");_0x5o6p.Parent=_0x1k2l;_0x5o6p.BackgroundColor3=Color3.fromRGB(16,16,23);_0x5o6p.BackgroundTransparency=0.15;_0x5o6p.Position=UDim2.new(0,0,0,30);_0x5o6p.Size=UDim2.new(1,0,0,36);_0x5o6p.Font=Enum.Font.GothamSemibold;_0x5o6p.TextColor3=Color3.fromRGB(255,255,255);_0x5o6p.TextSize=14;_0x5o6p.ClearTextOnFocus=false;_0x5o6p.PlaceholderText=_0x5y6z("CFGName");Instance.new("UICorner",_0x5o6p).CornerRadius=UDim.new(0,8);local _0x7q8r=Instance.new("TextButton");_0x7q8r.Parent=_0x1k2l;_0x7q8r.BackgroundColor3=Color3.fromRGB(34,197,94);_0x7q8r.BackgroundTransparency=0.15;_0x7q8r.Position=UDim2.new(0,0,0,80);_0x7q8r.Size=UDim2.new(0.45,0,0,40);_0x7q8r.Font=Enum.Font.GothamBold;_0x7q8r.TextColor3=Color3.fromRGB(255,255,255);_0x7q8r.TextSize=14;_0x7q8r.Text=_0x5y6z("CFGSave");Instance.new("UICorner",_0x7q8r).CornerRadius=UDim.new(0,10);local _0x9s0t=Instance.new("TextButton");_0x9s0t.Parent=_0x1k2l;_0x9s0t.BackgroundColor3=Color3.fromRGB(0,150,255);_0x9s0t.BackgroundTransparency=0.15;_0x9s0t.Position=UDim2.new(0.55,0,80,0);_0x9s0t.Size=UDim2.new(0.45,0,0,40);_0x9s0t.Font=Enum.Font.GothamBold;_0x9s0t.TextColor3=Color3.fromRGB(255,255,255);_0x9s0t.TextSize=14;_0x9s0t.Text=_0x5y6z("CFGLoad");Instance.new("UICorner",_0x9s0t).CornerRadius=UDim.new(0,10);local _0x1u2v=Instance.new("TextLabel");_0x1u2v.Parent=_0x1k2l;_0x1u2v.BackgroundTransparency=1;_0x1u2v.Position=UDim2.new(0,0,0,135);_0x1u2v.Size=UDim2.new(1,0,0,24);_0x1u2v.Font=Enum.Font.GothamBold;_0x1u2v.TextColor3=Color3.fromRGB(200,200,220);_0x1u2v.TextSize=14;_0x1u2v.TextXAlignment=Enum.TextXAlignment.Left;_0x1u2v.Text=_0x5y6z("CFGList");local _0x3w4x=Instance.new("ScrollingFrame");_0x3w4x.Parent=_0x1k2l;_0x3w4x.BackgroundColor3=Color3.fromRGB(16,16,23);_0x3w4x.BackgroundTransparency=0.15;_0x3w4x.Position=UDim2.new(0,0,0,165);_0x3w4x.Size=UDim2.new(1,0,0,150);_0x3w4x.ScrollBarThickness=4;_0x3w4x.BorderSizePixel=0;_0x3w4x.CanvasSize=UDim2.new(0,0,0,0);Instance.new("UICorner",_0x3w4x).CornerRadius=UDim.new(0,10);local _0x5y6z=Instance.new("UIListLayout");_0x5y6z.Parent=_0x3w4x;_0x5y6z.SortOrder=Enum.SortOrder.LayoutOrder;_0x5y6z.Padding=UDim.new(0,4);local _0x7a8b=_G.FurdjeCFG_Storage or {};_G.FurdjeCFG_Storage=_0x7a8b;local function _0x9c0d()for _,_0x1e2f in pairs(_0x3w4x:GetChildren())do if _0x1e2f:IsA("TextButton")then _0x1e2f:Destroy();end end local _0x3g4h=0;for _0x5i6j,_0x7k8l in pairs(_0x7a8b)do local _0x9m0n=Instance.new("TextButton");_0x9m0n.Parent=_0x3w4x;_0x9m0n.Size=UDim2.new(1,-10,0,32);_0x9m0n.Position=UDim2.new(0,5,0,_0x3g4h);_0x9m0n.BackgroundColor3=Color3.fromRGB(22,22,30);_0x9m0n.BackgroundTransparency=0.15;_0x9m0n.Text="   ".._0x5i6j;_0x9m0n.TextColor3=Color3.fromRGB(200,200,220);_0x9m0n.TextSize=13;_0x9m0n.TextXAlignment=Enum.TextXAlignment.Left;_0x9m0n.Font=Enum.Font.GothamSemibold;Instance.new("UICorner",_0x9m0n).CornerRadius=UDim.new(0,6);local _0x1o2p=Instance.new("TextButton");_0x1o2p.Parent=_0x9m0n;_0x1o2p.Size=UDim2.new(0,24,0,24);_0x1o2p.Position=UDim2.new(1,-30,0.5,-12);_0x1o2p.BackgroundColor3=Color3.fromRGB(200,40,40);_0x1o2p.Text="✕";_0x1o2p.TextColor3=Color3.fromRGB(255,255,255);_0x1o2p.TextSize=14;_0x1o2p.Font=Enum.Font.GothamBold;Instance.new("UICorner",_0x1o2p).CornerRadius=UDim.new(0,6);_0x1o2p.MouseButton1Click:Connect(function()_0x7a8b[_0x5i6j]=nil;_G.FurdjeCFG_Storage=_0x7a8b;_0x9c0d();end);_0x9m0n.MouseButton1Click:Connect(function()_0x5o6p.Text=_0x5i6j;local _0x3q4r=_0x7a8b[_0x5i6j];if _0x3q4r then _0x1e2f=_0x3q4r.World or "1 World";_0x3g4h=_0x3q4r.Mode;_0x5i6j=_0x3q4r.Speed or 110;_0x7k8l=_0x3q4r.AutoFarm or false;_0x9w0x=_0x3q4r.InfJump or false;_0x1y2z=_0x3q4r.Fly or false;_0x3a4b=_0x3q4r.FlySpeed or 50;_0x5s6t=_0x3q4r.Chekpozition or false;_0x1i2j=_0x3q4r.CheckModel or false;_0x7u8v=_0x3q4r.Theme or Color3.fromRGB(0,150,255);_0x3q4r=_0x3q4r.AdminUnlocked or false;showNotification(_0x5y6z("CFGLoaded").." ".._0x5i6j,Color3.fromRGB(34,197,94));end end);_0x3g4h=_0x3g4h+36;end _0x3w4x.CanvasSize=UDim2.new(0,0,0,_0x3g4h+10);end _0x9c0d();_0x7q8r.MouseButton1Click:Connect(function()local _0x9s0t=_0x5o6p.Text;if _0x9s0t and _0x9s0t~=""then local _0x1u2v={World=_0x1e2f,Mode=_0x3g4h,Speed=_0x5i6j,AutoFarm=_0x7k8l,InfJump=_0x9w0x,Fly=_0x1y2z,FlySpeed=_0x3a4b,Chekpozition=_0x5s6t,CheckModel=_0x1i2j,Theme=_0x7u8v,AdminUnlocked=_0x3q4r};_0x7a8b[_0x9s0t]=_0x1u2v;_G.FurdjeCFG_Storage=_0x7a8b;_0x9c0d();showNotification(_0x5y6z("CFGSaved").." ".._0x9s0t,Color3.fromRGB(34,197,94));else showNotification(_0x5y6z("CFGEmpty"),Color3.fromRGB(200,150,40));end end);_0x9s0t.MouseButton1Click:Connect(function()local _0x1u2v=_0x5o6p.Text;if _0x1u2v and _0x1u2v~=""and _0x7a8b[_0x1u2v]then local _0x3w4x=_0x7a8b[_0x1u2v];_0x1e2f=_0x3w4x.World or "1 World";_0x3g4h=_0x3w4x.Mode;_0x5i6j=_0x3w4x.Speed or 110;_0x7k8l=_0x3w4x.AutoFarm or false;_0x9w0x=_0x3w4x.InfJump or false;_0x1y2z=_0x3w4x.Fly or false;_0x3a4b=_0x3w4x.FlySpeed or 50;_0x5s6t=_0x3w4x.Chekpozition or false;_0x1i2j=_0x3w4x.CheckModel or false;_0x7u8v=_0x3w4x.Theme or Color3.fromRGB(0,150,255);_0x3q4r=_0x3w4x.AdminUnlocked or false;showNotification(_0x5y6z("CFGLoaded").." ".._0x1u2v,Color3.fromRGB(34,197,94));else showNotification(_0x5y6z("CFGNotFound"),Color3.fromRGB(200,40,40));end end);_0x9i0j:GetPropertyChangedSignal("Visible"):Connect(function()if _0x9i0j.Visible then _0x9c0d();end end);local _0x5c6d=_0x5u6v(_0x5y6z("CFGTab"),_0x9i0j);table.insert(_0x3s4t,#_0x3s4t,_0x5c6d);local function _0x7e8f()_0x5m6n.Text=_0x5y6z("ChooseLang");_0x1k2l.Text=_0x5y6z("ThemeTitle");_0x5m6n.Text=string.format(_0x5y6z("WorldLabel"),_0x1e2f);_0x9y0z.Text=_0x5y6z("AutoFarmTab");_0x1a2b.Text=_0x5y6z("MovementTab");_0x3c4d.Text=_0x5y6z("ThemeTab");_0x5e6f.Text=_0x5y6z("AdminTab");_0x3q4r.Text="FurdjeHub";_0x3g4h.Text=_0x5y6z("InfJumpToggle");_0x1o2p.Text=_0x5y6z("FlyToggle");_0x1y2z.Text=string.format(_0x5y6z("FlySpeedLabel"),_0x3a4b);_0x9s0t.Text=_0x5y6z("CheckPosToggle");_0x9c0d.Text=_0x5y6z("SavePosBtn");_0x5s6t.Text=_0x5y6z("CopyPosBtn");_0x9e0f.Text=_0x5y6z("AutoFarmToggle");_0x7w8x.Text=_0x5y6z("SelectDist");_0x3m4n.Text=_0x5y6z("CFGName");_0x7q8r.Text=_0x5y6z("CFGSave");_0x9s0t.Text=_0x5y6z("CFGLoad");_0x1u2v.Text=_0x5y6z("CFGList");end _G.ApplyLanguage=_0x7e8f;_0x7e8f();_0x1c2d();_0x3a4b();print("FurdjeHub with CFG loaded!");_0x3g4h(true);task.wait(0.5);_0x1i2j.Visible=false;_0x7k8l.Visible=true;
+-- FurdjeHub v3.0 (Чистая версия с CFG)
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local VirtualUser = game:GetService("VirtualUser")
+
+-- Удаление старых GUI
+if game.CoreGui:FindFirstChild("FurdjeHub") then
+    game.CoreGui.FurdjeHub:Destroy()
+end
+for _, obj in pairs(workspace:GetChildren()) do
+    if obj.Name:find("Furdje_WayPoint_") then
+        obj:Destroy()
+    end
+end
+
+-- Анти-AFK
+local idleConnection = Player.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
+
+-- Язык
+local currentLang = "EN"
+local lang = {
+    RU = {
+        ChooseLang = "Выберите язык",
+        ThemeTitle = "Цветовая палитра интерфейса",
+        WorldLabel = "Мир: [ %s ]",
+        AutoFarmTab = "Авто Фарм",
+        ThemeTab = "Темы",
+        AdminTab = "AdminPanel",
+        MovementTab = "Moovement",
+        AutoFarmToggle = "Авто Фарм",
+        SpeedLabel = "Скорость: %d",
+        DistLabel = "WinsFarmer:",
+        SavePosBtn = "+ Сохранить позицию",
+        CopyPosBtn = "Скопировать позиции",
+        Copied = "Скопировано в буфер!",
+        EmptyList = "Список пуст!",
+        NoPoints = "Нет точек!",
+        SelectDist = "Выбрать WinsFarmer",
+        PointPrefix = "ТОЧКА",
+        AdminTitle = "--- ДЛЯ FURDJEHUB ---",
+        EnterKey = "Введите ключ доступа...",
+        UnlockBtn = "Разблокировать",
+        WrongKey = "Неверный ключ!",
+        SuccessKey = "Доступ разрешен!",
+        CheckPosToggle = "Включить Chekpozition",
+        CheckModelToggle = "Check Model (Клик по детали)",
+        InfJumpToggle = "Infinity Jump",
+        FlyToggle = "Fly (Джойстик/WASD)",
+        FlySpeedLabel = "Скорость полета: %d",
+        Themes = {"Синий Космос","Фиолетовый Кибер","Кислотный Лайм","Пылкая Роза","Янтарный Неон","Белый Фантом"},
+        CFGTab = "CFG",
+        CFGName = "Название CFG",
+        CFGSave = "💾 Сохранить",
+        CFGLoad = "📂 Загрузить",
+        CFGList = "📋 Список CFG",
+        CFGDelete = "Удалить",
+        CFGEmpty = "Нет сохранений",
+        CFGSaved = "Сохранено!",
+        CFGLoaded = "Загружено!",
+        CFGDeleted = "Удалено!",
+        CFGNotFound = "Не найден!"
+    },
+    EN = {
+        ChooseLang = "Choose language",
+        ThemeTitle = "Interface Color Palette",
+        WorldLabel = "World: [ %s ]",
+        AutoFarmTab = "Auto Farm",
+        ThemeTab = "Themes",
+        AdminTab = "AdminPanel",
+        MovementTab = "Moovement",
+        AutoFarmToggle = "Auto Farm",
+        SpeedLabel = "Speed: %d",
+        DistLabel = "WinsFarmer:",
+        SavePosBtn = "+ Save Position",
+        CopyPosBtn = "Copy Positions",
+        Copied = "Copied to clipboard!",
+        EmptyList = "List is empty!",
+        NoPoints = "No points!",
+        SelectDist = "Select WinsFarmer",
+        PointPrefix = "POINT",
+        AdminTitle = "--- FOR FURDJEHUB ---",
+        EnterKey = "Enter access key...",
+        UnlockBtn = "Unlock",
+        WrongKey = "Invalid key!",
+        SuccessKey = "Access granted!",
+        CheckPosToggle = "Enable Chekpozition",
+        CheckModelToggle = "Check Model (Click part)",
+        InfJumpToggle = "Infinity Jump",
+        FlyToggle = "Fly (Joystick/WASD)",
+        FlySpeedLabel = "Fly Speed: %d",
+        Themes = {"Blue Space","Purple Cyber","Acid Lime","Fiery Rose","Amber Neon","White Phantom"},
+        CFGTab = "CFG",
+        CFGName = "CFG Name",
+        CFGSave = "💾 Save",
+        CFGLoad = "📂 Load",
+        CFGList = "📋 CFG List",
+        CFGDelete = "Delete",
+        CFGEmpty = "No saves",
+        CFGSaved = "Saved!",
+        CFGLoaded = "Loaded!",
+        CFGDeleted = "Deleted!",
+        CFGNotFound = "Not found!"
+    }
+}
+
+local function T(key)
+    return lang[currentLang][key]
+end
+
+-- Переменные
+local waypoints = {}
+local savedPositions = {}
+local selectedWorld = "1 World"
+local selectedMode = nil
+local farmSpeed = 110
+local isFarming = false
+local antiCollisionConnection = nil
+local objectRemoverConnection = nil
+local isAdminUnlocked = false
+local isChekpozition = false
+local accentColor = Color3.fromRGB(0,150,255)
+local infJumpEnabled = false
+local flyEnabled = false
+local flySpeed = 50
+local bodyVelocity, bodyGyro, flyConnection
+local checkModelEnabled = false
+local checkModelConnection = nil
+local mouse = Player:GetMouse()
+
+-- Точки телепортации
+local farmPoints = {
+    ["1 World"] = {
+        ["+1 wins"] = {
+            Vector3.new(2.8,8.5,74.3),
+            Vector3.new(-22.3,10.4,286)
+        },
+        ["+3 wins"] = {
+            Vector3.new(-2.1,8.5,74.2),
+            Vector3.new(2.7,8.5,295.7),
+            Vector3.new(58,8.5,362),
+            Vector3.new(53,8.5,444.3),
+            Vector3.new(-22.2,9.8,518.4)
+        },
+        ["+10 wins"] = {
+            Vector3.new(3.1,8.5,74.8),
+            Vector3.new(2.3,8.5,296.5),
+            Vector3.new(55.6,8.5,336.6),
+            Vector3.new(47.5,8.5,454.1),
+            Vector3.new(-1.6,8.5,487.5),
+            Vector3.new(-4.8,8.5,527.7),
+            Vector3.new(-21.6,8.5,528),
+            Vector3.new(-22.6,30.8,624.1),
+            Vector3.new(-21.5,76.8,752.7),
+            Vector3.new(-18.3,78.7,774.5)
+        }
+    },
+    ["2 World"] = {
+        ["+250k wins"] = {
+            Vector3.new(-396.8,504.7,-60.1),
+            Vector3.new(-411.7,499.8,171.9),
+            Vector3.new(-414,498.1,189.9)
+        },
+        ["+400k wins"] = {
+            Vector3.new(-399.4,504.7,-57.6),
+            Vector3.new(-398.1,499.8,209.2),
+            Vector3.new(-417.6,501.4,445.3)
+        },
+        ["+1,5m wins"] = {
+            Vector3.new(-399.4,504.7,-57.6),
+            Vector3.new(-398.1,499.8,209.2),
+            Vector3.new(-396.3,499.8,450),
+            Vector3.new(-398.5,499.7,465.5),
+            Vector3.new(-343.3,499.7,464.7),
+            Vector3.new(-349.3,526.8,576.9),
+            Vector3.new(-454.1,526.8,574.8),
+            Vector3.new(-455.3,551.8,485.5),
+            Vector3.new(-454.8,553.8,467.6),
+            Vector3.new(-350,553.8,464.7),
+            Vector3.new(-349.6,553.8,477.8),
+            Vector3.new(-347.2,580.8,574.4),
+            Vector3.new(-452.8,580.8,577),
+            Vector3.new(-453.2,580.8,565.6),
+            Vector3.new(-454.1,605.9,485.4),
+            Vector3.new(-454.7,607.8,467.2),
+            Vector3.new(-400.6,607.8,467.7),
+            Vector3.new(-399.4,607.6,621.4),
+            Vector3.new(-399.3,607.6,672.4),
+            Vector3.new(-401.2,607.2,825.2),
+            Vector3.new(-401,607.2,859.3),
+            Vector3.new(-317,607.2,1013.9),
+            Vector3.new(-312.5,607.2,1149.9),
+            Vector3.new(-400.4,607.2,1248.3),
+            Vector3.new(-411.5,607.4,1264.2),
+            Vector3.new(-413.7,609,1260.5)
+        },
+        ["+2,5m wins"] = {
+            Vector3.new(-398.3,504.7,-55.6),
+            Vector3.new(-395.6,499.8,207.1),
+            Vector3.new(-393.8,499.8,451.7),
+            Vector3.new(-348.7,499.7,467.9),
+            Vector3.new(-348.3,526.8,575.4),
+            Vector3.new(-454.6,526.8,574.6),
+            Vector3.new(-451.9,553.8,467.1),
+            Vector3.new(-347.8,553.8,467.5),
+            Vector3.new(-349.7,580.8,577.1),
+            Vector3.new(-452.2,580.8,574.6),
+            Vector3.new(-452.4,607.8,467.3),
+            Vector3.new(-397.4,607.8,466.1),
+            Vector3.new(-398.8,607.6,621.8),
+            Vector3.new(-400.2,607.2,858),
+            Vector3.new(-300.5,607.2,911.8),
+            Vector3.new(-311.3,607.2,1134.4),
+            Vector3.new(-398.4,607.2,1246.4),
+            Vector3.new(-398.1,618.4,1331.4),
+            Vector3.new(-399,607.2,1429.9),
+            Vector3.new(-390.3,607.2,1475.1),
+            Vector3.new(-363,628,1543.5),
+            Vector3.new(-363.2,628,1602.1),
+            Vector3.new(-361.4,605.1,1697.2),
+            Vector3.new(-361.8,605.1,1752.7),
+            Vector3.new(-362.1,616.7,1792.1),
+            Vector3.new(-398.3,607.2,1860.9),
+            Vector3.new(-397,607.7,1924.8),
+            Vector3.new(-398,619.3,1960),
+            Vector3.new(-398.2,607.2,2040.1),
+            Vector3.new(-398.3,607.2,2097.8),
+            Vector3.new(-398.4,619,2140.1),
+            Vector3.new(-398.6,607.2,2216.9),
+            Vector3.new(-398.5,607.2,2270.2),
+            Vector3.new(-398.4,618.6,2316.5),
+            Vector3.new(-399.6,623.1,2365.9),
+            Vector3.new(-417.3,621,2415.6)
+        }
+    },
+    ["3 World"] = {
+        ["+300m wins"] = {
+            Vector3.new(-1433.5,-159.7,-878.9),
+            Vector3.new(-1431,-157.1,-831.9),
+            Vector3.new(-1429.5,-126,-733),
+            Vector3.new(-1430.1,-69.9,-538.4),
+            Vector3.new(-1481.8,-71.7,-515.8)
+        },
+        ["+500m wins"] = {
+            Vector3.new(-1433.2,-159.7,-877.5),
+            Vector3.new(-1431,-157.6,-833.5),
+            Vector3.new(-1430.4,-125.1,-730.1),
+            Vector3.new(-1430.9,-69.9,-537.4),
+            Vector3.new(-1453.9,-69.9,-492.7),
+            Vector3.new(-1453.9,-58.4,-392.5),
+            Vector3.new(-1453.9,-57.4,-264.7),
+            Vector3.new(-1453.9,-57.4,-186.8),
+            Vector3.new(-1480.8,-59.4,-15.8)
+        }
+    },
+    ["Bbnos World"] = {
+        ["+25k cash"] = {
+            Vector3.new(-129.9,59.1,-236.7),
+            Vector3.new(184.7,59.2,-234),
+            Vector3.new(317.6,59.2,-318.6),
+            Vector3.new(415,59.2,-233.6),
+            Vector3.new(488.4,62.7,-234.2),
+            Vector3.new(1086.1,167.3,-703.8),
+            Vector3.new(1074.7,167.3,772.4),
+            Vector3.new(307.9,167.3,775),
+            Vector3.new(-461.4,167.3,774.6),
+            Vector3.new(-488.5,171.3,775.4),
+            Vector3.new(-172.2,307.4,-897.1),
+            Vector3.new(546.5,307.4,-896.3),
+            Vector3.new(549,307.4,-968),
+            Vector3.new(673.3,307.4,-964.5),
+            Vector3.new(672,307.4,-899.3),
+            Vector3.new(743,307.4,-897.9),
+            Vector3.new(1561.5,307.4,-895.7),
+            Vector3.new(1562.6,306.3,-105.2),
+            Vector3.new(1831,306.3,-102.5),
+            Vector3.new(1829.7,309.1,168.9),
+            Vector3.new(1827.3,812.2,169.5),
+            Vector3.new(1821.8,810.4,947.2),
+            Vector3.new(1662.9,810.4,942.6),
+            Vector3.new(1577.5,810.4,917.7),
+            Vector3.new(1557.9,817.9,908.8),
+            Vector3.new(1440,810.4,861.5),
+            Vector3.new(1403.8,810.4,858.5),
+            Vector3.new(1376.6,817.6,857.1),
+            Vector3.new(1184.3,810.3,854.8),
+            Vector3.new(1088.1,810.3,853.3),
+            Vector3.new(944.4,807.3,851.2),
+            Vector3.new(930.9,810.3,852.2),
+            Vector3.new(912.7,810.3,921.8),
+            Vector3.new(862.8,810.4,952.3),
+            Vector3.new(807.2,812,903.5)
+        },
+        ["+50k cash"] = {
+            Vector3.new(759.5,810.4,948.4),
+            Vector3.new(716.1,810.4,946.7),
+            Vector3.new(719.7,810.4,572.4),
+            Vector3.new(584.8,810.4,566.2),
+            Vector3.new(587.7,810.4,464.5),
+            Vector3.new(390.5,810.4,465),
+            Vector3.new(394.7,810.4,729.3),
+            Vector3.new(510.2,810.4,732.8),
+            Vector3.new(506.6,810.4,848),
+            Vector3.new(309.8,810.4,845.7),
+            Vector3.new(308.6,810.4,939.3),
+            Vector3.new(120.7,810.4,947.6),
+            Vector3.new(103.5,812.5,946.4)
+        }
+    }
+}
+
+local modeOrder = {
+    ["+1 wins"] = 1,
+    ["+3 wins"] = 2,
+    ["+10 wins"] = 3,
+    ["+250k wins"] = 4,
+    ["+400k wins"] = 5,
+    ["+1,5m wins"] = 6,
+    ["+2,5m wins"] = 7,
+    ["+4m wins"] = 8,
+    ["+6m wins"] = 9,
+    ["+10m wins"] = 10,
+    ["+15m wins"] = 11,
+    ["+25m wins"] = 12,
+    ["+40m wins"] = 13,
+    ["+60m wins"] = 14,
+    ["+300m wins"] = 15,
+    ["+500m wins"] = 16,
+    ["+800m wins"] = 17,
+    ["+1.25b wins"] = 18,
+    ["+25k cash"] = 19,
+    ["+50k cash"] = 20
+}
+
+-- Функции античита (удаление опасных объектов)
+local function isDangerousObject(name)
+    local dangerous = {
+        "LavaPart", "Lava_Stage3", "MovingWall",
+        "DoorWall1", "GreenDoorKillPart", "RedDoorKillPart",
+        "YellowDoorKillPart", "DoorWall2", "DoorWall3",
+        "Stage2LocalNPC_Local", "Tumbleweed", "vanilla",
+        "EyesLaser", "Stage11LocalNPC_Local", "Stage14LocalNPC_Local"
+    }
+    for _, d in pairs(dangerous) do
+        if name == d then return true end
+    end
+    local wallNum = name:match("^MovingWall(%d+)$")
+    if wallNum then
+        local num = tonumber(wallNum)
+        if num and num >= 1 and num <= 15 then
+            return true
+        end
+    end
+    return false
+end
+
+local function removeDangerousObjects()
+    task.spawn(function()
+        local count = 0
+        local descendants = workspace:GetDescendants()
+        for i = 1, #descendants do
+            local obj = descendants[i]
+            if obj and obj.Parent then
+                if isDangerousObject(obj.Name) then
+                    obj:Destroy()
+                end
+            end
+            count = count + 1
+            if count % 300 == 0 then
+                task.wait()
+            end
+        end
+    end)
+    if not objectRemoverConnection then
+        objectRemoverConnection = workspace.DescendantAdded:Connect(function(obj)
+            if isDangerousObject(obj.Name) then
+                task.defer(function()
+                    if obj and obj.Parent then
+                        obj:Destroy()
+                    end
+                end)
+            end
+        end)
+    end
+end
+removeDangerousObjects()
+
+-- Отключение коллизий
+local function setCollision(state)
+    if state then
+        if not antiCollisionConnection then
+            antiCollisionConnection = RunService.Stepped:Connect(function()
+                local char = Player.Character
+                if char then
+                    for _, part in pairs(char:GetDescendants()) do
+                        if part:IsA("BasePart") and part.CanCollide then
+                            part.CanCollide = false
+                        end
+                    end
+                end
+            end)
+        end
+    else
+        if antiCollisionConnection then
+            antiCollisionConnection:Disconnect()
+            antiCollisionConnection = nil
+        end
+        local char = Player.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            char.HumanoidRootPart.CanCollide = true
+        end
+    end
+end
+
+-- Телепортация к точке
+local function moveTo(targetPos)
+    local char = Player.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then
+        return false
+    end
+    local root = char.HumanoidRootPart
+    local bodyVel = Instance.new("BodyVelocity")
+    bodyVel.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+    bodyVel.Parent = root
+    
+    local reached = false
+    while isFarming and not reached do
+        if not char or not char:FindFirstChild("HumanoidRootPart") then
+            break
+        end
+        local dist = (root.Position - targetPos).Magnitude
+        if dist <= 6 then
+            reached = true
+        else
+            local direction = (targetPos - root.Position).Unit
+            bodyVel.Velocity = direction * farmSpeed
+        end
+        task.wait(0.02)
+    end
+    if bodyVel then bodyVel:Destroy() end
+    return reached
+end
+
+-- Основной цикл фарма
+local function startFarming()
+    task.spawn(function()
+        while isFarming do
+            local worldPoints = farmPoints[selectedWorld]
+            local modePoints = worldPoints and worldPoints[selectedMode]
+            if modePoints and #modePoints > 0 then
+                setCollision(true)
+                
+                -- Особый случай для Bbnos World +50k cash
+                if selectedWorld == "Bbnos World" and selectedMode == "+50k cash" then
+                    local success, err = pcall(function()
+                        game:GetService("ReplicatedStorage").Remotes.RequestCheckpointTp:FireServer(12, "wins")
+                    end)
+                    if success then
+                        print("Ремоут на чекпоинт отправлен!")
+                    else
+                        warn("Ошибка ремоута: ", err)
+                    end
+                    task.wait(0.5)
+                end
+                
+                for i, point in ipairs(modePoints) do
+                    if not isFarming then break end
+                    moveTo(point)
+                    if selectedWorld == "Bbnos World" and selectedMode == "+50k cash" and i == #modePoints then
+                        task.wait(1)
+                    end
+                end
+            else
+                task.wait(1)
+            end
+            task.wait(0.1)
+        end
+        setCollision(false)
+        local char = Player.Character
+        if char and char:FindFirstChild("Humanoid") then
+            char.Humanoid.WalkSpeed = 16
+        end
+    end)
+end
+
+-- Бесконечный прыжок
+UserInputService.JumpRequest:Connect(function()
+    if infJumpEnabled then
+        local char = Player.Character
+        if char then
+            local humanoid = char:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end
+    end
+end)
+
+-- Полёт
+local function toggleFly(state)
+    flyEnabled = state
+    local char = Player.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then
+        return
+    end
+    local root = char.HumanoidRootPart
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    
+    if flyEnabled then
+        bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+        bodyVelocity.Parent = root
+        
+        bodyGyro = Instance.new("BodyGyro")
+        bodyGyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+        bodyGyro.P = 90000
+        bodyGyro.Parent = root
+        
+        if humanoid then
+            humanoid.PlatformStand = true
+        end
+        
+        flyConnection = RunService.RenderStepped:Connect(function()
+            local camera = workspace.CurrentCamera
+            if not humanoid or not root then return end
+            
+            local moveDir = humanoid.MoveDirection
+            if moveDir.Magnitude == 0 then
+                local dir = Vector3.new(0,0,0)
+                if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+                    dir = dir + camera.CFrame.LookVector
+                end
+                if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+                    dir = dir - camera.CFrame.LookVector
+                end
+                if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+                    dir = dir - camera.CFrame.RightVector
+                end
+                if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+                    dir = dir + camera.CFrame.RightVector
+                end
+                if dir.Magnitude > 0 then
+                    moveDir = dir.Unit
+                end
+            end
+            
+            if moveDir.Magnitude > 0 then
+                bodyVelocity.Velocity = moveDir * flySpeed
+            else
+                bodyVelocity.Velocity = Vector3.new(0,0,0)
+            end
+            bodyGyro.CFrame = camera.CFrame
+        end)
+    else
+        if bodyVelocity then bodyVelocity:Destroy() end
+        if bodyGyro then bodyGyro:Destroy() end
+        if flyConnection then flyConnection:Disconnect() end
+        if humanoid then
+            humanoid.PlatformStand = false
+        end
+    end
+end
+
+-- ===== GUI СОЗДАНИЕ =====
+local scale = 0.8
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FurdjeHub"
+screenGui.Parent = game:GetService("CoreGui")
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Тень
+local shadowFrame = Instance.new("Frame")
+shadowFrame.Name = "ShadowFrame"
+shadowFrame.Parent = screenGui
+shadowFrame.BackgroundColor3 = Color3.fromRGB(0,0,0)
+shadowFrame.AnchorPoint = Vector2.new(0.5,0.5)
+shadowFrame.Position = UDim2.new(0.5, 4, 0.5, 6)
+shadowFrame.Size = UDim2.new(0, 646, 0, 426)
+shadowFrame.BackgroundTransparency = 0.45
+shadowFrame.Visible = false
+Instance.new("UICorner", shadowFrame).CornerRadius = UDim.new(0, 16)
+local shadowScale = Instance.new("UIScale", shadowFrame)
+shadowScale.Scale = 0.3
+
+-- Главное окно
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Parent = screenGui
+mainFrame.BackgroundColor3 = Color3.fromRGB(11,11,16)
+mainFrame.BackgroundTransparency = 0.1
+mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
+mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+mainFrame.Size = UDim2.new(0, 640, 0, 420)
+mainFrame.BorderSizePixel = 0
+mainFrame.ClipsDescendants = false
+mainFrame.Visible = false
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 14)
+
+-- Фоновое изображение
+local bgImage = Instance.new("ImageLabel")
+bgImage.Name = "BackgroundImage"
+bgImage.Parent = mainFrame
+bgImage.BackgroundTransparency = 1
+bgImage.Size = UDim2.new(1, 0, 1, 0)
+bgImage.Image = "rbxassetid://121149051147413"
+bgImage.ScaleType = Enum.ScaleType.Crop
+bgImage.ImageTransparency = 0.35
+bgImage.ZIndex = 0
+Instance.new("UICorner", bgImage).CornerRadius = UDim.new(0, 14)
+
+local mainScale = Instance.new("UIScale", mainFrame)
+mainScale.Scale = 0.3
+
+local gradient = Instance.new("UIGradient")
+gradient.Rotation = 90
+gradient.Transparency = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 0.1),
+    NumberSequenceKeypoint.new(1, 0.5)
+})
+gradient.Parent = mainFrame
+
+local stroke = Instance.new("UIStroke")
+stroke.Parent = mainFrame
+stroke.Color = Color3.fromRGB(35,35,50)
+stroke.Thickness = 1.5
+
+-- Функция показа/скрытия GUI
+local function toggleGUI(forceState)
+    if forceState ~= nil then
+        isAdminUnlocked = forceState
+    else
+        isAdminUnlocked = not isAdminUnlocked
+    end
+    
+    if isAdminUnlocked then
+        mainFrame.Visible = true
+        shadowFrame.Visible = true
+        
+        local anim1 = accentColor:Create(mainScale, accentColor.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Scale = scale})
+        local anim2 = accentColor:Create(shadowScale, accentColor.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Scale = scale})
+        anim1:Play()
+        anim2:Play()
+    else
+        local anim1 = accentColor:Create(mainScale, accentColor.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Scale = 0.2})
+        local anim2 = accentColor:Create(shadowScale, accentColor.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Scale = 0.2})
+        anim2:Play()
+        anim1:Play()
+        anim1.Completed:Connect(function()
+            if not isAdminUnlocked then
+                mainFrame.Visible = false
+                shadowFrame.Visible = false
+            end
+        end)
+    end
+end
+
+-- Кнопка-переключатель (плавающая)
+local toggleBtn = Instance.new("Frame")
+toggleBtn.Name = "ToggleWidget"
+toggleBtn.Parent = screenGui
+toggleBtn.BackgroundColor3 = Color3.fromRGB(15,15,22)
+toggleBtn.BackgroundTransparency = 0.15
+toggleBtn.Position = UDim2.new(0.5, -80, 0.08, 0)
+toggleBtn.Size = UDim2.new(0, 160, 0, 44)
+toggleBtn.Visible = false
+Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 10)
+
+local toggleScale = Instance.new("UIScale", toggleBtn)
+toggleScale.Scale = 0.85
+
+local toggleStroke = Instance.new("UIStroke")
+toggleStroke.Parent = toggleBtn
+toggleStroke.Color = Color3.fromRGB(45,45,65)
+toggleStroke.Thickness = 1.5
+
+local toggleLabel = Instance.new("TextLabel")
+toggleLabel.Parent = toggleBtn
+toggleLabel.BackgroundTransparency = 1
+toggleLabel.Size = UDim2.new(1,0,1,0)
+toggleLabel.Font = Enum.Font.GothamBold
+toggleLabel.Text = "FurdjeHub"
+toggleLabel.TextColor3 = Color3.fromRGB(255,255,255)
+toggleLabel.TextSize = 17
+
+local toggleGradient = Instance.new("UIGradient")
+toggleGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, accentColor),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255,255,255))
+})
+toggleGradient.Parent = toggleLabel
+
+-- Drag для toggleBtn
+local isDragging = false
+local dragStart = nil
+local dragOffset = nil
+local clickTime = 0
+
+toggleBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDragging = true
+        dragStart = input.Position
+        dragOffset = toggleBtn.Position
+        clickTime = tick()
+    end
+end)
+
+toggleBtn.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragOffset = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragOffset and isDragging then
+        local delta = input.Position - dragStart
+        toggleBtn.Position = UDim2.new(dragOffset.X.Scale, dragOffset.X.Offset + delta.X, dragOffset.Y.Scale, dragOffset.Y.Offset + delta.Y)
+    end
+end)
+
+toggleBtn.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDragging = false
+        if tick() - clickTime < 0.25 then
+            toggleGUI()
+        end
+    end
+end)
+
+-- Выбор языка
+local langFrame = Instance.new("Frame")
+langFrame.Name = "LangFrame"
+langFrame.Parent = screenGui
+langFrame.BackgroundColor3 = Color3.fromRGB(12,12,18)
+langFrame.BackgroundTransparency = 0.15
+langFrame.AnchorPoint = Vector2.new(0.5,0.5)
+langFrame.Position = UDim2.new(0.5,0,0.5,0)
+langFrame.Size = UDim2.new(0, 380, 0, 230)
+langFrame.Visible = true
+Instance.new("UICorner", langFrame).CornerRadius = UDim.new(0, 14)
+Instance.new("UIStroke", langFrame).Color = Color3.fromRGB(45,45,60)
+
+local langScale = Instance.new("UIScale", langFrame)
+langScale.Scale = 0.8
+
+local langTitle = Instance.new("TextLabel")
+langTitle.Parent = langFrame
+langTitle.BackgroundTransparency = 1
+langTitle.Position = UDim2.new(0,0,0,25)
+langTitle.Size = UDim2.new(1,0,0,30)
+langTitle.Font = Enum.Font.GothamBold
+langTitle.Text = "Choose language / Выберите язык"
+langTitle.TextColor3 = Color3.fromRGB(255,255,255)
+langTitle.TextSize = 17
+
+local function createLangBtn(emoji, text, posX, langCode)
+    local btn = Instance.new("TextButton")
+    btn.Parent = langFrame
+    btn.BackgroundColor3 = Color3.fromRGB(20,20,28)
+    btn.BackgroundTransparency = 0.15
+    btn.Position = UDim2.new(0, posX, 0, 75)
+    btn.Size = UDim2.new(0, 110, 0, 110)
+    btn.Text = ""
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
+    Instance.new("UIStroke", btn).Color = Color3.fromRGB(45,45,65)
+    
+    local emojiLabel = Instance.new("TextLabel")
+    emojiLabel.Parent = btn
+    emojiLabel.BackgroundTransparency = 1
+    emojiLabel.Size = UDim2.new(1,0,1,0)
+    emojiLabel.Font = Enum.Font.Gotham
+    emojiLabel.Text = emoji
+    emojiLabel.TextSize = 55
+    
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Parent = btn
+    textLabel.BackgroundTransparency = 1
+    textLabel.Position = UDim2.new(0,0,1,10)
+    textLabel.Size = UDim2.new(1,0,0,20)
+    textLabel.Font = Enum.Font.GothamSemibold
+    textLabel.Text = text
+    textLabel.TextColor3 = Color3.fromRGB(200,200,220)
+    textLabel.TextSize = 15
+    
+    btn.MouseButton1Click:Connect(function()
+        currentLang = langCode
+        applyLanguage()
+        accentColor:Create(langScale, accentColor.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Scale = 0}):Play()
+        task.wait(0.2)
+        langFrame.Visible = false
+        toggleBtn.Visible = true
+        toggleGUI(true)
+    end)
+end
+
+createLangBtn("🇷🇺", "Русский", 65, "RU")
+createLangBtn("🇬🇧", "English", 205, "EN")
+
+-- Drag для главного окна
+local dragMainStart = nil
+local dragMainOffset = nil
+local isMainDragging = false
+
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isMainDragging = true
+        dragMainStart = input.Position
+        dragMainOffset = mainFrame.Position
+    end
+end)
+
+mainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragMainOffset = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragMainOffset and isMainDragging then
+        local delta = input.Position - dragMainStart
+        local newPos = UDim2.new(dragMainOffset.X.Scale, dragMainOffset.X.Offset + delta.X, dragMainOffset.Y.Scale, dragMainOffset.Y.Offset + delta.Y)
+        mainFrame.Position = newPos
+        shadowFrame.Position = UDim2.new(newPos.X.Scale, newPos.X.Offset + 4, newPos.Y.Scale, newPos.Y.Offset + 6)
+    end
+end)
+
+mainFrame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isMainDragging = false
+    end
+end)
+
+-- Кнопки управления окном
+local titleBarButtons = Instance.new("Frame")
+titleBarButtons.Parent = mainFrame
+titleBarButtons.BackgroundTransparency = 1
+titleBarButtons.Position = UDim2.new(1, -75, 0, 14)
+titleBarButtons.Size = UDim2.new(0, 65, 0, 26)
+titleBarButtons.ZIndex = 20
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Parent = titleBarButtons
+closeBtn.BackgroundColor3 = Color3.fromRGB(25,18,22)
+closeBtn.Position = UDim2.new(1, -26, 0, 0)
+closeBtn.Size = UDim2.new(0, 26, 0, 26)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.Text = "✕"
+closeBtn.TextColor3 = Color3.fromRGB(250,80,80)
+closeBtn.TextSize = 18
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
+
+closeBtn.MouseButton1Click:Connect(function()
+    isFarming = false
+    setCollision(false)
+    if objectRemoverConnection then objectRemoverConnection:Disconnect() end
+    if flyConnection then toggleFly(false) end
+    if antiCollisionConnection then antiCollisionConnection:Disconnect() end
+    if checkModelConnection then checkModelConnection:Disconnect() end
+    toggleGUI(false)
+    task.wait(0.3)
+    screenGui:Destroy()
+end)
+
+local minimizeBtn = Instance.new("TextButton")
+minimizeBtn.Parent = titleBarButtons
+minimizeBtn.BackgroundColor3 = Color3.fromRGB(18,18,26)
+minimizeBtn.Position = UDim2.new(1, -58, 0, 0)
+minimizeBtn.Size = UDim2.new(0, 26, 0, 26)
+minimizeBtn.Font = Enum.Font.GothamBold
+minimizeBtn.Text = "−"
+minimizeBtn.TextColor3 = Color3.fromRGB(160,160,180)
+minimizeBtn.TextSize = 18
+Instance.new("UICorner", minimizeBtn).CornerRadius = UDim.new(0, 6)
+
+local isMinimized = false
+minimizeBtn.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        accentColor:Create(mainFrame, accentColor.new(0.35, Enum.EasingStyle.Quart), {Size = UDim2.new(0, 640, 0, 52)}):Play()
+        accentColor:Create(shadowFrame, accentColor.new(0.35, Enum.EasingStyle.Quart), {Size = UDim2.new(0, 646, 0, 58)}):Play()
+        minimizeBtn.Text = "+"
+    else
+        accentColor:Create(mainFrame, accentColor.new(0.35, Enum.EasingStyle.Quart), {Size = UDim2.new(0, 640, 0, 420)}):Play()
+        accentColor:Create(shadowFrame, accentColor.new(0.35, Enum.EasingStyle.Quart), {Size = UDim2.new(0, 646, 0, 426)}):Play()
+        minimizeBtn.Text = "−"
+    end
+end)
+
+-- Боковая панель
+local sidePanel = Instance.new("Frame")
+sidePanel.Parent = mainFrame
+sidePanel.BackgroundColor3 = Color3.fromRGB(15,15,22)
+sidePanel.BackgroundTransparency = 0.1
+sidePanel.Size = UDim2.new(0, 170, 1, 0)
+sidePanel.BorderSizePixel = 0
+Instance.new("UICorner", sidePanel).CornerRadius = UDim.new(0, 14)
+
+local sideGradient = Instance.new("UIGradient")
+sideGradient.Rotation = 90
+sideGradient.Transparency = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 0),
+    NumberSequenceKeypoint.new(1, 0.4)
+})
+sideGradient.Parent = sidePanel
+
+local sideShadow = Instance.new("Frame")
+sideShadow.Parent = sidePanel
+sideShadow.BackgroundColor3 = Color3.fromRGB(15,15,22)
+sideShadow.BackgroundTransparency = 0.1
+sideShadow.Position = UDim2.new(1, -12, 0, 0)
+sideShadow.Size = UDim2.new(0, 12, 1, 0)
+sideShadow.BorderSizePixel = 0
+
+local sideShadowGradient = Instance.new("UIGradient")
+sideShadowGradient.Rotation = 90
+sideShadowGradient.Transparency = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 0),
+    NumberSequenceKeypoint.new(1, 0.4)
+})
+sideShadowGradient.Parent = sideShadow
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Parent = sidePanel
+titleLabel.BackgroundTransparency = 1
+titleLabel.Position = UDim2.new(0,0,0,16)
+titleLabel.Size = UDim2.new(1,0,0,26)
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.Text = "FurdjeHub"
+titleLabel.TextColor3 = Color3.fromRGB(255,255,255)
+titleLabel.TextSize = 20
+
+local titleGradient = Instance.new("UIGradient")
+titleGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, accentColor),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255,255,255))
+})
+titleGradient.Parent = titleLabel
+
+local divider = Instance.new("Frame")
+divider.Parent = sidePanel
+divider.BackgroundColor3 = Color3.fromRGB(255,255,255)
+divider.Position = UDim2.new(0.1,0,0,52)
+divider.Size = UDim2.new(0.8,0,0,1)
+
+local dividerGradient = Instance.new("UIGradient")
+dividerGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(25,25,35)),
+    ColorSequenceKeypoint.new(0.5, accentColor),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(25,25,35))
+})
+dividerGradient.Parent = divider
+
+local sideButtonsContainer = Instance.new("Frame")
+sideButtonsContainer.Parent = sidePanel
+sideButtonsContainer.BackgroundTransparency = 1
+sideButtonsContainer.Position = UDim2.new(0, 12, 0, 72)
+sideButtonsContainer.Size = UDim2.new(1, -24, 1, -85)
+
+local sideLayout = Instance.new("UIListLayout")
+sideLayout.Parent = sideButtonsContainer
+sideLayout.SortOrder = Enum.SortOrder.LayoutOrder
+sideLayout.Padding = UDim.new(0, 10)
+
+-- Контейнеры для вкладок
+local contentContainer = Instance.new("Frame")
+contentContainer.Parent = mainFrame
+contentContainer.BackgroundTransparency = 1
+contentContainer.ClipsDescendants = false
+contentContainer.Position = UDim2.new(0, 185, 0, 15)
+contentContainer.Size = UDim2.new(1, -200, 1, -30)
+
+local tabFrames = {}
+local tabButtons = {}
+
+-- Создание вкладки
+local function createTab(name, page)
+    local btn = Instance.new("TextButton")
+    btn.Parent = sideButtonsContainer
+    btn.BackgroundColor3 = Color3.fromRGB(20,20,28)
+    btn.BackgroundTransparency = 0.15
+    btn.Size = UDim2.new(1,0,0,40)
+    btn.Font = Enum.Font.GothamSemibold
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(150,150,170)
+    btn.TextSize = 14
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+    
+    btn.MouseButton1Click:Connect(function()
+        for _, b in pairs(tabButtons) do
+            accentColor:Create(b, accentColor.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(20,20,28),
+                TextColor3 = Color3.fromRGB(150,150,170)
+            }):Play()
+        end
+        accentColor:Create(btn, accentColor.new(0.2), {
+            BackgroundColor3 = accentColor,
+            TextColor3 = Color3.fromRGB(255,255,255)
+        }):Play()
+        
+        for _, frame in pairs(tabFrames) do
+            frame.Visible = false
+        end
+        page.Visible = true
+    end)
+    
+    table.insert(tabButtons, btn)
+    return btn
+end
+
+-- Создание страниц
+local autoFarmPage = Instance.new("Frame")
+autoFarmPage.Parent = contentContainer
+autoFarmPage.BackgroundTransparency = 1
+autoFarmPage.ClipsDescendants = false
+autoFarmPage.Size = UDim2.new(1,0,1,0)
+autoFarmPage.Visible = true
+
+local movementPage = Instance.new("Frame")
+movementPage.Parent = contentContainer
+movementPage.BackgroundTransparency = 1
+movementPage.Size = UDim2.new(1,0,1,0)
+movementPage.Visible = false
+
+local themePage = Instance.new("Frame")
+themePage.Parent = contentContainer
+themePage.BackgroundTransparency = 1
+themePage.Size = UDim2.new(1,0,1,0)
+themePage.Visible = false
+
+local adminPage = Instance.new("Frame")
+adminPage.Parent = contentContainer
+adminPage.BackgroundTransparency = 1
+adminPage.Size = UDim2.new(1,0,1,0)
+adminPage.Visible = false
+
+local cfgPage = Instance.new("Frame")
+cfgPage.Parent = contentContainer
+cfgPage.BackgroundTransparency = 1
+cfgPage.Size = UDim2.new(1,0,1,0)
+cfgPage.Visible = false
+
+tabFrames = {autoFarmPage, movementPage, themePage, adminPage, cfgPage}
+
+-- Создание кнопок вкладок
+local btnAutoFarm = createTab("AutoFarm", autoFarmPage)
+local btnMovement = createTab("Moovement", movementPage)
+local btnTheme = createTab("Theme", themePage)
+local btnAdmin = createTab("AdminPanel", adminPage)
+
+btnAutoFarm.BackgroundColor3 = accentColor
+btnAutoFarm.TextColor3 = Color3.fromRGB(255,255,255)
+
+-- ===== ВКЛАДКА AUTO FARM =====
+local autoFarmContainer = Instance.new("Frame")
+autoFarmContainer.Parent = autoFarmPage
+autoFarmContainer.BackgroundTransparency = 1
+autoFarmContainer.Size = UDim2.new(0.96, 0, 1, 0)
+
+local worldLabel = Instance.new("TextLabel")
+worldLabel.Parent = autoFarmContainer
+worldLabel.BackgroundTransparency = 1
+worldLabel.Size = UDim2.new(1,0,0,20)
+worldLabel.Font = Enum.Font.GothamSemibold
+worldLabel.TextColor3 = Color3.fromRGB(200,200,220)
+worldLabel.TextSize = 14
+worldLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Выбор мира
+local worldSelectFrame = Instance.new("Frame")
+worldSelectFrame.Parent = autoFarmContainer
+worldSelectFrame.BackgroundColor3 = Color3.fromRGB(16,16,23)
+worldSelectFrame.BackgroundTransparency = 0.15
+worldSelectFrame.Position = UDim2.new(0,0,0,26)
+worldSelectFrame.Size = UDim2.new(1,0,0,44)
+Instance.new("UICorner", worldSelectFrame).CornerRadius = UDim.new(0, 10)
+
+local worldButtons = {}
+local function createWorldButton(text, posX, widthScale, isFirst)
+    local btn = Instance.new("TextButton")
+    btn.Parent = worldSelectFrame
+    btn.BackgroundTransparency = 1
+    btn.Position = UDim2.new(posX, 3, 0, 3)
+    btn.Size = UDim2.new(widthScale, -6, 1, -6)
+    btn.Font = Enum.Font.GothamBold
+    btn.Text = text
+    btn.TextColor3 = (isFirst and Color3.fromRGB(255,255,255)) or Color3.fromRGB(140,140,160)
+    btn.TextSize = 14
+    if isFirst then
+        btn.BackgroundTransparency = 0.15
+        btn.BackgroundColor3 = Color3.fromRGB(30,30,42)
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    end
+    
+    btn.MouseButton1Click:Connect(function()
+        selectedWorld = text
+        worldLabel.Text = string.format(T("WorldLabel"), text)
+        if text == "Bbnos World" then
+            warningLabel.Visible = true
+        else
+            warningLabel.Visible = false
+        end
+        for _, b in pairs(worldButtons) do
+            b.BackgroundTransparency = 1
+            b.TextColor3 = Color3.fromRGB(140,140,160)
+        end
+        btn.BackgroundTransparency = 0.15
+        btn.BackgroundColor3 = Color3.fromRGB(30,30,42)
+        btn.TextColor3 = Color3.fromRGB(255,255,255)
+        updateModeList()
+        
+        local maxSpeed = 110
+        if selectedWorld == "2 World" then maxSpeed = 190
+        elseif selectedWorld == "Bbnos World" then maxSpeed = 300 end
+        if farmSpeed > maxSpeed then farmSpeed = maxSpeed end
+        speedLabel.Text = string.format(T("SpeedLabel"), farmSpeed)
+        accentColor:Create(speedBarFill, accentColor.new(0.2), {Size = UDim2.new(farmSpeed/maxSpeed, 0, 1, 0)}):Play()
+    end)
+    table.insert(worldButtons, btn)
+    return btn
+end
+
+createWorldButton("1 World", 0, 0.25, true)
+createWorldButton("2 World", 0.25, 0.25, false)
+createWorldButton("3 World", 0.5, 0.25, false)
+createWorldButton("Bbnos World", 0.75, 0.25, false)
+
+-- Предупреждение для Bbnos
+local warningLabel = Instance.new("TextLabel")
+warningLabel.Parent = autoFarmContainer
+warningLabel.BackgroundTransparency = 1
+warningLabel.Position = UDim2.new(0,0,0,310)
+warningLabel.Size = UDim2.new(1,0,0,50)
+warningLabel.Font = Enum.Font.GothamSemibold
+warningLabel.Text = "Чтобы использовать +50k cash фарм, нужно сначала нафармить 50k денег, иначе функция не будет работать"
+warningLabel.TextColor3 = Color3.fromRGB(240,80,80)
+warningLabel.TextSize = 11
+warningLabel.TextWrapped = true
+warningLabel.Visible = false
+
+-- Кнопка автофарма
+local farmToggleFrame = Instance.new("Frame")
+farmToggleFrame.Parent = autoFarmContainer
+farmToggleFrame.BackgroundColor3 = Color3.fromRGB(16,16,23)
+farmToggleFrame.BackgroundTransparency = 0.15
+farmToggleFrame.Position = UDim2.new(0,0,0,82)
+farmToggleFrame.Size = UDim2.new(1,0,0,56)
+Instance.new("UICorner", farmToggleFrame).CornerRadius = UDim.new(0, 10)
+
+local farmToggleLabel = Instance.new("TextLabel")
+farmToggleLabel.Parent = farmToggleFrame
+farmToggleLabel.BackgroundTransparency = 1
+farmToggleLabel.Position = UDim2.new(0,16,0,0)
+farmToggleLabel.Size = UDim2.new(0.7,0,1,0)
+farmToggleLabel.Font = Enum.Font.GothamBold
+farmToggleLabel.TextColor3 = Color3.fromRGB(255,255,255)
+farmToggleLabel.TextSize = 15
+farmToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local farmToggleBtn = Instance.new("TextButton")
+farmToggleBtn.Parent = farmToggleFrame
+farmToggleBtn.BackgroundColor3 = Color3.fromRGB(40,40,55)
+farmToggleBtn.Position = UDim2.new(1, -65, 0.5, -14)
+farmToggleBtn.Size = UDim2.new(0, 50, 0, 28)
+farmToggleBtn.Text = ""
+Instance.new("UICorner", farmToggleBtn).CornerRadius = UDim.new(0, 14)
+
+local farmToggleDot = Instance.new("Frame")
+farmToggleDot.Parent = farmToggleBtn
+farmToggleDot.BackgroundColor3 = Color3.fromRGB(255,255,255)
+farmToggleDot.Position = UDim2.new(0, 3, 0.5, -11)
+farmToggleDot.Size = UDim2.new(0, 22, 0, 22)
+Instance.new("UICorner", farmToggleDot).CornerRadius = UDim.new(0, 11)
+
+farmToggleBtn.MouseButton1Click:Connect(function()
+    if not selectedMode then
+        showNotification("⚠️ Сначала выберите режим фарма!", Color3.fromRGB(200,150,40))
+        return
+    end
+    isFarming = not isFarming
+    if isFarming then
+        accentColor:Create(farmToggleBtn, accentColor.new(0.2), {BackgroundColor3 = Color3.fromRGB(34,197,94)}):Play()
+        accentColor:Create(farmToggleDot, accentColor.new(0.2), {Position = UDim2.new(0, 25, 0.5, -11)}):Play()
+        startFarming()
+    else
+        accentColor:Create(farmToggleBtn, accentColor.new(0.2), {BackgroundColor3 = Color3.fromRGB(40,40,55)}):Play()
+        accentColor:Create(farmToggleDot, accentColor.new(0.2), {Position = UDim2.new(0, 3, 0.5, -11)}):Play()
+        setCollision(false)
+    end
+end)
+
+-- Регулятор скорости
+local speedFrame = Instance.new("Frame")
+speedFrame.Parent = autoFarmContainer
+speedFrame.BackgroundColor3 = Color3.fromRGB(16,16,23)
+speedFrame.BackgroundTransparency = 0.15
+speedFrame.Position = UDim2.new(0,0,0,150)
+speedFrame.Size = UDim2.new(1,0,0,68)
+Instance.new("UICorner", speedFrame).CornerRadius = UDim.new(0, 10)
+
+local speedLabel = Instance.new("TextLabel")
+speedLabel.Parent = speedFrame
+speedLabel.BackgroundTransparency = 1
+speedLabel.Position = UDim2.new(0,16,0,8)
+speedLabel.Size = UDim2.new(1,-32,0,20)
+speedLabel.Font = Enum.Font.GothamSemibold
+speedLabel.TextColor3 = Color3.fromRGB(200,200,220)
+speedLabel.TextSize = 13
+speedLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local speedSlider = Instance.new("TextButton")
+speedSlider.Parent = speedFrame
+speedSlider.BackgroundColor3 = Color3.fromRGB(32,32,45)
+speedSlider.Position = UDim2.new(0,16,0,36)
+speedSlider.Size = UDim2.new(1,-32,0,16)
+speedSlider.Text = ""
+Instance.new("UICorner", speedSlider).CornerRadius = UDim.new(0, 8)
+
+local speedBarFill = Instance.new("Frame")
+speedBarFill.Parent = speedSlider
+speedBarFill.BackgroundColor3 = accentColor
+speedBarFill.Size = UDim2.new(1,0,1,0)
+Instance.new("UICorner", speedBarFill).CornerRadius = UDim.new(0, 8)
+
+local isSliding = false
+local function updateSpeed(input)
+    local maxSpeed = 110
+    if selectedWorld == "2 World" then maxSpeed = 190
+    elseif selectedWorld == "Bbnos World" then maxSpeed = 300 end
+    
+    local percent = math.clamp((input.Position.X - speedSlider.AbsolutePosition.X) / speedSlider.AbsoluteSize.X, 0, 1)
+    farmSpeed = math.floor(percent * maxSpeed)
+    speedLabel.Text = string.format(T("SpeedLabel"), farmSpeed)
+    accentColor:Create(speedBarFill, accentColor.new(0.05), {Size = UDim2.new(percent, 0, 1, 0)}):Play()
+end
+
+speedSlider.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isSliding = true
+        updateSpeed(input)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if isSliding and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        updateSpeed(input)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isSliding = false
+    end
+end)
+
+-- Выбор режима фарма
+local modeSelectLabel = Instance.new("TextLabel")
+modeSelectLabel.Parent = autoFarmContainer
+modeSelectLabel.BackgroundTransparency = 1
+modeSelectLabel.Position = UDim2.new(0,0,0,230)
+modeSelectLabel.Size = UDim2.new(1,0,0,20)
+modeSelectLabel.Font = Enum.Font.GothamSemibold
+modeSelectLabel.TextColor3 = Color3.fromRGB(200,200,220)
+modeSelectLabel.TextSize = 14
+modeSelectLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local modeSelectBtn = Instance.new("TextButton")
+modeSelectBtn.Parent = autoFarmContainer
+modeSelectBtn.BackgroundColor3 = Color3.fromRGB(16,16,23)
+modeSelectBtn.BackgroundTransparency = 0.15
+modeSelectBtn.Position = UDim2.new(0,0,0,256)
+modeSelectBtn.Size = UDim2.new(1,0,0,46)
+modeSelectBtn.Font = Enum.Font.GothamBold
+modeSelectBtn.TextColor3 = Color3.fromRGB(255,255,255)
+modeSelectBtn.TextSize = 14
+modeSelectBtn.TextXAlignment = Enum.TextXAlignment.Left
+modeSelectBtn.ZIndex = 10
+Instance.new("UICorner", modeSelectBtn).CornerRadius = UDim.new(0, 10)
+
+local modeListFrame = Instance.new("ScrollingFrame")
+modeListFrame.Parent = autoFarmContainer
+modeListFrame.BackgroundColor3 = Color3.fromRGB(14,14,20)
+modeListFrame.BackgroundTransparency = 0.1
+modeListFrame.Position = UDim2.new(0,0,0,308)
+modeListFrame.Size = UDim2.new(1,0,0,120)
+modeListFrame.Visible = false
+modeListFrame.ZIndex = 50
+modeListFrame.CanvasSize = UDim2.new(0,0,0,0)
+modeListFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+modeListFrame.ScrollBarThickness = 4
+modeListFrame.BorderSizePixel = 0
+Instance.new("UICorner", modeListFrame).CornerRadius = UDim.new(0, 10)
+Instance.new("UIStroke", modeListFrame).Color = Color3.fromRGB(45,45,60)
+
+local modeListLayout = Instance.new("UIListLayout")
+modeListLayout.Parent = modeListFrame
+modeListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+modeListLayout.Padding = UDim.new(0, 5)
+
+local modePadding = Instance.new("UIPadding")
+modePadding.Parent = modeListFrame
+modePadding.PaddingTop = UDim.new(0, 6)
+modePadding.PaddingLeft = UDim.new(0, 6)
+modePadding.PaddingRight = UDim.new(0, 6)
+modePadding.PaddingBottom = UDim.new(0, 6)
+
+modeSelectBtn.MouseButton1Click:Connect(function()
+    modeListFrame.Visible = not modeListFrame.Visible
+end)
+
+local function updateModeList()
+    for _, child in pairs(modeListFrame:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+    
+    local modes = {}
+    if farmPoints[selectedWorld] then
+        for modeName, _ in pairs(farmPoints[selectedWorld]) do
+            table.insert(modes, modeName)
+        end
+        table.sort(modes, function(a, b)
+            return (modeOrder[a] or 99) < (modeOrder[b] or 99)
+        end)
+    end
+    
+    if #modes == 0 then
+        modeSelectBtn.Text = "   " .. T("NoPoints") .. " ▼"
+        selectedMode = nil
+        return
+    end
+    
+    for _, modeName in pairs(modes) do
+        local btn = Instance.new("TextButton")
+        btn.Parent = modeListFrame
+        btn.BackgroundColor3 = Color3.fromRGB(22,22,30)
+        btn.BackgroundTransparency = 0.15
+        btn.Size = UDim2.new(1,0,0,36)
+        btn.Font = Enum.Font.GothamSemibold
+        btn.Text = "            " .. modeName
+        btn.TextColor3 = Color3.fromRGB(200,200,220)
+        btn.TextSize = 14
+        btn.TextXAlignment = Enum.TextXAlignment.Left
+        btn.ZIndex = 51
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+        
+        local icon = Instance.new("ImageLabel")
+        icon.Parent = btn
+        icon.BackgroundTransparency = 1
+        icon.Position = UDim2.new(0, 10, 0.5, -12)
+        icon.Size = UDim2.new(0, 24, 0, 24)
+        icon.Image = "rbxassetid://85025550755267"
+        icon.ScaleType = Enum.ScaleType.Fit
+        icon.ZIndex = 52
+        
+        btn.MouseButton1Click:Connect(function()
+            selectedMode = modeName
+            modeSelectBtn.Text = "   " .. modeName .. " ▼"
+            modeListFrame.Visible = false
+        end)
+    end
+    selectedMode = modes[1]
+    modeSelectBtn.Text = "   " .. selectedMode .. " ▼"
+end
+updateModeList()
+
+-- ===== ВКЛАДКА MOVEMENT =====
+local movementContainer = Instance.new("ScrollingFrame")
+movementContainer.Parent = movementPage
+movementContainer.BackgroundTransparency = 1
+movementContainer.Size = UDim2.new(1,0,1,0)
+movementContainer.ScrollBarThickness = 0
+movementContainer.CanvasSize = UDim2.new(0,0,0,230)
+
+-- Infinity Jump
+local jumpFrame = Instance.new("Frame")
+jumpFrame.Parent = movementContainer
+jumpFrame.BackgroundColor3 = Color3.fromRGB(16,16,23)
+jumpFrame.BackgroundTransparency = 0.15
+jumpFrame.Position = UDim2.new(0,0,0,10)
+jumpFrame.Size = UDim2.new(0.96,0,0,56)
+Instance.new("UICorner", jumpFrame).CornerRadius = UDim.new(0, 10)
+
+local jumpLabel = Instance.new("TextLabel")
+jumpLabel.Parent = jumpFrame
+jumpLabel.BackgroundTransparency = 1
+jumpLabel.Position = UDim2.new(0,16,0,0)
+jumpLabel.Size = UDim2.new(0.7,0,1,0)
+jumpLabel.Font = Enum.Font.GothamBold
+jumpLabel.TextColor3 = Color3.fromRGB(255,255,255)
+jumpLabel.TextSize = 15
+jumpLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local jumpToggle = Instance.new("TextButton")
+jumpToggle.Parent = jumpFrame
+jumpToggle.BackgroundColor3 = Color3.fromRGB(40,40,55)
+jumpToggle.Position = UDim2.new(1, -65, 0.5, -14)
+jumpToggle.Size = UDim2.new(0, 50, 0, 28)
+jumpToggle.Text = ""
+Instance.new("UICorner", jumpToggle).CornerRadius = UDim.new(0, 14)
+
+local jumpDot = Instance.new("Frame")
+jumpDot.Parent = jumpToggle
+jumpDot.BackgroundColor3 = Color3.fromRGB(255,255,255)
+jumpDot.Position = UDim2.new(0, 3, 0.5, -11)
+jumpDot.Size = UDim2.new(0, 22, 0, 22)
+Instance.new("UICorner", jumpDot).CornerRadius = UDim.new(0, 11)
+
+jumpToggle.MouseButton1Click:Connect(function()
+    infJumpEnabled = not infJumpEnabled
+    if infJumpEnabled then
+        accentColor:Create(jumpToggle, accentColor.new(0.2), {BackgroundColor3 = Color3.fromRGB(34,197,94)}):Play()
+        accentColor:Create(jumpDot, accentColor.new(0.2), {Position = UDim2.new(0, 25, 0.5, -11)}):Play()
+    else
+        accentColor:Create(jumpToggle, accentColor.new(0.2), {BackgroundColor3 = Color3.fromRGB(40,40,55)}):Play()
+        accentColor:Create(jumpDot, accentColor.new(0.2), {Position = UDim2.new(0, 3, 0.5, -11)}):Play()
+    end
+end)
+
+-- Fly
+local flyFrame = Instance.new("Frame")
+flyFrame.Parent = movementContainer
+flyFrame.BackgroundColor3 = Color3.fromRGB(16,16,23)
+flyFrame.BackgroundTransparency = 0.15
+flyFrame.Position = UDim2.new(0,0,0,78)
+flyFrame.Size = UDim2.new(0.96,0,0,56)
+Instance.new("UICorner", flyFrame).CornerRadius = UDim.new(0, 10)
+
+local flyLabel = Instance.new("TextLabel")
+flyLabel.Parent = flyFrame
+flyLabel.BackgroundTransparency = 1
+flyLabel.Position = UDim2.new(0,16,0,0)
+flyLabel.Size = UDim2.new(0.7,0,1,0)
+flyLabel.Font = Enum.Font.GothamBold
+flyLabel.TextColor3 = Color3.fromRGB(255,255,255)
+flyLabel.TextSize = 15
+flyLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local flyToggle = Instance.new("TextButton")
+flyToggle.Parent = flyFrame
+flyToggle.BackgroundColor3 = Color3.fromRGB(40,40,55)
+flyToggle.Position = UDim2.new(1, -65, 0.5, -14)
+flyToggle.Size = UDim2.new(0, 50, 0, 28)
+flyToggle.Text = ""
+Instance.new("UICorner", flyToggle).CornerRadius = UDim.new(0, 14)
+
+local flyDot = Instance.new("Frame")
+flyDot.Parent = flyToggle
+flyDot.BackgroundColor3 = Color3.fromRGB(255,255,255)
+flyDot.Position = UDim2.new(0, 3, 0.5, -11)
+flyDot.Size = UDim2.new(0, 22, 0, 22)
+Instance.new("UICorner", flyDot).CornerRadius = UDim.new(0, 11)
+
+flyToggle.MouseButton1Click:Connect(function()
+    flyEnabled = not flyEnabled
+    if flyEnabled then
+        accentColor:Create(flyToggle, accentColor.new(0.2), {BackgroundColor3 = Color3.fromRGB(34,197,94)}):Play()
+        accentColor:Create(flyDot, accentColor.new(0.2), {Position = UDim2.new(0, 25, 0.5, -11)}):Play()
+        toggleFly(true)
+    else
+        accentColor:Create(flyToggle, accentColor.new(0.2), {BackgroundColor3 = Color3.fromRGB(40,40,55)}):Play()
+        accentColor:Create(flyDot, accentColor.new(0.2), {Position = UDim2.new(0, 3, 0.5, -11)}):Play()
+        toggleFly(false)
+    end
+end)
+
+-- Fly Speed
+local flySpeedFrame = Instance.new("Frame")
+flySpeedFrame.Parent = movementContainer
+flySpeedFrame.BackgroundColor3 = Color3.fromRGB(16,16,23)
+flySpeedFrame.BackgroundTransparency = 0.15
+flySpeedFrame.Position = UDim2.new(0,0,0,148)
+flySpeedFrame.Size = UDim2.new(0.96,0,0,68)
+Instance.new("UICorner", flySpeedFrame).CornerRadius = UDim.new(0, 10)
+
+local flySpeedLabel = Instance.new("TextLabel")
+flySpeedLabel.Parent = flySpeedFrame
+flySpeedLabel.BackgroundTransparency = 1
+flySpeedLabel.Position = UDim2.new(0,16,0,8)
+flySpeedLabel.Size = UDim2.new(1,-32,0,20)
+flySpeedLabel.Font = Enum.Font.GothamSemibold
+flySpeedLabel.TextColor3 = Color3.fromRGB(200,200,220)
+flySpeedLabel.TextSize = 13
+flySpeedLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local flySpeedSlider = Instance.new("TextButton")
+flySpeedSlider.Parent = flySpeedFrame
+flySpeedSlider.BackgroundColor3 = Color3.fromRGB(32,32,45)
+flySpeedSlider.Position = UDim2.new(0,16,0,36)
+flySpeedSlider.Size = UDim2.new(1,-32,0,16)
+flySpeedSlider.Text = ""
+Instance.new("UICorner", flySpeedSlider).CornerRadius = UDim.new(0, 8)
+
+local flySpeedBar = Instance.new("Frame")
+flySpeedBar.Parent = flySpeedSlider
+flySpeedBar.BackgroundColor3 = accentColor
+flySpeedBar.Size = UDim2.new(flySpeed/300,0,1,0)
+Instance.new("UICorner", flySpeedBar).CornerRadius = UDim.new(0, 8)
+
+local isFlySliding = false
+local function updateFlySpeed(input)
+    local percent = math.clamp((input.Position.X - flySpeedSlider.AbsolutePosition.X) / flySpeedSlider.AbsoluteSize.X, 0, 1)
+    flySpeed = math.floor(percent * 300)
+    flySpeedLabel.Text = string.format(T("FlySpeedLabel"), flySpeed)
+    accentColor:Create(flySpeedBar, accentColor.new(0.05), {Size = UDim2.new(percent, 0, 1, 0)}):Play()
+end
+
+flySpeedSlider.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isFlySliding = true
+        updateFlySpeed(input)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if isFlySliding and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        updateFlySpeed(input)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isFlySliding = false
+    end
+end)
+
+movementContainer.CanvasSize = UDim2.new(0,0,0,230)
+
+-- ===== ВКЛАДКА THEME =====
+local themeContainer = Instance.new("ScrollingFrame")
+themeContainer.Parent = themePage
+themeContainer.BackgroundTransparency = 1
+themeContainer.Size = UDim2.new(1,0,1,0)
+themeContainer.ScrollBarThickness = 0
+
+local themeLayout = Instance.new("UIListLayout")
+themeLayout.Parent = themeContainer
+themeLayout.SortOrder = Enum.SortOrder.LayoutOrder
+themeLayout.Padding = UDim.new(0, 10)
+
+local themeTitle = Instance.new("TextLabel")
+themeTitle.Parent = themeContainer
+themeTitle.BackgroundTransparency = 1
+themeTitle.Size = UDim2.new(1,0,0,32)
+themeTitle.Font = Enum.Font.GothamBold
+themeTitle.TextColor3 = Color3.fromRGB(255,255,255)
+themeTitle.TextSize = 16
+themeTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local function createThemeOption(color1, color2)
+    local btn = Instance.new("TextButton")
+    btn.Parent = themeContainer
+    btn.BackgroundColor3 = Color3.fromRGB(16,16,23)
+    btn.BackgroundTransparency = 0.15
+    btn.Size = UDim2.new(1, -10, 0, 52)
+    btn.Text = ""
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+    
+    local colorBox = Instance.new("Frame")
+    colorBox.Parent = btn
+    colorBox.Size = UDim2.new(0, 26, 0, 26)
+    colorBox.Position = UDim2.new(0, 16, 0.5, -13)
+    Instance.new("UICorner", colorBox).CornerRadius = UDim.new(1, 0)
+    
+    local colorGradient = Instance.new("UIGradient")
+    colorGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, color1),
+        ColorSequenceKeypoint.new(1, color2)
+    })
+    colorGradient.Parent = colorBox
+    
+    local label = Instance.new("TextLabel")
+    label.Parent = btn
+    label.BackgroundTransparency = 1
+    label.Position = UDim2.new(0, 56, 0, 0)
+    label.Size = UDim2.new(1, -70, 1, 0)
+    label.Font = Enum.Font.GothamSemibold
+    label.TextColor3 = Color3.fromRGB(190,190,210)
+    label.TextSize = 15
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    
+    btn.MouseButton1Click:Connect(function()
+        accentColor = color1
+        titleGradient.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, color1),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(255,255,255))
+        })
+        toggleGradient.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, color1),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(255,255,255))
+        })
+        dividerGradient.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(25,25,35)),
+            ColorSequenceKeypoint.new(0.5, color1),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(25,25,35))
+        })
+        for _, btn in pairs(tabButtons) do
+            if btn.BackgroundColor3 ~= Color3.fromRGB(20,20,28) then
+                accentColor:Create(btn, accentColor.new(0.3), {BackgroundColor3 = color1}):Play()
+            end
+        end
+        updateColors(color1)
+    end)
+end
+
+createThemeOption(Color3.fromRGB(0,150,255), Color3.fromRGB(0,70,200))
+createThemeOption(Color3.fromRGB(168,85,247), Color3.fromRGB(100,30,180))
+createThemeOption(Color3.fromRGB(34,197,94), Color3.fromRGB(20,100,50))
+createThemeOption(Color3.fromRGB(236,72,153), Color3.fromRGB(150,20,80))
+createThemeOption(Color3.fromRGB(245,158,11), Color3.fromRGB(160,80,0))
+createThemeOption(Color3.fromRGB(220,220,230), Color3.fromRGB(100,100,110))
+
+themeContainer.CanvasSize = UDim2.new(0,0,0,themeLayout.AbsoluteContentSize.Y + 40)
+
+-- ===== ВКЛАДКА ADMIN PANEL =====
+local adminContainer = Instance.new("Frame")
+adminContainer.Parent = adminPage
+adminContainer.BackgroundTransparency = 1
+adminContainer.Position = UDim2.new(0,20,0,20)
+adminContainer.Size = UDim2.new(1,-40,0,240)
+
+local adminTitle = Instance.new("TextLabel")
+adminTitle.Parent = adminContainer
+adminTitle.BackgroundTransparency = 1
+adminTitle.Size = UDim2.new(1,0,0,34)
+adminTitle.Font = Enum.Font.GothamBold
+adminTitle.Text = "[!] FURDJEHUB"
+adminTitle.TextColor3 = Color3.fromRGB(255,80,80)
+adminTitle.TextSize = 18
+
+local keyBox = Instance.new("TextBox")
+keyBox.Parent = adminContainer
+keyBox.BackgroundColor3 = Color3.fromRGB(16,16,23)
+keyBox.BackgroundTransparency = 0.15
+keyBox.Position = UDim2.new(0,0,0,55)
+keyBox.Size = UDim2.new(1,0,0,50)
+keyBox.Font = Enum.Font.GothamSemibold
+keyBox.Text = ""
+keyBox.TextColor3 = Color3.fromRGB(255,255,255)
+keyBox.TextSize = 16
+keyBox.ClearTextOnFocus = false
+Instance.new("UICorner", keyBox).CornerRadius = UDim.new(0, 10)
+
+local unlockBtn = Instance.new("TextButton")
+unlockBtn.Parent = adminContainer
+unlockBtn.BackgroundColor3 = accentColor
+unlockBtn.Position = UDim2.new(0,0,0,120)
+unlockBtn.Size = UDim2.new(1,0,0,48)
+unlockBtn.Font = Enum.Font.GothamBold
+unlockBtn.TextColor3 = Color3.fromRGB(255,255,255)
+unlockBtn.TextSize = 16
+Instance.new("UICorner", unlockBtn).CornerRadius = UDim.new(0, 10)
+
+local statusLabel = Instance.new("TextLabel")
+statusLabel.Parent = adminContainer
+statusLabel.BackgroundTransparency = 1
+statusLabel.Position = UDim2.new(0,0,0,180)
+statusLabel.Size = UDim2.new(1,0,0,24)
+statusLabel.Font = Enum.Font.GothamSemibold
+statusLabel.Text = ""
+statusLabel.TextColor3 = Color3.fromRGB(255,80,80)
+statusLabel.TextSize = 15
+
+-- Админ-панель (разблокированная)
+local adminUnlockedFrame = Instance.new("Frame")
+adminUnlockedFrame.Parent = adminPage
+adminUnlockedFrame.BackgroundTransparency = 1
+adminUnlockedFrame.Size = UDim2.new(1,0,1,0)
+adminUnlockedFrame.Visible = false
+
+local adminUnlockedTitle = Instance.new("TextLabel")
+adminUnlockedTitle.Parent = adminUnlockedFrame
+adminUnlockedTitle.BackgroundTransparency = 1
+adminUnlockedTitle.Size = UDim2.new(1,0,0,28)
+adminUnlockedTitle.Font = Enum.Font.GothamBold
+adminUnlockedTitle.TextColor3 = Color3.fromRGB(245,158,11)
+adminUnlockedTitle.TextSize = 17
+
+-- Check Model
+local checkModelFrame = Instance.new("Frame")
+checkModelFrame.Parent = adminUnlockedFrame
+checkModelFrame.BackgroundColor3 = Color3.fromRGB(16,16,23)
+checkModelFrame.BackgroundTransparency = 0.15
+checkModelFrame.Position = UDim2.new(0,0,0,38)
+checkModelFrame.Size = UDim2.new(0.96,0,0,54)
+Instance.new("UICorner", checkModelFrame).CornerRadius = UDim.new(0, 10)
+
+local checkModelLabel = Instance.new("TextLabel")
+checkModelLabel.Parent = checkModelFrame
+checkModelLabel.BackgroundTransparency = 1
+checkModelLabel.Position = UDim2.new(0,16,0,0)
+checkModelLabel.Size = UDim2.new(0.7,0,1,0)
+checkModelLabel.Font = Enum.Font.GothamBold
+checkModelLabel.TextColor3 = Color3.fromRGB(255,255,255)
+checkModelLabel.TextSize = 15
+checkModelLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local checkModelToggle = Instance.new("TextButton")
+checkModelToggle.Parent = checkModelFrame
+checkModelToggle.BackgroundColor3 = Color3.fromRGB(40,40,55)
+checkModelToggle.Position = UDim2.new(1, -65, 0.5, -14)
+checkModelToggle.Size = UDim2.new(0, 50, 0, 28)
+checkModelToggle.Text = ""
+Instance.new("UICorner", checkModelToggle).CornerRadius = UDim.new(0, 14)
+
+local checkModelDot = Instance.new("Frame")
+checkModelDot.Parent = checkModelToggle
+checkModelDot.BackgroundColor3 = Color3.fromRGB(255,255,255)
+checkModelDot.Position = UDim2.new(0, 3, 0.5, -11)
+checkModelDot.Size = UDim2.new(0, 22, 0, 22)
+Instance.new("UICorner", checkModelDot).CornerRadius = UDim.new(0, 11)
+
+checkModelToggle.MouseButton1Click:Connect(function()
+    checkModelEnabled = not checkModelEnabled
+    if checkModelEnabled then
+        accentColor:Create(checkModelToggle, accentColor.new(0.2), {BackgroundColor3 = Color3.fromRGB(34,197,94)}):Play()
+        accentColor:Create(checkModelDot, accentColor.new(0.2), {Position = UDim2.new(0, 25, 0.5, -11)}):Play()
+        if not checkModelConnection then
+            checkModelConnection = mouse.Button1Down:Connect(function()
+                if mouse.Target and mouse.Target.Parent then
+                    local targetPart = mouse.Target.Parent
+                    local humanoid = targetPart:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        humanoid.Health = 0
+                    elseif targetPart:FindFirstChild("HumanoidRootPart") then
+                        targetPart.HumanoidRootPart.CFrame = CFrame.new(0, 50000, 0)
+                    end
+                end
+            end)
+        end
+    else
+        accentColor:Create(checkModelToggle, accentColor.new(0.2), {BackgroundColor3 = Color3.fromRGB(40,40,55)}):Play()
+        accentColor:Create(checkModelDot, accentColor.new(0.2), {Position = UDim2.new(0, 3, 0.5, -11)}):Play()
+        if checkModelConnection then
+            checkModelConnection:Disconnect()
+            checkModelConnection = nil
+        end
+    end
+end)
+
+-- Save Position
+local savePosFrame = Instance.new("Frame")
+savePosFrame.Parent = adminUnlockedFrame
+savePosFrame.BackgroundColor3 = Color3.fromRGB(16,16,23)
+savePosFrame.BackgroundTransparency = 0.15
+savePosFrame.Position = UDim2.new(0,0,0,105)
+savePosFrame.Size = UDim2.new(0.96,0,0,54)
+Instance.new("UICorner", savePosFrame).CornerRadius = UDim.new(0, 10)
+
+local savePosLabel = Instance.new("TextLabel")
+savePosLabel.Parent = savePosFrame
+savePosLabel.BackgroundTransparency = 1
+savePosLabel.Position = UDim2.new(0,16,0,0)
+savePosLabel.Size = UDim2.new(0.7,0,1,0)
+savePosLabel.Font = Enum.Font.GothamBold
+savePosLabel.TextColor3 = Color3.fromRGB(255,255,255)
+savePosLabel.TextSize = 15
+savePosLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local savePosToggle = Instance.new("TextButton")
+savePosToggle.Parent = savePosFrame
+savePosToggle.BackgroundColor3 = Color3.fromRGB(40,40,55)
+savePosToggle.Position = UDim2.new(1, -65, 0.5, -14)
+savePosToggle.Size = UDim2.new(0, 50, 0, 28)
+savePosToggle.Text = ""
+Instance.new("UICorner", savePosToggle).CornerRadius = UDim.new(0, 14)
+
+local savePosDot = Instance.new("Frame")
+savePosDot.Parent = savePosToggle
+savePosDot.BackgroundColor3 = Color3.fromRGB(255,255,255)
+savePosDot.Position = UDim2.new(0, 3, 0.5, -11)
+savePosDot.Size = UDim2.new(0, 22, 0, 22)
+Instance.new("UICorner", savePosDot).CornerRadius = UDim.new(0, 11)
+
+local function saveCurrentPosition()
+    local char = Player.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local pos = char.HumanoidRootPart.Position
+        local name = "Furdje_WayPoint_" .. tostring(#savedPositions + 1)
+        local part = Instance.new("Part")
+        part.Name = name
+        part.Position = pos
+        part.Anchored = true
+        part.Transparency = 0.7
+        part.BrickColor = BrickColor.new("Bright blue")
+        part.Size = Vector3.new(2,2,2)
+        part.Parent = workspace
+        table.insert(savedPositions, {part, pos})
+    end
+end
+
+savePosToggle.MouseButton1Click:Connect(function()
+    isChekpozition = not isChekpozition
+    if isChekpozition then
+        accentColor:Create(savePosToggle, accentColor.new(0.2), {BackgroundColor3 = Color3.fromRGB(34,197,94)}):Play()
+        accentColor:Create(savePosDot, accentColor.new(0.2), {Position = UDim2.new(0, 25, 0.5, -11)}):Play()
+        saveCurrentPosition()
+    else
+        accentColor:Create(savePosToggle, accentColor.new(0.2), {BackgroundColor3 = Color3.fromRGB(40,40,55)}):Play()
+        accentColor:Create(savePosDot, accentColor.new(0.2), {Position = UDim2.new(0, 3, 0.5, -11)}):Play()
+    end
+end)
+
+-- Copy Positions
+local copyPosBtn = Instance.new("TextButton")
+copyPosBtn.Parent = adminUnlockedFrame
+copyPosBtn.BackgroundColor3 = Color3.fromRGB(16,16,23)
+copyPosBtn.BackgroundTransparency = 0.15
+copyPosBtn.Position = UDim2.new(0,0,0,172)
+copyPosBtn.Size = UDim2.new(0.96,0,0,46)
+copyPosBtn.Font = Enum.Font.GothamBold
+copyPosBtn.TextColor3 = Color3.fromRGB(255,255,255)
+copyPosBtn.TextSize = 15
+Instance.new("UICorner", copyPosBtn).CornerRadius = UDim.new(0, 10)
+
+copyPosBtn.MouseButton1Click:Connect(function()
+    local text = ""
+    for _, data in pairs(savedPositions) do
+        local pos = data[2]
+        text = text .. string.format("Vector3.new(%.1f,%.1f,%.1f),\n", pos.X, pos.Y, pos.Z)
+    end
+    if text ~= "" then
+        setclipboard(text)
+        statusLabel.Text = T("Copied")
+        statusLabel.TextColor3 = Color3.fromRGB(34,197,94)
+    else
+        statusLabel.Text = T("EmptyList")
+        statusLabel.TextColor3 = Color3.fromRGB(240,80,80)
+    end
+end)
+
+-- Функция разблокировки админки
+unlockBtn.MouseButton1Click:Connect(function()
+    local key = keyBox.Text
+    if key == "furdjehub" then
+        adminContainer.Visible = false
+        adminUnlockedFrame.Visible = true
+        adminUnlockedTitle.Text = "Admin Panel (Unlocked)"
+        statusLabel.Text = T("SuccessKey")
+        statusLabel.TextColor3 = Color3.fromRGB(34,197,94)
+    else
+        statusLabel.Text = T("WrongKey")
+        statusLabel.TextColor3 = Color3.fromRGB(255,80,80)
+    end
+end)
+
+keyBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        unlockBtn:Click()
+    end
+end)
+
+-- ===== ВКЛАДКА CFG =====
+local cfgContainer = Instance.new("ScrollingFrame")
+cfgContainer.Parent = cfgPage
+cfgContainer.BackgroundTransparency = 1
+cfgContainer.Size = UDim2.new(1,0,1,0)
+cfgContainer.ScrollBarThickness = 0
+cfgContainer.CanvasSize = UDim2.new(0,0,0,350)
+
+local cfgNameLabel = Instance.new("TextLabel")
+cfgNameLabel.Parent = cfgContainer
+cfgNameLabel.BackgroundTransparency = 1
+cfgNameLabel.Size = UDim2.new(1,0,0,24)
+cfgNameLabel.Font = Enum.Font.GothamBold
+cfgNameLabel.TextColor3 = Color3.fromRGB(200,200,220)
+cfgNameLabel.TextSize = 14
+cfgNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local cfgNameBox = Instance.new("TextBox")
+cfgNameBox.Parent = cfgContainer
+cfgNameBox.BackgroundColor3 = Color3.fromRGB(16,16,23)
+cfgNameBox.BackgroundTransparency = 0.15
+cfgNameBox.Position = UDim2.new(0,0,0,30)
+cfgNameBox.Size = UDim2.new(1,0,0,36)
+cfgNameBox.Font = Enum.Font.GothamSemibold
+cfgNameBox.TextColor3 = Color3.fromRGB(255,255,255)
+cfgNameBox.TextSize = 14
+cfgNameBox.ClearTextOnFocus = false
+cfgNameBox.PlaceholderText = "Название CFG..."
+Instance.new("UICorner", cfgNameBox).CornerRadius = UDim.new(0, 8)
+
+local cfgSaveBtn = Instance.new("TextButton")
+cfgSaveBtn.Parent = cfgContainer
+cfgSaveBtn.BackgroundColor3 = Color3.fromRGB(34,197,94)
+cfgSaveBtn.BackgroundTransparency = 0.15
+cfgSaveBtn.Position = UDim2.new(0,0,0,80)
+cfgSaveBtn.Size = UDim2.new(0.45,0,0,40)
+cfgSaveBtn.Font = Enum.Font.GothamBold
+cfgSaveBtn.TextColor3 = Color3.fromRGB(255,255,255)
+cfgSaveBtn.TextSize = 14
+Instance.new("UICorner", cfgSaveBtn).CornerRadius = UDim.new(0, 10)
+
+local cfgLoadBtn = Instance.new("TextButton")
+cfgLoadBtn.Parent = cfgContainer
+cfgLoadBtn.BackgroundColor3 = Color3.fromRGB(0,150,255)
+cfgLoadBtn.BackgroundTransparency = 0.15
+cfgLoadBtn.Position = UDim2.new(0.55,0,80,0)
+cfgLoadBtn.Size = UDim2.new(0.45,0,0,40)
+cfgLoadBtn.Font = Enum.Font.GothamBold
+cfgLoadBtn.TextColor3 = Color3.fromRGB(255,255,255)
+cfgLoadBtn.TextSize = 14
+Instance.new("UICorner", cfgLoadBtn).CornerRadius = UDim.new(0, 10)
+
+local cfgListLabel = Instance.new("TextLabel")
+cfgListLabel.Parent = cfgContainer
+cfgListLabel.BackgroundTransparency = 1
+cfgListLabel.Position = UDim2.new(0,0,0,135)
+cfgListLabel.Size = UDim2.new(1,0,0,24)
+cfgListLabel.Font = Enum.Font.GothamBold
+cfgListLabel.TextColor3 = Color3.fromRGB(200,200,220)
+cfgListLabel.TextSize = 14
+cfgListLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local cfgListFrame = Instance.new("ScrollingFrame")
+cfgListFrame.Parent = cfgContainer
+cfgListFrame.BackgroundColor3 = Color3.fromRGB(16,16,23)
+cfgListFrame.BackgroundTransparency = 0.15
+cfgListFrame.Position = UDim2.new(0,0,0,165)
+cfgListFrame.Size = UDim2.new(1,0,0,150)
+cfgListFrame.ScrollBarThickness = 4
+cfgListFrame.BorderSizePixel = 0
+cfgListFrame.CanvasSize = UDim2.new(0,0,0,0)
+Instance.new("UICorner", cfgListFrame).CornerRadius = UDim.new(0, 10)
+
+local cfgListLayout = Instance.new("UIListLayout")
+cfgListLayout.Parent = cfgListFrame
+cfgListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+cfgListLayout.Padding = UDim.new(0, 4)
+
+-- Хранилище CFG
+local cfgStorage = _G.FurdjeCFG_Storage or {}
+_G.FurdjeCFG_Storage = cfgStorage
+
+local function updateCFGList()
+    for _, child in pairs(cfgListFrame:GetChildren()) do
+        if child:IsA("TextButton") then child:Destroy() end
+    end
+    
+    local y = 0
+    for name, data in pairs(cfgStorage) do
+        local btn = Instance.new("TextButton")
+        btn.Parent = cfgListFrame
+        btn.Size = UDim2.new(1, -10, 0, 32)
+        btn.Position = UDim2.new(0, 5, 0, y)
+        btn.BackgroundColor3 = Color3.fromRGB(22,22,30)
+        btn.BackgroundTransparency = 0.15
+        btn.Text = "   " .. name
+        btn.TextColor3 = Color3.fromRGB(200,200,220)
+        btn.TextSize = 13
+        btn.TextXAlignment = Enum.TextXAlignment.Left
+        btn.Font = Enum.Font.GothamSemibold
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+        
+        local delBtn = Instance.new("TextButton")
+        delBtn.Parent = btn
+        delBtn.Size = UDim2.new(0, 24, 0, 24)
+        delBtn.Position = UDim2.new(1, -30, 0.5, -12)
+        delBtn.BackgroundColor3 = Color3.fromRGB(200,40,40)
+        delBtn.Text = "✕"
+        delBtn.TextColor3 = Color3.fromRGB(255,255,255)
+        delBtn.TextSize = 14
+        delBtn.Font = Enum.Font.GothamBold
+        Instance.new("UICorner", delBtn).CornerRadius = UDim.new(0, 6)
+        delBtn.MouseButton1Click:Connect(function()
+            cfgStorage[name] = nil
+            _G.FurdjeCFG_Storage = cfgStorage
+            updateCFGList()
+            showNotification(T("CFGDeleted") .. " " .. name, Color3.fromRGB(200,150,40))
+        end)
+        
+        btn.MouseButton1Click:Connect(function()
+            cfgNameBox.Text = name
+            local data = cfgStorage[name]
+            if data then
+                selectedWorld = data.World or "1 World"
+                selectedMode = data.Mode
+                farmSpeed = data.Speed or 110
+                isFarming = data.AutoFarm or false
+                infJumpEnabled = data.InfJump or false
+                flyEnabled = data.Fly or false
+                flySpeed = data.FlySpeed or 50
+                isChekpozition = data.Chekpozition or false
+                checkModelEnabled = data.CheckModel or false
+                accentColor = data.Theme or Color3.fromRGB(0,150,255)
+                isAdminUnlocked = data.AdminUnlocked or false
+                showNotification(T("CFGLoaded") .. " " .. name, Color3.fromRGB(34,197,94))
+            end
+        end)
+        
+        y = y + 36
+    end
+    cfgListFrame.CanvasSize = UDim2.new(0,0,0,y + 10)
+end
+
+cfgSaveBtn.Text = T("CFGSave")
+cfgLoadBtn.Text = T("CFGLoad")
+cfgListLabel.Text = T("CFGList")
+cfgNameLabel.Text = T("CFGName")
+
+cfgSaveBtn.MouseButton1Click:Connect(function()
+    local name = cfgNameBox.Text
+    if name and name ~= "" then
+        local data = {
+            World = selectedWorld,
+            Mode = selectedMode,
+            Speed = farmSpeed,
+            AutoFarm = isFarming,
+            InfJump = infJumpEnabled,
+            Fly = flyEnabled,
+            FlySpeed = flySpeed,
+            Chekpozition = isChekpozition,
+            Check = checkModelEnabled,
+            Theme = accentColor,
+            AdminUnlocked = isAdminUnlocked
+        }
+        cfgStorage[name] = data
+        _G.FurdjeCFG_Storage = cfgStorage
+        updateCFGList()
+        showNotification(T("CFGSaved") .. " " .. name, Color3.fromRGB(34,197,94))
+    else
+        showNotification(T("CFGEmpty"), Color3.fromRGB(200,150,40))
+    end
+end)
+
+cfgLoadBtn.MouseButton1Click:Connect(function()
+    local name = cfgNameBox.Text
+    if name and name ~= "" and cfgStorage[name] then
+        local data = cfgStorage[name]
+        selectedWorld = data.World or "1 World"
+        selectedMode = data.Mode
+        farmSpeed = data.Speed or 110
+        isFarming = data.AutoFarm or false
+        infJumpEnabled = data.InfJump or false
+        flyEnabled = data.Fly or false
+        flySpeed = data.FlySpeed or 50
+        isChekpozition = data.Chekpozition or false
+        checkModelEnabled = data.Check or false
+        accentColor = data.Theme or Color3.fromRGB(0,150,255)
+        isAdminUnlocked = data.AdminUnlocked or false
+        showNotification(T("CFGLoaded") .. " " .. name, Color3.fromRGB(34,197,94))
+    else
+        showNotification(T("CFGNotFound"), Color3.fromRGB(200,40,40))
+    end
+end)
+
+cfgPage:GetPropertyChangedSignal("Visible"):Connect(function()
+    if cfgPage.Visible then
+        updateCFGList()
+    end
+end)
+
+-- Кнопка CFG в боковом меню
+local cfgTabBtn = createTab(T("CFGTab"), cfgPage)
+utoFarm.Text = T("AutoFarmTab")
+    btnMovement.Text = T("MovementTab")
+    btnTheme.Text = T("ThemeTab")
+    btnAdmin.Text = T("AdminTab")
+    cfgTabBtn.Text = T("CFGTab")
+end
+
+_G.ApplyLanguage = applyLanguage
+_G.UpdateColors = updateColors
+
+-- ===== ЗАПУСК =====
+applyLanguage()
+updateModeList()
+print("FurdjeHub with CFG loaded!")
+
+-- Показываем GUI после выбора языка
+toggleGUI(true)
+task.wait(0.5)
+langFrame.Visible = false
+toggleBtn.Visible = true
