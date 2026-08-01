@@ -1,111 +1,526 @@
--- MM2 ULTIMATE HUB [FIXED - MEGA FLING ВНИЗ]
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-local root = character:WaitForChild("HumanoidRootPart")
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local Camera = workspace.CurrentCamera
-local mouse = player:GetMouse()
+-- FurdjeHub - Speed Escape GUI + Deobfuscated Functions
+local FurdjeHub = {
+    Flags = {
+        AutoFarm = false, AutoClick = false, SpeedHack = false,
+        Fly = false, NoClip = false, ESP = false, Aimbot = false,
+        InfJump = false, Noclip = false
+    },
+    Settings = {
+        SpeedValue = 50, JumpPower = 50, WalkSpeed = 16,
+        FlySpeed = 50, CurrentWorld = "1 World", CurrentDistance = nil,
+        AutoFarmSpeed = 110
+    }
+}
 
-for _, v in pairs(player.PlayerGui:GetChildren()) do
-    if v.Name == "MM2UltimateHub" then
-        v:Destroy()
+-- Services
+local Players=game:GetService("Players")
+local TweenService=game:GetService("TweenService")
+local UserInputService=game:GetService("UserInputService")
+local RunService=game:GetService("RunService")
+local VirtualUser=game:GetService("VirtualUser")
+local CoreGui=game:GetService("CoreGui")
+local LocalPlayer=Players.LocalPlayer
+local Mouse=LocalPlayer:GetMouse()
+local lang="EN"
+
+-- Anti-AFK
+LocalPlayer.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
+
+-- ============ FUNCTIONS (from your code) ============
+function FurdjeHub.Functions.SaveSettings()
+    local data={}
+    for k,v in pairs(FurdjeHub.Flags)do data[k]=v end
+    data.SpeedValue=FurdjeHub.Settings.SpeedValue
+    data.JumpPower=FurdjeHub.Settings.JumpPower
+    data.WalkSpeed=FurdjeHub.Settings.WalkSpeed
+    setclipboard(game:GetService("HttpService"):JSONEncode(data))
+end
+
+function FurdjeHub.Functions.LoadSettings()
+    local cb=getclipboard()
+    if cb~=""then
+        local data=game:GetService("HttpService"):JSONDecode(cb)
+        for k,v in pairs(data)do if FurdjeHub.Flags[k]~=nil then FurdjeHub.Flags[k]=v end end
+        FurdjeHub.Settings.SpeedValue=data.SpeedValue or 50
+        FurdjeHub.Settings.JumpPower=data.JumpPower or 50
+        FurdjeHub.Settings.WalkSpeed=data.WalkSpeed or 16
     end
 end
 
-local autoShootEnabled = false
-local invisibilityEnabled = false
-local wallhackEnabled = false
-local shootButton = nil
-local shootButtonDragging = false
-local shootButtonDragStart = nil
-local shootButtonDragOffset = nil
-local invisibleParts = {}
-local espHighlights = {}
-local espUpdateConnection = nil
-local espMurderEnabled = false
-local espSheriffEnabled = false
-local espDistance = 1000
-local wallhackConnections = {}
-local wallhackBillboards = {}
-local autoKnifeEnabled = false
-local autoKnifeConnection = nil
-local instantRespawnEnabled = false
-local instantRespawnConnection = nil
-local antiAfkEnabled = false
-local antiAfkConnection = nil
-local antiAfkStartCFrame = nil
-local godModeEnabled = false
-local godModeConnection = nil
-local antiStunEnabled = false
-local antiStunConnection = nil
-local noFogEnabled = false
-local noFogConnection = nil
+function FurdjeHub.Functions.AutoFarm()
+    while FurdjeHub.Flags.AutoFarm do
+        local char=LocalPlayer.Character
+        if char and char:FindFirstChild("Humanoid")then
+            for _,v in pairs(workspace:GetChildren())do
+                if v:IsA("Model")and v:FindFirstChild("Humanoid")and v~=char then
+                    local t=v.Humanoid
+                    if t.Health>0 then
+                        char.Humanoid:MoveTo(t.Parent.HumanoidRootPart.Position)
+                        wait(0.2)
+                        local tool=LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
+                        if tool then tool.Parent=char tool:Activate()wait(0.1)tool.Parent=LocalPlayer.Backpack end
+                    end
+                end
+            end
+        end
+        wait(0.5)
+    end
+end
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "MM2UltimateHub"
-screenGui.Parent = player:WaitForChild("PlayerGui")
-screenGui.ResetOnSpawn = false
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+function FurdjeHub.Functions.AutoClick()
+    while FurdjeHub.Flags.AutoClick do
+        Mouse.Button1Down:Fire()wait(0.05)Mouse.Button1Up:Fire()wait(0.1)
+    end
+end
 
-local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 450)
-window.Position = UDim2.new(0.5, -300, 0.5, -225)
-window.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-window.BackgroundTransparency = 0
-window.BorderSizePixel = 0
-window.Parent = screenGui
-window.Visible = true
-window.Active = true
-window.Selectable = false
+function FurdjeHub.Functions.SpeedHack()
+    while FurdjeHub.Flags.SpeedHack do
+        local char=LocalPlayer.Character
+        if char and char:FindFirstChild("Humanoid")then
+            char.Humanoid.WalkSpeed=FurdjeHub.Settings.WalkSpeed+FurdjeHub.Settings.SpeedValue
+            char.Humanoid.JumpPower=FurdjeHub.Settings.JumpPower
+        end
+        wait(0.5)
+    end
+end
 
-local windowCorner = Instance.new("UICorner")
-windowCorner.CornerRadius = UDim.new(0, 10)
-windowCorner.Parent = window
+function FurdjeHub.Functions.Fly()
+    local char=LocalPlayer.Character
+    if not char then return end
+    local hum=char:FindFirstChild("Humanoid")
+    local root=char:FindFirstChild("HumanoidRootPart")
+    if not hum or not root then return end
+    local bv=Instance.new("BodyVelocity")bv.MaxForce=Vector3.new(9e9,9e9,9e9)bv.Parent=root
+    local bg=Instance.new("BodyGyro")bg.MaxTorque=Vector3.new(9e9,9e9,9e9)bg.P=90000 bg.Parent=root
+    hum.PlatformStand=true
+    while FurdjeHub.Flags.Fly do
+        local cam=workspace.CurrentCamera
+        local move=Vector3.new()
+        local dir=cam.CFrame.LookVector
+        if UserInputService:IsKeyDown(Enum.KeyCode.W)then move+=dir end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S)then move-=dir end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A)then move-=dir:Cross(Vector3.new(0,1,0))end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D)then move+=dir:Cross(Vector3.new(0,1,0))end
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space)then move+=Vector3.new(0,1,0)end
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)then move-=Vector3.new(0,1,0)end
+        bv.Velocity=move*FurdjeHub.Settings.FlySpeed
+        bg.CFrame=cam.CFrame
+        wait()
+    end
+    bv:Destroy()bg:Destroy()hum.PlatformStand=false
+end
 
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 40)
-titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = window
+function FurdjeHub.Functions.NoClip()
+    while FurdjeHub.Flags.NoClip do
+        local char=LocalPlayer.Character
+        if char then for _,v in pairs(char:GetDescendants())do if v:IsA("BasePart")then v.CanCollide=false end end end
+        wait(0.1)
+    end
+end
 
-local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 10)
-titleCorner.Parent = titleBar
+function FurdjeHub.Functions.ESP()
+    while FurdjeHub.Flags.ESP do
+        for _,p in pairs(Players:GetPlayers())do
+            if p~=LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart")then
+                local box=Instance.new("BoxHandleAdornment")
+                box.Size=Vector3.new(4,6,2)box.Color3=Color3.new(1,0,0)box.Transparency=0.5
+                box.AlwaysOnTop=true box.Parent=p.Character.HumanoidRootPart
+                wait(0.5)box:Destroy()
+            end
+        end
+        wait(0.1)
+    end
+end
 
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, -120, 1, 0)
-titleText.Position = UDim2.new(0, 15, 0, 0)
-titleText.Text = "⚡ MM2 Ultimate Hub"
-titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleText.TextXAlignment = Enum.TextXAlignment.Left
-titleText.TextSize = 16
-titleText.Font = Enum.Font.GothamBold
-titleText.BackgroundTransparency = 1
-titleText.Parent = titleBar
+function FurdjeHub.Functions.TeleportToPlayer(n)
+    local t=Players:FindFirstChild(n)
+    if t and t.Character and t.Character:FindFirstChild("HumanoidRootPart")then
+        local c=LocalPlayer.Character
+        if c and c:FindFirstChild("HumanoidRootPart")then
+            c.HumanoidRootPart.CFrame=t.Character.HumanoidRootPart.CFrame+Vector3.new(0,2,0)
+        end
+    end
+end
 
-local dragging = false
-local dragStart = nil
-local dragOffset = nil
+function FurdjeHub.Functions.Aimbot()
+    while FurdjeHub.Flags.Aimbot do
+        local closest,cd=nil,math.huge
+        for _,p in pairs(Players:GetPlayers())do
+            if p~=LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart")then
+                local root=p.Character.HumanoidRootPart
+                local sp,on=workspace.CurrentCamera:WorldToScreenPoint(root.Position)
+                if on then
+                    local d=(Vector2.new(Mouse.X,Mouse.Y)-Vector2.new(sp.X,sp.Y)).Magnitude
+                    if d<cd then cd=d closest=root end
+                end
+            end
+        end
+        if closest then workspace.CurrentCamera.CFrame=CFrame.new(workspace.CurrentCamera.CFrame.Position,closest.Position)end
+        wait(0.1)
+    end
+end
 
-titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        dragOffset = window.Position
+-- ============ SPEED ESCAPE GUI ============
+local Locales={
+    RU={ChooseLang="Выберите язык",WorldLabel="Мир: [ %s ]",AutoFarmTab="Auto Farm",MovementTab="Movement",ThemeTab="Темы",AdminTab="Admin",AutoFarmToggle="Auto Farm",SpeedLabel="Скорость: %d",DistLabel="Дистанция:",SelectDist="Выбрать",NoPoints="Нет точек!",InfJumpToggle="Infinity Jump",FlyToggle="Fly (WASD)",FlySpeedLabel="Скорость полета: %d",NoclipToggle="Ноклип",SaveBtn="Сохранить",LoadBtn="Загрузить",ESP="ESP",Aimbot="Aimbot",SpeedHack="Speed Hack",AutoClick="Auto Click",Themes={"Синий","Фиолетовый","Лайм","Роза","Янтарный","Белый"}},
+    EN={ChooseLang="Choose language",WorldLabel="World: [ %s ]",AutoFarmTab="Auto Farm",MovementTab="Movement",ThemeTab="Themes",AdminTab="Admin",AutoFarmToggle="Auto Farm",SpeedLabel="Speed: %d",DistLabel="Distance:",SelectDist="Select",NoPoints="No points!",InfJumpToggle="Infinity Jump",FlyToggle="Fly (WASD)",FlySpeedLabel="Fly Speed: %d",NoclipToggle="Noclip",SaveBtn="Save",LoadBtn="Load",ESP="ESP",Aimbot="Aimbot",SpeedHack="Speed Hack",AutoClick="Auto Click",Themes={"Blue","Purple","Lime","Rose","Amber","White"}}
+}
+local function L(k)return Locales[lang][k]end
+local accentColor=Color3.fromRGB(0,150,255)
+local currentWorld="1 World"
+local currentDistance=nil
+local currentSpeed=110
+local autoFarmActive=false
+local isMinimized=false
+local isMenuOpen=false
+local infJumpEnabled=false
+local flyEnabled=false
+local flySpeed=50
+local noclipEnabled=false
+
+local Waypoints={
+    ["1 World"]={["+1 wins"]={Vector3.new(2.8,8.5,74.3),Vector3.new(-22.3,10.4,286)},["+3 wins"]={Vector3.new(-2.1,8.5,74.2),Vector3.new(2.7,8.5,295.7),Vector3.new(58,8.5,362),Vector3.new(53,8.5,444.3),Vector3.new(-22.2,9.8,518.4)},["+10 wins"]={Vector3.new(3.1,8.5,74.8),Vector3.new(2.3,8.5,296.5),Vector3.new(55.6,8.5,336.6),Vector3.new(47.5,8.5,454.1),Vector3.new(-1.6,8.5,487.5),Vector3.new(-4.8,8.5,527.7),Vector3.new(-21.6,8.5,528),Vector3.new(-22.6,30.8,624.1),Vector3.new(-21.5,76.8,752.7),Vector3.new(-18.3,78.7,774.5)}},
+    ["2 World"]={["+250k wins"]={Vector3.new(-396.8,504.7,-60.1),Vector3.new(-411.7,499.8,171.9),Vector3.new(-414,498.1,189.9)},["+400k wins"]={Vector3.new(-399.4,504.7,-57.6),Vector3.new(-398.1,499.8,209.2),Vector3.new(-417.6,501.4,445.3)}},
+    ["3 World"]={["+300m wins"]={Vector3.new(-1433.5,-159.7,-878.9),Vector3.new(-1431,-157.1,-831.9),Vector3.new(-1429.5,-126,-733),Vector3.new(-1430.1,-69.9,-538.4),Vector3.new(-1481.8,-71.7,-515.8)}},
+    ["Bbnos World"]={["+25k cash"]={Vector3.new(-129.9,59.1,-236.7),Vector3.new(184.7,59.2,-234)}}
+}
+local distSortOrder={["+1 wins"]=1,["+3 wins"]=2,["+10 wins"]=3,["+250k wins"]=4,["+400k wins"]=5,["+300m wins"]=15,["+25k cash"]=19}
+
+-- Fly/Speed Escape functions
+local function setNoClipState(state)
+    if state then
+        RunService.Stepped:Connect(function()
+            local char=LocalPlayer.Character
+            if char then for _,p in pairs(char:GetDescendants())do if p:IsA("BasePart")then p.CanCollide=false end end end
+        end)
+    end
+end
+
+local function flyTo(pos)
+    local char=LocalPlayer.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart")then return false end
+    local hrp=char.HumanoidRootPart
+    local bv=Instance.new("BodyVelocity")bv.MaxForce=Vector3.new(9e9,9e9,9e9)bv.Parent=hrp
+    local reached=false
+    while autoFarmActive and not reached do
+        if not char or not char:FindFirstChild("HumanoidRootPart")then break end
+        if(hrp.Position-pos).Magnitude<=6 then reached=true
+        else bv.Velocity=(pos-hrp.Position).Unit*currentSpeed end
+        task.wait(0.02)
+    end
+    bv:Destroy()return reached
+end
+
+local function startAutoFarm()
+    task.spawn(function()
+        while autoFarmActive do
+            local data=Waypoints[currentWorld]
+            local wps=data and data[currentDistance]
+            if wps and #wps>0 then
+                setNoClipState(true)
+                for i,wp in ipairs(wps)do if not autoFarmActive then break end flyTo(wp)end
+            else task.wait(1)end
+            task.wait(0.1)
+        end
+        local char=LocalPlayer.Character
+        if char and char:FindFirstChild("Humanoid")then char.Humanoid.WalkSpeed=16 end
+    end)
+end
+
+UserInputService.JumpRequest:Connect(function()
+    if infJumpEnabled then
+        local char=LocalPlayer.Character
+        if char then local hum=char:FindFirstChildOfClass("Humanoid")if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping)end end
     end
 end)
 
-titleBar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
+-- ============ GUI CREATION ============
+local UI_SCALE=0.8
+local ScreenGui=Instance.new("ScreenGui")ScreenGui.Name="FurdjeHub"ScreenGui.Parent=CoreGui
+local ShadowFrame=Instance.new("Frame")ShadowFrame.BackgroundColor3=Color3.fromRGB(0,0,0)ShadowFrame.AnchorPoint=Vector2.new(0.5,0.5)ShadowFrame.Position=UDim2.new(0.5,4,0.5,6)ShadowFrame.Size=UDim2.new(0,646,0,426)ShadowFrame.BackgroundTransparency=0.45 ShadowFrame.Visible=false
+Instance.new("UICorner",ShadowFrame).CornerRadius=UDim.new(0,16)
+local ShadowScale=Instance.new("UIScale",ShadowFrame)ShadowScale.Scale=0.3
+
+local MainFrame=Instance.new("Frame")MainFrame.BackgroundColor3=Color3.fromRGB(11,11,16)MainFrame.BackgroundTransparency=0.1 MainFrame.AnchorPoint=Vector2.new(0.5,0.5)MainFrame.Position=UDim2.new(0.5,0,0.5,0)MainFrame.Size=UDim2.new(0,640,0,420)MainFrame.Visible=false
+Instance.new("UICorner",MainFrame).CornerRadius=UDim.new(0,14)
+local MainScale=Instance.new("UIScale",MainFrame)MainScale.Scale=0.3
+
+local function toggleMenu(fs)
+    if fs~=nil then isMenuOpen=fs else isMenuOpen=not isMenuOpen end
+    if isMenuOpen then MainFrame.Visible=true
+        if not isMinimized then ShadowFrame.Visible=true end
+        TweenService:Create(MainScale,TweenInfo.new(0.45,Enum.EasingStyle.Back,Enum.EasingDirection.Out),{Scale=UI_SCALE}):Play()
+        TweenService:Create(ShadowScale,TweenInfo.new(0.45,Enum.EasingStyle.Back,Enum.EasingDirection.Out),{Scale=UI_SCALE}):Play()
+    else
+        local ct=TweenService:Create(MainScale,TweenInfo.new(0.25,Enum.EasingStyle.Quart,Enum.EasingDirection.In),{Scale=0.2})
+        TweenService:Create(ShadowScale,TweenInfo.new(0.25,Enum.EasingStyle.Quart,Enum.EasingDirection.In),{Scale=0.2}):Play()
+        ct:Play()ct.Completed:Connect(function()if not isMenuOpen then MainFrame.Visible=false ShadowFrame.Visible=false end end)
+    end
+end
+
+-- Toggle Widget
+local ToggleWidget=Instance.new("Frame")ToggleWidget.BackgroundColor3=Color3.fromRGB(15,15,22)ToggleWidget.BackgroundTransparency=0.15 ToggleWidget.Position=UDim2.new(0.5,-80,0.08,0)ToggleWidget.Size=UDim2.new(0,160,0,44)ToggleWidget.Visible=false
+Instance.new("UICorner",ToggleWidget).CornerRadius=UDim.new(0,10)
+local ToggleScale=Instance.new("UIScale",ToggleWidget)ToggleScale.Scale=0.85
+local ToggleLabelText=Instance.new("TextLabel")ToggleLabelText.BackgroundTransparency=1 ToggleLabelText.Size=UDim2.new(1,0,1,0)ToggleLabelText.Font=Enum.Font.GothamBold ToggleLabelText.Text="FurdjeHub"ToggleLabelText.TextColor3=Color3.fromRGB(255,255,255)ToggleLabelText.TextSize=17
+ToggleWidget.InputEnded:Connect(function(i)if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then toggleMenu()end end)
+
+-- Lang Frame
+local LangFrame=Instance.new("Frame")LangFrame.BackgroundColor3=Color3.fromRGB(12,12,18)LangFrame.BackgroundTransparency=0.15 LangFrame.AnchorPoint=Vector2.new(0.5,0.5)LangFrame.Position=UDim2.new(0.5,0,0.5,0)LangFrame.Size=UDim2.new(0,380,0,230)LangFrame.Visible=true
+Instance.new("UICorner",LangFrame).CornerRadius=UDim.new(0,14)
+local LangScale=Instance.new("UIScale",LangFrame)LangScale.Scale=0.8
+local LangTitle=Instance.new("TextLabel")LangTitle.BackgroundTransparency=1 LangTitle.Position=UDim2.new(0,0,0,25)LangTitle.Size=UDim2.new(1,0,0,30)LangTitle.Font=Enum.Font.GothamBold LangTitle.Text="Choose language / Выберите язык"LangTitle.TextColor3=Color3.fromRGB(255,255,255)LangTitle.TextSize=17 LangTitle.Parent=LangFrame
+
+local function buildLangBtn(emoji,text,px,lc)
+    local b=Instance.new("TextButton")b.Parent=LangFrame b.BackgroundColor3=Color3.fromRGB(20,20,28)b.BackgroundTransparency=0.15 b.Position=UDim2.new(0,px,0,75)b.Size=UDim2.new(0,110,0,110)b.Text=""
+    Instance.new("UICorner",b).CornerRadius=UDim.new(1,0)
+    local el=Instance.new("TextLabel")el.Parent=b el.BackgroundTransparency=1 el.Size=UDim2.new(1,0,1,0)el.Font=Enum.Font.Gotham el.Text=emoji el.TextSize=55
+    local tl=Instance.new("TextLabel")tl.Parent=b tl.BackgroundTransparency=1 tl.Position=UDim2.new(0,0,1,10)tl.Size=UDim2.new(1,0,0,20)tl.Font=Enum.Font.GothamSemibold tl.Text=text tl.TextColor3=Color3.fromRGB(200,200,220)tl.TextSize=15
+    b.MouseButton1Click:Connect(function()lang=lc LangFrame.Visible=false ToggleWidget.Visible=true toggleMenu(true)applyLanguage()end)
+end
+buildLangBtn("RU","Русский",65,"RU")buildLangBtn("EN","English",205,"EN")
+
+-- Draggable
+local dr,di,ds,sp
+MainFrame.InputBegan:Connect(function(i)if i.UserInputType==Enum.UserInputType.MouseButton1 then dr=true ds=i.Position sp=MainFrame.Position end end)
+MainFrame.InputChanged:Connect(function(i)if i.UserInputType==Enum.UserInputType.MouseMovement then di=i end end)
+UserInputService.InputChanged:Connect(function(i)if i==di and dr then local d=i.Position-ds MainFrame.Position=UDim2.new(sp.X.Scale,sp.X.Offset+d.X,sp.Y.Scale,sp.Y.Offset+d.Y)ShadowFrame.Position=UDim2.new(sp.X.Scale,sp.X.Offset+d.X+4,sp.Y.Scale,sp.Y.Offset+d.Y+6)end end)
+MainFrame.InputEnded:Connect(function()dr=false end)
+
+-- Close/Min
+local TopControls=Instance.new("Frame")TopControls.BackgroundTransparency=1 TopControls.Position=UDim2.new(1,-75,0,14)TopControls.Size=UDim2.new(0,65,0,26)TopControls.Parent=MainFrame
+local CloseBtn=Instance.new("TextButton")CloseBtn.BackgroundColor3=Color3.fromRGB(25,18,22)CloseBtn.Position=UDim2.new(1,-26,0,0)CloseBtn.Size=UDim2.new(0,26,0,26)CloseBtn.Font=Enum.Font.GothamBold CloseBtn.Text="X"CloseBtn.TextColor3=Color3.fromRGB(250,80,80)CloseBtn.TextSize=18 CloseBtn.Parent=TopControls
+Instance.new("UICorner",CloseBtn).CornerRadius=UDim.new(0,6)
+CloseBtn.MouseButton1Click:Connect(function()ScreenGui:Destroy()end)
+local MinBtn=Instance.new("TextButton")MinBtn.BackgroundColor3=Color3.fromRGB(18,18,26)MinBtn.Position=UDim2.new(1,-58,0,0)MinBtn.Size=UDim2.new(0,26,0,26)MinBtn.Font=Enum.Font.GothamBold MinBtn.Text="-"MinBtn.TextColor3=Color3.fromRGB(160,160,180)MinBtn.TextSize=18 MinBtn.Parent=TopControls
+Instance.new("UICorner",MinBtn).CornerRadius=UDim.new(0,6)
+MinBtn.MouseButton1Click:Connect(function()isMinimized=not isMinimized
+    if isMinimized then MainFrame.Size=UDim2.new(0,640,0,52)ShadowFrame.Size=UDim2.new(0,646,0,58)MinBtn.Text="+"
+    else MainFrame.Size=UDim2.new(0,640,0,420)ShadowFrame.Size=UDim2.new(0,646,0,426)MinBtn.Text="-"end
+end)
+
+-- Sidebar
+local Sidebar=Instance.new("Frame")Sidebar.BackgroundColor3=Color3.fromRGB(15,15,22)Sidebar.BackgroundTransparency=0.1 Sidebar.Size=UDim2.new(0,170,1,0)Sidebar.Parent=MainFrame
+Instance.new("UICorner",Sidebar).CornerRadius=UDim.new(0,14)
+local Title=Instance.new("TextLabel")Title.BackgroundTransparency=1 Title.Position=UDim2.new(0,0,0,16)Title.Size=UDim2.new(1,0,0,26)Title.Font=Enum.Font.GothamBold Title.Text="FurdjeHub"Title.TextColor3=Color3.fromRGB(255,255,255)Title.TextSize=20 Title.Parent=Sidebar
+local TabContainer=Instance.new("Frame")TabContainer.BackgroundTransparency=1 TabContainer.Position=UDim2.new(0,12,0,72)TabContainer.Size=UDim2.new(1,-24,1,-85)TabContainer.Parent=Sidebar
+local TabListLayout=Instance.new("UIListLayout")TabListLayout.SortOrder=Enum.SortOrder.LayoutOrder TabListLayout.Padding=UDim.new(0,10)TabListLayout.Parent=TabContainer
+local ContentArea=Instance.new("Frame")ContentArea.BackgroundTransparency=1 ContentArea.Position=UDim2.new(0,185,0,15)ContentArea.Size=UDim2.new(1,-200,1,-30)ContentArea.Parent=MainFrame
+
+-- Pages
+local AutoFarmPage=Instance.new("Frame")AutoFarmPage.BackgroundTransparency=1 AutoFarmPage.Size=UDim2.new(1,0,1,0)AutoFarmPage.Visible=true AutoFarmPage.Parent=ContentArea
+local MovementPage=Instance.new("Frame")MovementPage.BackgroundTransparency=1 MovementPage.Size=UDim2.new(1,0,1,0)MovementPage.Visible=false MovementPage.Parent=ContentArea
+local ThemePage=Instance.new("Frame")ThemePage.BackgroundTransparency=1 ThemePage.Size=UDim2.new(1,0,1,0)ThemePage.Visible=false ThemePage.Parent=ContentArea
+local SettingsPage=Instance.new("Frame")SettingsPage.BackgroundTransparency=1 SettingsPage.Size=UDim2.new(1,0,1,0)SettingsPage.Visible=false SettingsPage.Parent=ContentArea
+
+-- Tab Buttons
+local tabButtons={}
+local function createTabButton(text,page)
+    local btn=Instance.new("TextButton")btn.BackgroundColor3=Color3.fromRGB(20,20,28)btn.BackgroundTransparency=0.15 btn.Size=UDim2.new(1,0,0,40)btn.Font=Enum.Font.GothamSemibold btn.Text=text btn.TextColor3=Color3.fromRGB(150,150,170)btn.TextSize=14 btn.Parent=TabContainer
+    Instance.new("UICorner",btn).CornerRadius=UDim.new(0,10)
+    btn.MouseButton1Click:Connect(function()
+        for _,b in ipairs(tabButtons)do TweenService:Create(b,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(20,20,28),TextColor3=Color3.fromRGB(150,150,170)}):Play()end
+        TweenService:Create(btn,TweenInfo.new(0.2),{BackgroundColor3=accentColor,TextColor3=Color3.fromRGB(255,255,255)}):Play()
+        AutoFarmPage.Visible=page==AutoFarmPage MovementPage.Visible=page==MovementPage ThemePage.Visible=page==ThemePage SettingsPage.Visible=page==SettingsPage
+    end)
+    table.insert(tabButtons,btn)return btn
+end
+local afTab=createTabButton("AutoFarm",AutoFarmPage)
+local mvTab=createTabButton("Movement",MovementPage)
+local thTab=createTabButton("Theme",ThemePage)
+local stTab=createTabButton("Settings",SettingsPage)
+afTab.BackgroundColor3=accentColor afTab.TextColor3=Color3.fromRGB(255,255,255)
+
+-- AutoFarm Page
+local LeftPanel=Instance.new("Frame")LeftPanel.BackgroundTransparency=1 LeftPanel.Size=UDim2.new(0.96,0,1,0)LeftPanel.Parent=AutoFarmPage
+local WorldLabel=Instance.new("TextLabel")WorldLabel.BackgroundTransparency=1 WorldLabel.Size=UDim2.new(1,0,0,20)WorldLabel.Font=Enum.Font.GothamSemibold WorldLabel.TextColor3=Color3.fromRGB(200,200,220)WorldLabel.TextSize=14 WorldLabel.Parent=LeftPanel
+local WorldsFrame=Instance.new("Frame")WorldsFrame.BackgroundColor3=Color3.fromRGB(16,16,23)WorldsFrame.BackgroundTransparency=0.15 WorldsFrame.Position=UDim2.new(0,0,0,26)WorldsFrame.Size=UDim2.new(1,0,0,44)WorldsFrame.Parent=LeftPanel
+Instance.new("UICorner",WorldsFrame).CornerRadius=UDim.new(0,10)
+
+local worldButtons={}
+local function createWorldBtn(text,px,wd,idx)
+    local btn=Instance.new("TextButton")btn.BackgroundTransparency=1 btn.Position=UDim2.new(px,3,0,3)btn.Size=UDim2.new(wd,-6,1,-6)btn.Font=Enum.Font.GothamBold btn.Text=text btn.TextSize=14 btn.Parent=WorldsFrame
+    btn.TextColor3=idx==1 and Color3.fromRGB(255,255,255)or Color3.fromRGB(140,140,160)
+    if idx==1 then btn.BackgroundTransparency=0.15 btn.BackgroundColor3=Color3.fromRGB(30,30,42)Instance.new("UICorner",btn).CornerRadius=UDim.new(0,8)end
+    btn.MouseButton1Click:Connect(function()
+        currentWorld=text WorldLabel.Text=string.format(L("WorldLabel"),text)
+        for _,b in ipairs(worldButtons)do b.BackgroundTransparency=1 b.TextColor3=Color3.fromRGB(140,140,160)end
+        btn.BackgroundTransparency=0.15 btn.BackgroundColor3=Color3.fromRGB(30,30,42)btn.TextColor3=Color3.fromRGB(255,255,255)
+        buildDistOpts()
+    end)
+    table.insert(worldButtons,btn)
+end
+createWorldBtn("1 World",0,0.25,1)createWorldBtn("2 World",0.25,0.25,2)createWorldBtn("3 World",0.5,0.25,3)createWorldBtn("Bbnos",0.75,0.25,4)
+
+-- Toggle AutoFarm
+local ToggleFrame=Instance.new("Frame")ToggleFrame.BackgroundColor3=Color3.fromRGB(16,16,23)ToggleFrame.BackgroundTransparency=0.15 ToggleFrame.Position=UDim2.new(0,0,0,82)ToggleFrame.Size=UDim2.new(1,0,0,56)ToggleFrame.Parent=LeftPanel
+Instance.new("UICorner",ToggleFrame).CornerRadius=UDim.new(0,10)
+local ToggleLabel=Instance.new("TextLabel")ToggleLabel.BackgroundTransparency=1 ToggleLabel.Position=UDim2.new(0,16,0,0)ToggleLabel.Size=UDim2.new(0.7,0,1,0)ToggleLabel.Font=Enum.Font.GothamBold ToggleLabel.TextColor3=Color3.fromRGB(255,255,255)ToggleLabel.TextSize=15 ToggleLabel.Parent=ToggleFrame
+local SwitchBG=Instance.new("TextButton")SwitchBG.BackgroundColor3=Color3.fromRGB(40,40,55)SwitchBG.Position=UDim2.new(1,-65,0.5,-14)SwitchBG.Size=UDim2.new(0,50,0,28)SwitchBG.Text=""SwitchBG.Parent=ToggleFrame
+Instance.new("UICorner",SwitchBG).CornerRadius=UDim.new(0,14)
+local SwitchDot=Instance.new("Frame")SwitchDot.BackgroundColor3=Color3.fromRGB(255,255,255)SwitchDot.Position=UDim2.new(0,3,0.5,-11)SwitchDot.Size=UDim2.new(0,22,0,22)SwitchDot.Parent=SwitchBG
+Instance.new("UICorner",SwitchDot).CornerRadius=UDim.new(0,11)
+SwitchBG.MouseButton1Click:Connect(function()
+    if not currentDistance then return end
+    autoFarmActive=not autoFarmActive
+    if autoFarmActive then
+        TweenService:Create(SwitchBG,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(34,197,94)}):Play()
+        TweenService:Create(SwitchDot,TweenInfo.new(0.2),{Position=UDim2.new(0,25,0.5,-11)}):Play()
+        startAutoFarm()
+    else
+        TweenService:Create(SwitchBG,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(40,40,55)}):Play()
+        TweenService:Create(SwitchDot,TweenInfo.new(0.2),{Position=UDim2.new(0,3,0.5,-11)}):Play()
     end
 end)
 
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
+-- Speed Slider
+local SliderFrame=Instance.new("Frame")SliderFrame.BackgroundColor3=Color3.fromRGB(16,16,23)SliderFrame.BackgroundTransparency=0.15 SliderFrame.Position=UDim2.new(0,0,0,150)SliderFrame.Size=UDim2.new(1,0,0,68)SliderFrame.Parent=LeftPanel
+Instance.new("UICorner",SliderFrame).CornerRadius=UDim.new(0,10)
+local SliderLabel=Instance.new("TextLabel")SliderLabel.BackgroundTransparency=1 SliderLabel.Position=UDim2.new(0,16,0,8)SliderLabel.Size=UDim2.new(1,-32,0,20)SliderLabel.Font=Enum.Font.GothamSemibold SliderLabel.TextColor3=Color3.fromRGB(200,200,220)SliderLabel.TextSize=13 SliderLabel.Parent=SliderFrame
+local SliderTrack=Instance.new("TextButton")SliderTrack.BackgroundColor3=Color3.fromRGB(32,32,45)SliderTrack.Position=UDim2.new(0,16,0,36)SliderTrack.Size=UDim2.new(1,-32,0,16)SliderTrack.Text=""SliderTrack.Parent=SliderFrame
+Instance.new("UICorner",SliderTrack).CornerRadius=UDim.new(0,8)
+local SliderFill=Instance.new("Frame")SliderFill.BackgroundColor3=accentColor SliderFill.Size=UDim2.new(1,0,1,0)SliderFill.Parent=SliderTrack
+Instance.new("UICorner",SliderFill).CornerRadius=UDim.new(0,8)
+local dragSlider=false
+local function updateSpeed(i)
+    local f=math.clamp((i.Position.X-SliderTrack.AbsolutePosition.X)/SliderTrack.AbsoluteSize.X,0,1)
+    currentSpeed=math.floor(f*300)SliderLabel.Text=string.format(L("SpeedLabel"),currentSpeed)
+    SliderFill.Size=UDim2.new(f,0,1,0)
+end
+SliderTrack.InputBegan:Connect(function(i)if i.UserInputType==Enum.UserInputType.MouseButton1 then dragSlider=true updateSpeed(i)end end)
+UserInputService.InputChanged:Connect(function(i)if dragSlider and i.UserInputType==Enum.UserInputType.MouseMovement then updateSpeed(i)end end)
+UserInputService.InputEnded:Connect(function()dragSlider=false end)
+
+-- Distance Dropdown
+local DropdownList=Instance.new("ScrollingFrame")
+local DropdownBtn=Instance.new("TextButton")
+DropdownBtn.BackgroundColor3=Color3.fromRGB(16,16,23)DropdownBtn.BackgroundTransparency=0.15 DropdownBtn.Position=UDim2.new(0,0,0,230)DropdownBtn.Size=UDim2.new(1,0,0,46)DropdownBtn.Font=Enum.Font.GothamBold DropdownBtn.TextColor3=Color3.fromRGB(255,255,255)DropdownBtn.TextSize=14 DropdownBtn.Parent=LeftPanel
+Instance.new("UICorner",DropdownBtn).CornerRadius=UDim.new(0,10)
+DropdownList.BackgroundColor3=Color3.fromRGB(14,14,20)DropdownList.Position=UDim2.new(0,0,0,282)DropdownList.Size=UDim2.new(1,0,0,100)DropdownList.Visible=false DropdownList.Parent=LeftPanel
+DropdownList.AutomaticCanvasSize=Enum.AutomaticSize.Y DropdownList.ScrollBarThickness=4
+Instance.new("UICorner",DropdownList).CornerRadius=UDim.new(0,10)
+local dLayout=Instance.new("UIListLayout")dLayout.Padding=UDim.new(0,4)dLayout.Parent=DropdownList
+DropdownBtn.MouseButton1Click:Connect(function()DropdownList.Visible=not DropdownList.Visible end)
+
+function buildDistOpts()
+    for _,c in ipairs(DropdownList:GetChildren())do if c:IsA("TextButton")then c:Destroy()end end
+    local opts={}
+    if Waypoints[currentWorld]then for d,_ in pairs(Waypoints[currentWorld])do table.insert(opts,d)end
+        table.sort(opts,function(a,b)return(distSortOrder[a]or 99)<(distSortOrder[b]or 99)end)end
+    if #opts==0 then DropdownBtn.Text="   "..L("NoPoints").." v"currentDistance=nil return end
+    for _,opt in ipairs(opts)do
+        local btn=Instance.new("TextButton")btn.BackgroundColor3=Color3.fromRGB(22,22,30)btn.Size=UDim2.new(1,0,0,34)btn.Font=Enum.Font.GothamSemibold btn.Text=opt btn.TextColor3=Color3.fromRGB(200,200,220)btn.TextSize=14 btn.Parent=DropdownList
+        Instance.new("UICorner",btn).CornerRadius=UDim.new(0,8)
+        btn.MouseButton1Click:Connect(function()currentDistance=opt DropdownBtn.Text="   "..opt.." v"DropdownList.Visible=false end)
+    end
+    currentDistance=opts[1]DropdownBtn.Text="   "..currentDistance.." v"
+end
+
+-- Movement Page
+local MovePanel=Instance.new("ScrollingFrame")MovePanel.BackgroundTransparency=1 MovePanel.Size=UDim2.new(1,0,1,0)MovePanel.ScrollBarThickness=0 MovePanel.CanvasSize=UDim2.new(0,0,0,400)MovePanel.Parent=MovementPage
+
+local function createToggle(parent,y,name,flag)
+    local f=Instance.new("Frame")f.BackgroundColor3=Color3.fromRGB(16,16,23)f.BackgroundTransparency=0.15 f.Position=UDim2.new(0,0,0,y)f.Size=UDim2.new(0.96,0,0,56)f.Parent=parent
+    Instance.new("UICorner",f).CornerRadius=UDim.new(0,10)
+    local l=Instance.new("TextLabel")l.BackgroundTransparency=1 l.Position=UDim2.new(0,16,0,0)l.Size=UDim2.new(0.7,0,1,0)l.Font=Enum.Font.GothamBold l.TextColor3=Color3.fromRGB(255,255,255)l.TextSize=15 l.Text=name l.Parent=f
+    local sb=Instance.new("TextButton")sb.BackgroundColor3=Color3.fromRGB(40,40,55)sb.Position=UDim2.new(1,-65,0.5,-14)sb.Size=UDim2.new(0,50,0,28)sb.Text=""sb.Parent=f
+    Instance.new("UICorner",sb).CornerRadius=UDim.new(0,14)
+    local sd=Instance.new("Frame")sd.BackgroundColor3=Color3.fromRGB(255,255,255)sd.Position=UDim2.new(0,3,0.5,-11)sd.Size=UDim2.new(0,22,0,22)sd.Parent=sb
+    Instance.new("UICorner",sd).CornerRadius=UDim.new(0,11)
+    sb.MouseButton1Click:Connect(function()
+        FurdjeHub.Flags[flag]=not FurdjeHub.Flags[flag]
+        if FurdjeHub.Flags[flag]then
+            TweenService:Create(sb,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(34,197,94)}):Play()
+            TweenService:Create(sd,TweenInfo.new(0.2),{Position=UDim2.new(0,25,0.5,-11)}):Play()
+        else
+            TweenService:Create(sb,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(40,40,55)}):Play()
+            TweenService:Create(sd,TweenInfo.new(0.2),{Position=UDim2.new(0,3,0.5,-11)}):Play()
+        end
+    end)
+    return f
+end
+
+createToggle(MovePanel,10,"Infinity Jump","InfJump")
+createToggle(MovePanel,78,"Fly (WASD)","Fly")
+createToggle(MovePanel,146,"Noclip","NoClip")
+createToggle(MovePanel,214,"ESP","ESP")
+createToggle(MovePanel,282,"Aimbot","Aimbot")
+
+-- Settings Page
+local SetPanel=Instance.new("ScrollingFrame")SetPanel.BackgroundTransparency=1 SetPanel.Size=UDim2.new(1,0,1,0)SetPanel.ScrollBarThickness=0 SetPanel.CanvasSize=UDim2.new(0,0,0,300)SetPanel.Parent=SettingsPage
+
+createToggle(SetPanel,10,"Speed Hack","SpeedHack")
+createToggle(SetPanel,78,"Auto Click","AutoClick")
+
+local function createSlider(parent,y,name,flag,min,max,def)
+    local f=Instance.new("Frame")f.BackgroundColor3=Color3.fromRGB(16,16,23)f.BackgroundTransparency=0.15 f.Position=UDim2.new(0,0,0,y)f.Size=UDim2.new(0.96,0,0,68)f.Parent=parent
+    Instance.new("UICorner",f).CornerRadius=UDim.new(0,10)
+    local l=Instance.new("TextLabel")l.BackgroundTransparency=1 l.Position=UDim2.new(0,16,0,8)l.Size=UDim2.new(1,-32,0,20)l.Font=Enum.Font.GothamSemibold l.TextColor3=Color3.fromRGB(200,200,220)l.TextSize=13 l.Text=name..": "..def l.Parent=f
+    local t=Instance.new("TextButton")t.BackgroundColor3=Color3.fromRGB(32,32,45)t.Position=UDim2.new(0,16,0,36)t.Size=UDim2.new(1,-32,0,16)t.Text=""t.Parent=f
+    Instance.new("UICorner",t).CornerRadius=UDim.new(0,8)
+    local fl=Instance.new("Frame")fl.BackgroundColor3=accentColor fl.Size=UDim2.new((def-min)/(max-min),0,1,0)fl.Parent=t
+    Instance.new("UICorner",fl).CornerRadius=UDim.new(0,8)
+    FurdjeHub.Settings[flag]=def
+    local dg=false
+    t.InputBegan:Connect(function(i)if i.UserInputType==Enum.UserInputType.MouseButton1 then dg=true end end)
+    UserInputService.InputChanged:Connect(function(i)if dg and i.UserInputType==Enum.UserInputType.MouseMovement then
+        local f2=math.clamp((i.Position.X-t.AbsolutePosition.X)/t.AbsoluteSize.X,0,1)
+        local v=math.floor(min+f2*(max-min))
+        fl.Size=UDim2.new(f2,0,1,0)FurdjeHub.Settings[flag]=v l.Text=name..": "..v
+    end end)
+    UserInputService.InputEnded:Connect(function()dg=false end)
+end
+
+createSlider(SetPanel,146,"Speed Value","SpeedValue",10,200,50)
+createSlider(SetPanel,220,"Jump Power","JumpPower",10,200,50)
+createSlider(SetPanel,294,"Walk Speed","WalkSpeed",10,50,16)
+
+local function createButton(parent,y,text,cb)
+    local b=Instance.new("TextButton")b.BackgroundColor3=Color3.fromRGB(16,16,23)b.BackgroundTransparency=0.15 b.Position=UDim2.new(0,0,0,y)b.Size=UDim2.new(0.96,0,0,46)b.Font=Enum.Font.GothamBold b.Text=text b.TextColor3=Color3.fromRGB(255,255,255)b.TextSize=15 b.Parent=parent
+    Instance.new("UICorner",b).CornerRadius=UDim.new(0,10)
+    b.MouseButton1Click:Connect(cb)
+end
+
+createButton(SetPanel,360,"Save Settings",function()FurdjeHub.Functions.SaveSettings()end)
+createButton(SetPanel,412,"Load Settings",function()FurdjeHub.Functions.LoadSettings()end)
+
+-- Theme Page
+local ThemeScroll=Instance.new("ScrollingFrame")ThemeScroll.BackgroundTransparency=1 ThemeScroll.Size=UDim2.new(1,0,1,0)ThemeScroll.Parent=ThemePage
+local ThemeList=Instance.new("UIListLayout")ThemeList.Padding=UDim.new(0,10)ThemeList.Parent=ThemeScroll
+local themes={Color3.fromRGB(0,150,255),Color3.fromRGB(168,85,247),Color3.fromRGB(34,197,94),Color3.fromRGB(236,72,153),Color3.fromRGB(245,158,11),Color3.fromRGB(220,220,230)}
+for i,c in ipairs(themes)do
+    local b=Instance.new("TextButton")b.BackgroundColor3=Color3.fromRGB(16,16,23)b.Size=UDim2.new(1,-10,0,52)b.Text=""b.Parent=ThemeScroll
+    Instance.new("UICorner",b).CornerRadius=UDim.new(0,10)
+    local cr=Instance.new("Frame")cr.Size=UDim2.new(0,26,0,26)cr.Position=UDim2.new(0,16,0.5,-13)cr.BackgroundColor3=c cr.Parent=b
+    Instance.new("UICorner",cr).CornerRadius=UDim.new(1,0)
+    b.MouseButton1Click:Connect(function()accentColor=c end)
+end
+
+-- Apply Language
+function applyLanguage()
+    LangTitle.Text=L("ChooseLang")
+    WorldLabel.Text=string.format(L("WorldLabel"),currentWorld)
+    afTab.Text=L("AutoFarmTab")mvTab.Text=L("MovementTab")thTab.Text=L("ThemeTab")stTab.Text=L("AdminTab")
+    ToggleLabel.Text=L("AutoFarmToggle")SliderLabel.Text=string.format(L("SpeedLabel"),currentSpeed)
+    DropdownBtn.Text="   "..(currentDistance or L("SelectDist")).." v"
+end
+
+-- Init
+buildDistOpts()applyLanguage()LangFrame.Visible=true toggleMenu(true)
+
+-- Start all function loops
+spawn(function()FurdjeHub.Functions.AutoFarm()end)
+spawn(function()FurdjeHub.Functions.AutoClick()end)
+spawn(function()FurdjeHub.Functions.SpeedHack()end)
+spawn(function()FurdjeHub.Functions.Fly()end)
+spawn(function()FurdjeHub.Functions.NoClip()end)
+spawn(function()FurdjeHub.Functions.ESP()end)
+spawn(function()FurdjeHub.Functions.Aimbot()end)
+
+print("FurdjeHub loaded!")        local delta = input.Position - dragStart
         window.Position = UDim2.new(dragOffset.X.Scale, dragOffset.X.Offset + delta.X, dragOffset.Y.Scale, dragOffset.Y.Offset + delta.Y)
     end
 end)
