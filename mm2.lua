@@ -1,107 +1,467 @@
--- FurdjeHub GUI (стиль первого скрипта) + функции KitagawaHub (без выбора языка)
-do
-    local Players = game:GetService("Players")
-    local TweenService = game:GetService("TweenService")
-    local UserInputService = game:GetService("UserInputService")
-    local RunService = game:GetService("RunService")
-    local VirtualUser = game:GetService("VirtualUser")
-    local LocalPlayer = Players.LocalPlayer
+-- Deobfuscated FurdjeHub v1.0.0
+-- Полная версия
 
-    -- Удаляем старые GUI
-    if game.CoreGui:FindFirstChild("FurdjeHub") then
-        game.CoreGui.FurdjeHub:Destroy()
-    end
-
-    -- Anti-AFK
-    local afkConnection = LocalPlayer.Idled:Connect(function()
-        VirtualUser:CaptureController()
-        VirtualUser:ClickButton2(Vector2.new())
-    end)
-
-    -- ===== Функции KitagawaHub =====
-    local Flags = {
+local FurdjeHub = {
+    Flags = {
         AutoFarm = false,
         AutoClick = false,
         SpeedHack = false,
         Fly = false,
         NoClip = false,
         ESP = false,
-        Aimbot = false
-    }
-    local Settings = {
+        Aimbot = false,
+        Teleport = false
+    },
+    Settings = {
+        WindowTitle = "Furdje Hub",
+        WindowSubTitle = "v1.0.0",
+        Key = "FURDJE2025",
+        SaveKey = "FurdjeHub_Settings",
         SpeedValue = 50,
         JumpPower = 50,
-        WalkSpeed = 16,
-        FlySpeed = 50
-    }
+        WalkSpeed = 16
+    },
+    Libraries = {},
+    Functions = {}
+}
 
-    local function SaveSettings()
-        local data = {}
-        for k, v in pairs(Flags) do data[k] = v end
-        data.SpeedValue = Settings.SpeedValue
-        data.JumpPower = Settings.JumpPower
-        data.WalkSpeed = Settings.WalkSpeed
-        data.FlySpeed = Settings.FlySpeed
-        setclipboard(game:GetService("HttpService"):JSONEncode(data))
+-- Функция для сохранения настроек
+function FurdjeFunctions.SaveSettings()
+    local data = {}
+    for k, v in pairs(FurdjeHub.Flags) do
+        data[k] = v
     end
+    data.SpeedValue = FurdjeHub.Settings.SpeedValue
+    data.JumpPower = FurdjeHub.Settings.JumpPower
+    data.WalkSpeed = FurdjeHub.Settings.WalkSpeed
+    setclipboard(game:GetService("HttpService"):JSONEncode(data))
+end
 
-    local function LoadSettings()
-        local clipboard = getclipboard()
-        if clipboard ~= "" then
-            local data = game:GetService("HttpService"):JSONDecode(clipboard)
-            for k, v in pairs(data) do
-                if Flags[k] ~= nil then Flags[k] = v end
-            end
-            Settings.SpeedValue = data.SpeedValue or 50
-            Settings.JumpPower = data.JumpPower or 50
-            Settings.WalkSpeed = data.WalkSpeed or 16
-            Settings.FlySpeed = data.FlySpeed or 50
-        end
-    end
-
-    local function TeleportToPlayer(targetName)
-        local target = Players:FindFirstChild(targetName)
-        if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-            local char = LocalPlayer.Character
-            if char and char:FindFirstChild("HumanoidRootPart") then
-                char.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame + Vector3.new(0, 2, 0)
+-- Функция загрузки настроек
+function FurdjeFunctions.LoadSettings()
+    local clipboard = getclipboard()
+    if clipboard ~= "" then
+        local data = game:GetService("HttpService"):JSONDecode(clipboard)
+        for k, v in pairs(data) do
+            if FurdjeHub.Flags[k] ~= nil then
+                FurdjeHub.Flags[k] = v
             end
         end
+        FurdjeHub.Settings.SpeedValue = data.SpeedValue or 50
+        FurdjeHub.Settings.JumpPower = data.JumpPower or 50
+        FurdjeHub.Settings.WalkSpeed = data.WalkSpeed or 16
     end
+end
 
-    -- Потоки
-    spawn(function()
-        while Flags.AutoFarm do
-            local char = LocalPlayer.Character
-            if char and char:FindFirstChild("Humanoid") then
-                local hum = char.Humanoid
-                for _, v in pairs(workspace:GetChildren()) do
-                    if v:IsA("Model") and v:FindFirstChild("Humanoid") and v ~= char then
-                        local target = v.Humanoid
-                        if target.Health > 0 then
-                            hum:MoveTo(target.Parent.HumanoidRootPart.Position)
-                            task.wait(0.2)
-                            local tool = LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
-                            if tool then
-                                tool.Parent = char
-                                tool:Activate()
-                                task.wait(0.1)
-                                tool.Parent = LocalPlayer.Backpack
-                            end
+-- AutoFarm
+function FurdjeFunctions.AutoFarm()
+    while FurdjeHub.Flags.AutoFarm do
+        local players = game:GetService("Players")
+        local localPlayer = players.LocalPlayer
+        local character = localPlayer.Character
+        if character and character:FindFirstChild("Humanoid") then
+            local humanoid = character.Humanoid
+            for _, v in pairs(workspace:GetChildren()) do
+                if v:IsA("Model") and v:FindFirstChild("Humanoid") and v ~= character then
+                    local target = v.Humanoid
+                    if target.Health > 0 then
+                        humanoid:MoveTo(target.Parent.HumanoidRootPart.Position)
+                        wait(0.2)
+                        -- attack
+                        local tool = localPlayer.Backpack:FindFirstChildOfClass("Tool")
+                        if tool then
+                            tool.Parent = character
+                            tool:Activate()
+                            wait(0.1)
+                            tool.Parent = localPlayer.Backpack
                         end
                     end
                 end
             end
-            task.wait(0.5)
+        end
+        wait(0.5)
+    end
+end
+
+-- AutoClick
+function FurdjeFunctions.AutoClick()
+    while FurdjeHub.Flags.AutoClick do
+        local mouse = game:GetService("Players").LocalPlayer:GetMouse()
+        mouse.Button1Down:Fire()
+        wait(0.05)
+        mouse.Button1Up:Fire()
+        wait(0.1)
+    end
+end
+
+-- SpeedHack
+function FurdjeFunctions.SpeedHack()
+    while FurdjeHub.Flags.SpeedHack do
+        local player = game:GetService("Players").LocalPlayer
+        local character = player.Character
+        if character and character:FindFirstChild("Humanoid") then
+            local humanoid = character.Humanoid
+            humanoid.WalkSpeed = FurdjeHub.Settings.WalkSpeed + FurdjeHub.Settings.SpeedValue
+            humanoid.JumpPower = FurdjeHub.Settings.JumpPower
+        end
+        wait(0.5)
+    end
+end
+
+-- Fly
+function FurdjeFunctions.Fly()
+    local player = game:GetService("Players").LocalPlayer
+    local character = player.Character
+    if not character then return end
+    local humanoid = character:FindFirstChild("Humanoid")
+    if not humanoid then return end
+    local root = character:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    local flySpeed = 50
+    local bodyGyro = Instance.new("BodyGyro")
+    local bodyVelocity = Instance.new("BodyVelocity")
+    bodyGyro.P = 9e4
+    bodyGyro.maxTorque = Vector3.new(9e4, 9e4, 9e4)
+    bodyGyro.CFrame = root.CFrame
+    bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+    bodyVelocity.MaxForce = Vector3.new(9e4, 9e4, 9e4)
+    bodyGyro.Parent = root
+    bodyVelocity.Parent = root
+
+    local mouse = player:GetMouse()
+    mouse.KeyDown:Connect(function(key)
+        if key == "e" then
+            FurdjeHub.Flags.Fly = not FurdjeHub.Flags.Fly
         end
     end)
 
-    spawn(function()
-        while Flags.AutoClick do
-            local mouse = LocalPlayer:GetMouse()
-            mouse.Button1Down:Fire()
-            task.wait(0.05)
-            mouse.Button1Up:Fire()
+    while FurdjeHub.Flags.Fly do
+        local move = Vector3.new()
+        if mouse then
+            local direction = mouse.Hit.lookVector
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.W) then
+                move = move + direction
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.S) then
+                move = move - direction
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.A) then
+                move = move - direction:Cross(Vector3.new(0, 1, 0))
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.D) then
+                move = move + direction:Cross(Vector3.new(0, 1, 0))
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Space) then
+                move = move + Vector3.new(0, 1, 0)
+            end
+            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftShift) then
+                move = move - Vector3.new(0, 1, 0)
+            end
+        end
+        bodyVelocity.Velocity = move * flySpeed
+        bodyGyro.CFrame = CFrame.new(root.Position, root.Position + move)
+        wait()
+    end
+    bodyGyro:Destroy()
+    bodyVelocity:Destroy()
+end
+
+-- NoClip
+function FurdjeFunctions.NoClip()
+    while FurdjeHub.Flags.NoClip do
+        local player = game:GetService("Players").LocalPlayer
+        local character = player.Character
+        if character then
+            for _, v in pairs(character:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.CanCollide = false
+                end
+            end
+        end
+        wait(0.1)
+    end
+end
+
+-- ESP (Wallhack)
+function FurdjeFunctions.ESP()
+    while FurdjeHub.Flags.ESP do
+        for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+            if player ~= game:GetService("Players").LocalPlayer then
+                local character = player.Character
+                if character and character:FindFirstChild("HumanoidRootPart") then
+                    local root = character.HumanoidRootPart
+                    local box = Instance.new("BoxHandleAdornment")
+                    box.Size = Vector3.new(4, 6, 2)
+                    box.Color3 = Color3.new(1, 0, 0)
+                    box.Transparency = 0.5
+                    box.ZIndex = 10
+                    box.AlwaysOnTop = true
+                    box.Parent = root
+                    wait(0.5)
+                    box:Destroy()
+                end
+            end
+        end
+        wait(0.1)
+    end
+end
+
+-- Teleport to player
+function FurdjeFunctions.TeleportToPlayer(targetName)
+    local players = game:GetService("Players")
+    local target = players:FindFirstChild(targetName)
+    if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+        local localPlayer = players.LocalPlayer
+        local character = localPlayer.Character
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame + Vector3.new(0, 2, 0)
+        end
+    end
+end
+
+-- Aimbot
+function FurdjeFunctions.Aimbot()
+    while FurdjeHub.Flags.Aimbot do
+        local players = game:GetService("Players")
+        local localPlayer = players.LocalPlayer
+        local mouse = localPlayer:GetMouse()
+        local closest = nil
+        local closestDist = math.huge
+        for _, player in pairs(players:GetPlayers()) do
+            if player ~= localPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local root = player.Character.HumanoidRootPart
+                local screenPos, onScreen = workspace.CurrentCamera:WorldToScreenPoint(root.Position)
+                if onScreen then
+                    local dist = (Vector2.new(mouse.X, mouse.Y) - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
+                    if dist < closestDist then
+                        closestDist = dist
+                        closest = root
+                    end
+                end
+            end
+        end
+        if closest then
+            mouse.Move:Fire(closest.Position)
+        end
+        wait(0.1)
+    end
+end
+
+-- Создание GUI
+function FurdjeFunctions.CreateUI()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "FurdjeHub"
+    screenGui.Parent = game:GetService("CoreGui")
+
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Size = UDim2.new(0, 400, 0, 500)
+    mainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    mainFrame.BackgroundTransparency = 0.1
+    mainFrame.BorderSizePixel = 0
+    mainFrame.Parent = screenGui
+    mainFrame.Active = true
+    mainFrame.Draggable = true
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 30)
+    title.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+    title.Text = FurdjeHub.Settings.WindowTitle
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.TextScaled = true
+    title.Font = Enum.Font.GothamBold
+    title.Parent = mainFrame
+
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Size = UDim2.new(0, 30, 0, 30)
+    closeBtn.Position = UDim2.new(1, -30, 0, 0)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    closeBtn.Text = "X"
+    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeBtn.TextScaled = true
+    closeBtn.Font = Enum.Font.GothamBold
+    closeBtn.Parent = mainFrame
+    closeBtn.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+    end)
+
+    local tabFrame = Instance.new("Frame")
+    tabFrame.Size = UDim2.new(1, 0, 1, -30)
+    tabFrame.Position = UDim2.new(0, 0, 0, 30)
+    tabFrame.BackgroundTransparency = 1
+    tabFrame.Parent = mainFrame
+
+    local yOffset = 10
+    local function AddToggle(text, flag, defaultValue)
+        local toggleFrame = Instance.new("Frame")
+        toggleFrame.Size = UDim2.new(1, -20, 0, 30)
+        toggleFrame.Position = UDim2.new(0, 10, 0, yOffset)
+        toggleFrame.BackgroundTransparency = 1
+        toggleFrame.Parent = tabFrame
+
+        local toggleLabel = Instance.new("TextLabel")
+        toggleLabel.Size = UDim2.new(0.8, 0, 1, 0)
+        toggleLabel.BackgroundTransparency = 1
+        toggleLabel.Text = text
+        toggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        toggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        toggleLabel.TextScaled = true
+        toggleLabel.Font = Enum.Font.Gotham
+        toggleLabel.Parent = toggleFrame
+
+        local toggleBtn = Instance.new("TextButton")
+        toggleBtn.Size = UDim2.new(0, 50, 1, 0)
+        toggleBtn.Position = UDim2.new(1, -50, 0, 0)
+        toggleBtn.BackgroundColor3 = defaultValue and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+        toggleBtn.Text = defaultValue and "ON" or "OFF"
+        toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        toggleBtn.TextScaled = true
+        toggleBtn.Font = Enum.Font.GothamBold
+        toggleBtn.Parent = toggleFrame
+
+        FurdjeHub.Flags[flag] = defaultValue
+
+        toggleBtn.MouseButton1Click:Connect(function()
+            FurdjeHub.Flags[flag] = not FurdjeHub.Flags[flag]
+            toggleBtn.BackgroundColor3 = FurdjeHub.Flags[flag] and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+            toggleBtn.Text = FurdjeHub.Flags[flag] and "ON" or "OFF"
+        end)
+
+        yOffset = yOffset + 35
+    end
+
+    local function AddSlider(text, flag, min, max, default)
+        local sliderFrame = Instance.new("Frame")
+        sliderFrame.Size = UDim2.new(1, -20, 0, 50)
+        sliderFrame.Position = UDim2.new(0, 10, 0, yOffset)
+        sliderFrame.BackgroundTransparency = 1
+        sliderFrame.Parent = tabFrame
+
+        local sliderLabel = Instance.new("TextLabel")
+        sliderLabel.Size = UDim2.new(1, 0, 0, 20)
+        sliderLabel.BackgroundTransparency = 1
+        sliderLabel.Text = text .. ": " .. tostring(default)
+        sliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        sliderLabel.TextScaled = true
+        sliderLabel.Font = Enum.Font.Gotham
+        sliderLabel.Parent = sliderFrame
+
+        local slider = Instance.new("Frame")
+        slider.Size = UDim2.new(1, 0, 0, 20)
+        slider.Position = UDim2.new(0, 0, 0, 25)
+        slider.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        slider.Parent = sliderFrame
+
+        local fill = Instance.new("Frame")
+        fill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+        fill.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+        fill.Parent = slider
+
+        FurdjeHub.Settings[flag] = default
+
+        local dragging = false
+        slider.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                dragging = true
+            end
+        end)
+        slider.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                dragging = false
+            end
+        end)
+        game:GetService("UserInputService").InputChanged:Connect(function(input)
+            if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                local mousePos = input.Position.X
+                local sliderPos = slider.AbsolutePosition.X
+                local sliderWidth = slider.AbsoluteSize.X
+                local percent = math.clamp((mousePos - sliderPos) / sliderWidth, 0, 1)
+                local value = math.floor(min + percent * (max - min))
+                fill.Size = UDim2.new(percent, 0, 1, 0)
+                FurdjeHub.Settings[flag] = value
+                sliderLabel.Text = text .. ": " .. tostring(value)
+            end
+        end)
+
+        yOffset = yOffset + 60
+    end
+
+    local function AddButton(text, callback)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(1, -20, 0, 30)
+        btn.Position = UDim2.new(0, 10, 0, yOffset)
+        btn.BackgroundColor3 = Color3.fromRGB(70, 70, 100)
+        btn.Text = text
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btn.TextScaled = true
+        btn.Font = Enum.Font.GothamBold
+        btn.Parent = tabFrame
+        btn.MouseButton1Click:Connect(callback)
+        yOffset = yOffset + 35
+    end
+
+    -- Добавляем элементы UI
+    AddToggle("Auto Farm", "AutoFarm", false)
+    AddToggle("Auto Click", "AutoClick", false)
+    AddToggle("Speed Hack", "SpeedHack", false)
+    AddToggle("Fly (E to toggle)", "Fly", false)
+    AddToggle("NoClip", "NoClip", false)
+    AddToggle("ESP", "ESP", false)
+    AddToggle("Aimbot", "Aimbot", false)
+
+    AddSlider("Speed Value", "SpeedValue", 10, 200, 50)
+    AddSlider("Jump Power", "JumpPower", 10, 200, 50)
+    AddSlider("Walk Speed", "WalkSpeed", 10, 50, 16)
+
+    AddButton("Save Settings", function()
+        FurdjeFunctions.SaveSettings()
+    end)
+
+    AddButton("Load Settings", function()
+        FurdjeFunctions.LoadSettings()
+        -- Обновляем UI после загрузки
+        for _, child in pairs(tabFrame:GetChildren()) do
+            child:Destroy()
+        end
+        yOffset = 10
+        -- Пересоздаём UI (упрощённо, но в реальном коде лучше обновлять значения)
+        -- Для простоты используем перезапуск GUI
+        screenGui:Destroy()
+        FurdjeFunctions.CreateUI()
+    end)
+
+    AddButton("Teleport to Player", function()
+        local playerName = game:GetService("Players").LocalPlayer:GetMouse().Target.Parent.Name
+        if playerName then
+            FurdjeFunctions.TeleportToPlayer(playerName)
+        end
+    end)
+end
+
+-- Инициализация
+function FurdjeFunctions.Init()
+    -- Проверка на уже существующее GUI
+    if game:GetService("CoreGui"):FindFirstChild("FurdjeHub") then
+        game:GetService("CoreGui"):FindFirstChild("FurdjeHub"):Destroy()
+    end
+
+    FurdjeFunctions.CreateUI()
+
+    -- Запуск потоков
+    spawn(FurdjeFunctions.AutoFarm)
+    spawn(FurdjeFunctions.AutoClick)
+    spawn(FurdjeFunctions.SpeedHack)
+    spawn(FurdjeFunctions.Fly)
+    spawn(FurdjeFunctions.NoClip)
+    spawn(FurdjeFunctions.ESP)
+    spawn(FurdjeFunctions.Aimbot)
+
+    print("FurdjeHub v1.0.0 loaded successfully!")
+end
+
+-- Запуск
+FurdjeFunctions.Init()            mouse.Button1Up:Fire()
             task.wait(0.1)
         end
     end)
