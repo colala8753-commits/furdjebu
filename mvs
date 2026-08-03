@@ -1,9 +1,20 @@
+-- ============================================================
+-- ПОЛНЫЙ СКРИПТ (Modern Hub + Fun 1v1 + все функции KitagawaHub)
+-- ============================================================
+
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
+
+-- ===============================
+-- ОСНОВНОЕ GUI (Modern Hub)
+-- ===============================
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "ModernHub"
@@ -16,7 +27,6 @@ Main.Position = UDim2.new(0.5, -380, 0.5, -225)
 Main.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
 Main.BorderSizePixel = 0
 Main.Parent = ScreenGui
-
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 14)
 
 local Top = Instance.new("Frame")
@@ -24,7 +34,6 @@ Top.Size = UDim2.new(1, 0, 0, 40)
 Top.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
 Top.BorderSizePixel = 0
 Top.Parent = Main
-
 Instance.new("UICorner", Top).CornerRadius = UDim.new(0, 14)
 
 local Title = Instance.new("TextLabel")
@@ -53,50 +62,50 @@ local Layout = Instance.new("UIListLayout")
 Layout.Padding = UDim.new(0, 8)
 Layout.Parent = Sidebar
 
+-- Вкладки
 local Tabs = {
-	"Main",
-	"Combat",
-	"Visuals",
-	"Movement",
-	"Player",
-	"Misc"
+    "Main",
+    "Combat",
+    "Visuals",
+    "Movement",
+    "Player",
+    "Misc"
 }
 
 local Pages = {}
 
 for _, name in ipairs(Tabs) do
-	local Button = Instance.new("TextButton")
-	Button.Size = UDim2.new(1, -10, 0, 40)
-	Button.Position = UDim2.new(0, 5, 0, 0)
-	Button.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
-	Button.Text = name
-	Button.TextColor3 = Color3.new(1, 1, 1)
-	Button.Font = Enum.Font.GothamBold
-	Button.TextSize = 16
-	Button.Parent = Sidebar
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(1, -10, 0, 40)
+    Button.Position = UDim2.new(0, 5, 0, 0)
+    Button.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    Button.Text = name
+    Button.TextColor3 = Color3.new(1, 1, 1)
+    Button.Font = Enum.Font.GothamBold
+    Button.TextSize = 16
+    Button.Parent = Sidebar
+    Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 8)
 
-	Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 8)
+    local Page = Instance.new("ScrollingFrame")
+    Page.Size = UDim2.new(1, 0, 1, 0)
+    Page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    Page.ScrollBarThickness = 4
+    Page.Visible = false
+    Page.BackgroundTransparency = 1
+    Page.Parent = Content
 
-	local Page = Instance.new("ScrollingFrame")
-	Page.Size = UDim2.new(1, 0, 1, 0)
-	Page.CanvasSize = UDim2.new(0, 0, 0, 0)
-	Page.ScrollBarThickness = 4
-	Page.Visible = false
-	Page.BackgroundTransparency = 1
-	Page.Parent = Content
+    local List = Instance.new("UIListLayout")
+    List.Padding = UDim.new(0, 6)
+    List.Parent = Page
 
-	local List = Instance.new("UIListLayout")
-	List.Padding = UDim.new(0, 6)
-	List.Parent = Page
+    Pages[name] = Page
 
-	Pages[name] = Page
-
-	Button.MouseButton1Click:Connect(function()
-		for _, p in pairs(Pages) do
-			p.Visible = false
-		end
-		Page.Visible = true
-	end)
+    Button.MouseButton1Click:Connect(function()
+        for _, p in pairs(Pages) do
+            p.Visible = false
+        end
+        Page.Visible = true
+    end)
 end
 
 Pages["Main"].Visible = true
@@ -106,6 +115,649 @@ local Dragging = false
 local DragStart
 local StartPos
 
+Top.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        Dragging = true
+        DragStart = input.Position
+        StartPos = Main.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                Dragging = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if Dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local Delta = input.Position - DragStart
+        Main.Position = UDim2.new(
+            StartPos.X.Scale,
+            StartPos.X.Offset + Delta.X,
+            StartPos.Y.Scale,
+            StartPos.Y.Offset + Delta.Y
+        )
+    end
+end)
+
+-- ===============================
+-- UI БИБЛИОТЕКА
+-- ===============================
+
+local UI = {}
+local Purple = Color3.fromRGB(140, 90, 255)
+
+local function ResizeCanvas(Page)
+    local Layout = Page:FindFirstChildOfClass("UIListLayout")
+    if Layout then
+        Page.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 10)
+    end
+end
+
+local function CreateContainer(Page)
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(1, -10, 0, 45)
+    Frame.BackgroundColor3 = Color3.fromRGB(38, 38, 48)
+    Frame.BorderSizePixel = 0
+    Frame.Parent = Page
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 8)
+    Corner.Parent = Frame
+    return Frame
+end
+
+function UI:AddButton(Page, Text, Callback)
+    local Holder = CreateContainer(Page)
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(1, -10, 1, -10)
+    Button.Position = UDim2.new(0, 5, 0, 5)
+    Button.BackgroundColor3 = Purple
+    Button.Text = Text
+    Button.Font = Enum.Font.GothamBold
+    Button.TextSize = 15
+    Button.TextColor3 = Color3.new(1, 1, 1)
+    Button.Parent = Holder
+    Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 8)
+
+    Button.MouseButton1Click:Connect(function()
+        TweenService:Create(Button, TweenInfo.new(0.08), {Size = UDim2.new(1, -20, 1, -20)}):Play()
+        task.wait(0.08)
+        TweenService:Create(Button, TweenInfo.new(0.08), {Size = UDim2.new(1, -10, 1, -10)}):Play()
+        if Callback then Callback() end
+    end)
+    ResizeCanvas(Page)
+end
+
+function UI:AddToggle(Page, Text, Default, Callback)
+    local Enabled = Default
+    local Holder = CreateContainer(Page)
+    local Label = Instance.new("TextLabel")
+    Label.BackgroundTransparency = 1
+    Label.Size = UDim2.new(0.7, 0, 1, 0)
+    Label.Text = Text
+    Label.Font = Enum.Font.Gotham
+    Label.TextSize = 15
+    Label.TextColor3 = Color3.new(1, 1, 1)
+    Label.Parent = Holder
+
+    local Toggle = Instance.new("TextButton")
+    Toggle.Size = UDim2.new(0, 70, 0, 30)
+    Toggle.Position = UDim2.new(1, -80, 0.5, -15)
+    Toggle.Text = ""
+    Toggle.BorderSizePixel = 0
+    Toggle.Parent = Holder
+    Instance.new("UICorner", Toggle).CornerRadius = UDim.new(1, 0)
+
+    local Circle = Instance.new("Frame")
+    Circle.Size = UDim2.new(0, 24, 0, 24)
+    Circle.Position = UDim2.new(0, 3, 0.5, -12)
+    Circle.Parent = Toggle
+    Circle.BorderSizePixel = 0
+    Circle.BackgroundColor3 = Color3.new(1, 1, 1)
+    Instance.new("UICorner", Circle).CornerRadius = UDim.new(1, 0)
+
+    local function Refresh()
+        if Enabled then
+            Toggle.BackgroundColor3 = Purple
+            TweenService:Create(Circle, TweenInfo.new(0.2), {Position = UDim2.new(1, -27, 0.5, -12)}):Play()
+        else
+            Toggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+            TweenService:Create(Circle, TweenInfo.new(0.2), {Position = UDim2.new(0, 3, 0.5, -12)}):Play()
+        end
+        if Callback then Callback(Enabled) end
+    end
+    Refresh()
+    Toggle.MouseButton1Click:Connect(function()
+        Enabled = not Enabled
+        Refresh()
+    end)
+    ResizeCanvas(Page)
+end
+
+function UI:AddSlider(Page, Text, Min, Max, Default, Callback)
+    local Value = Default or Min
+    local Holder = CreateContainer(Page)
+    Holder.Size = UDim2.new(1, -10, 0, 60)
+
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(1, -10, 0, 20)
+    Label.Position = UDim2.new(0, 5, 0, 5)
+    Label.BackgroundTransparency = 1
+    Label.Text = Text .. " : " .. Value
+    Label.TextColor3 = Color3.new(1, 1, 1)
+    Label.Font = Enum.Font.Gotham
+    Label.TextSize = 14
+    Label.Parent = Holder
+
+    local Bar = Instance.new("Frame")
+    Bar.Size = UDim2.new(1, -20, 0, 6)
+    Bar.Position = UDim2.new(0, 10, 0, 40)
+    Bar.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    Bar.Parent = Holder
+    Instance.new("UICorner", Bar)
+
+    local Fill = Instance.new("Frame")
+    Fill.Size = UDim2.new((Value - Min) / (Max - Min), 0, 1, 0)
+    Fill.BackgroundColor3 = Purple
+    Fill.Parent = Bar
+    Instance.new("UICorner", Fill)
+
+    local Drag = false
+    Bar.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then Drag = true end
+    end)
+    UserInputService.InputEnded:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then Drag = false end
+    end)
+    UserInputService.InputChanged:Connect(function(i)
+        if Drag and i.UserInputType == Enum.UserInputType.MouseMovement then
+            local Percent = math.clamp((i.Position.X - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X, 0, 1)
+            Value = math.floor(Min + (Max - Min) * Percent)
+            Fill.Size = UDim2.new(Percent, 0, 1, 0)
+            Label.Text = Text .. " : " .. Value
+            if Callback then Callback(Value) end
+        end
+    end)
+    ResizeCanvas(Page)
+end
+
+function UI:AddTextbox(Page, Text, Callback)
+    local Holder = CreateContainer(Page)
+    local Box = Instance.new("TextBox")
+    Box.Size = UDim2.new(1, -10, 1, -10)
+    Box.Position = UDim2.new(0, 5, 0, 5)
+    Box.PlaceholderText = Text
+    Box.Text = ""
+    Box.ClearTextOnFocus = false
+    Box.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+    Box.TextColor3 = Color3.new(1, 1, 1)
+    Box.Font = Enum.Font.Gotham
+    Box.TextSize = 14
+    Box.Parent = Holder
+    Instance.new("UICorner", Box)
+    Box.FocusLost:Connect(function()
+        if Callback then Callback(Box.Text) end
+    end)
+    ResizeCanvas(Page)
+end
+
+function UI:AddDropdown(Page, Text, List, Callback)
+    local Holder = CreateContainer(Page)
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(1, -10, 1, -10)
+    Button.Position = UDim2.new(0, 5, 0, 5)
+    Button.BackgroundColor3 = Purple
+    Button.Text = Text
+    Button.TextColor3 = Color3.new(1, 1, 1)
+    Button.Font = Enum.Font.GothamBold
+    Button.TextSize = 14
+    Button.Parent = Holder
+    Instance.new("UICorner", Button)
+    Button.MouseButton1Click:Connect(function()
+        for _, v in ipairs(List) do
+            print("Выбрано:", v)
+            if Callback then Callback(v) end
+        end
+    end)
+    ResizeCanvas(Page)
+end
+
+-- ===============================
+-- ВСЕ ФУНКЦИИ (из KitagawaHub)
+-- ===============================
+
+-- Вспомогательные функции
+local function getChar() return Player.Character end
+local function getHRP() local c = getChar() return c and c:FindFirstChild("HumanoidRootPart") end
+local function getHumanoid() local c = getChar() return c and c:FindFirstChild("Humanoid") end
+
+-- 1. Teleport
+local function teleportTo(pos)
+    local hrp = getHRP()
+    if hrp then hrp.CFrame = CFrame.new(pos) end
+end
+
+-- 2. Infinite Jump
+local infJumpConn = nil
+local function toggleInfiniteJump()
+    local humanoid = getHumanoid()
+    if not humanoid then return end
+    if infJumpConn then
+        infJumpConn:Disconnect()
+        infJumpConn = nil
+        return
+    end
+    infJumpConn = humanoid:GetPropertyChangedSignal("Jump"):Connect(function()
+        humanoid.Jump = true
+    end)
+end
+
+-- 3. Speed
+local function setSpeed(speed)
+    local humanoid = getHumanoid()
+    if humanoid then humanoid.WalkSpeed = speed end
+end
+
+-- 4. Fly
+local flyConn = nil
+local function toggleFly()
+    local hrp = getHRP()
+    if not hrp then return end
+    if flyConn then
+        flyConn:Disconnect()
+        flyConn = nil
+        local bv = hrp:FindFirstChildOfClass("BodyVelocity")
+        if bv then bv:Destroy() end
+        return
+    end
+    local bv = Instance.new("BodyVelocity")
+    bv.MaxForce = Vector3.new(1, 1, 1) * 1e5
+    bv.Velocity = Vector3.new(0, 50, 0)
+    bv.Parent = hrp
+    flyConn = RunService.Heartbeat:Connect(function()
+        if bv and bv.Parent then
+            bv.Velocity = Vector3.new(0, 50, 0)
+        end
+    end)
+end
+
+-- 5. NoClip
+local function toggleNoClip()
+    local char = getChar()
+    if char then
+        for _, part in ipairs(char:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = not part.CanCollide
+            end
+        end
+    end
+end
+
+-- 6. God Mode
+local godMode = false
+local function toggleGodMode()
+    local humanoid = getHumanoid()
+    if not humanoid then return end
+    godMode = not godMode
+    if godMode then
+        humanoid.MaxHealth = 1e9
+        humanoid.Health = 1e9
+    else
+        humanoid.MaxHealth = 100
+        humanoid.Health = 100
+    end
+end
+
+-- 7. Kill All
+local function killAll()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= Player then
+            local char = plr.Character
+            if char and char:FindFirstChild("Humanoid") then
+                char.Humanoid.Health = 0
+            end
+        end
+    end
+end
+
+-- 8. Steal Items
+local function stealItems()
+    local backpack = Player.Backpack
+    for _, item in ipairs(Workspace:GetDescendants()) do
+        if item:IsA("Tool") and item.Parent ~= Player and item.Parent ~= backpack then
+            item.Parent = backpack
+        end
+    end
+end
+
+-- 9. Auto Farm (имитация)
+local farmRunning = false
+local function toggleAutoFarm()
+    farmRunning = not farmRunning
+    if farmRunning then
+        task.spawn(function()
+            while farmRunning do
+                task.wait(0.5)
+                local hrp = getHRP()
+                if hrp then
+                    local target = Workspace:FindFirstChild("FakeFarmPart")
+                    if target then hrp.CFrame = target.CFrame end
+                end
+            end
+        end)
+    end
+end
+
+-- 10. Wall Shoot
+local wallShootEnabled = false
+local function toggleWallShoot()
+    wallShootEnabled = not wallShootEnabled
+    if wallShootEnabled then
+        local bullets = ReplicatedStorage:FindFirstChild("Bullets") or Workspace:FindFirstChild("Bullets")
+        if bullets then
+            for _, b in ipairs(bullets:GetChildren()) do
+                if b:IsA("BasePart") then b.CanCollide = false end
+            end
+            bullets.DescendantAdded:Connect(function(child)
+                if child:IsA("BasePart") then child.CanCollide = false end
+            end)
+        end
+        print("Wall Shoot ON")
+    else
+        print("Wall Shoot OFF")
+    end
+end
+
+-- 11. ESP (улучшенный)
+local ESPObjects = {}
+local function updateESP()
+    for _, obj in pairs(ESPObjects) do obj:Destroy() end
+    ESPObjects = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= Player then
+            local char = plr.Character
+            if char then
+                local hl = Instance.new("Highlight")
+                hl.Parent = char
+                hl.FillColor = Color3.fromRGB(255, 0, 0)
+                hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                hl.Enabled = true
+                table.insert(ESPObjects, hl)
+            end
+        end
+    end
+end
+
+-- 12. Shoot Murder (MM2)
+local function shootMurder()
+    local target = nil
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= Player then
+            local char = plr.Character
+            if char and char:FindFirstChild("Knife") then
+                target = plr
+                break
+            end
+        end
+    end
+    if not target then print("Убийца не найден") return end
+    local gun = Player.Backpack:FindFirstChild("Gun") or (getChar() and getChar():FindFirstChild("Gun"))
+    if not gun then print("Нет пистолета") return end
+    local remote = ReplicatedStorage:FindFirstChild("ShootRemote") or ReplicatedStorage:FindFirstChild("Fire")
+    if remote then
+        remote:FireServer(target)
+        print("Выстрел в убийцу")
+    else
+        local mouse = Player:GetMouse()
+        if mouse then
+            local hrp = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                mouse.Hit = CFrame.new(hrp.Position)
+                mouse.Button1Down:Fire()
+                task.wait(0.1)
+                mouse.Button1Up:Fire()
+                print("Симуляция выстрела")
+            end
+        end
+    end
+end
+
+-- 13. Добавление кнопки пистолета
+local gunButton = nil
+local function addGunButton()
+    if gunButton then return end
+    local sg = PlayerGui:FindFirstChild("ModernHub")
+    if not sg then return end
+    gunButton = Instance.new("TextButton")
+    gunButton.Size = UDim2.new(0, 80, 0, 80)
+    gunButton.Position = UDim2.new(0.9, -40, 0.8, -40)
+    gunButton.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    gunButton.Text = "🔫"
+    gunButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    gunButton.Font = Enum.Font.GothamBold
+    gunButton.TextSize = 40
+    gunButton.Parent = sg
+    gunButton.ZIndex = 10
+    Instance.new("UICorner", gunButton).CornerRadius = UDim.new(1, 0)
+    gunButton.MouseButton1Click:Connect(function()
+        if getChar() and getChar():FindFirstChild("Gun") then
+            shootMurder()
+        else
+            print("Нет пистолета или не Sheriff/Hero")
+        end
+    end)
+end
+
+-- 14. Обход античита (MM2)
+local function bypassAntiCheat()
+    local char = getChar()
+    if char then
+        for _, v in ipairs(char:GetDescendants()) do
+            if v:IsA("LocalScript") or v:IsA("ModuleScript") then
+                pcall(function() v.Disabled = true end)
+            end
+        end
+    end
+    local mouse = Player:GetMouse()
+    if mouse then
+        mouse.Button1Down:Connect(function() end)
+        mouse.Button1Up:Connect(function() end)
+    end
+    local hrp = getHRP()
+    if hrp then hrp:SetAttribute("AntiCheatBypass", true) end
+    print("Античит обойдён")
+end
+
+-- ===============================
+-- НАПОЛНЕНИЕ ВКЛАДОК
+-- ===============================
+
+-- MAIN
+UI:AddButton(Pages["Main"], "Teleport to Base", function() teleportTo(Vector3.new(0, 10, 0)) end)
+UI:AddButton(Pages["Main"], "Teleport to Spawn", function() teleportTo(Vector3.new(0, 5, 0)) end)
+UI:AddButton(Pages["Main"], "Toggle Infinite Jump", toggleInfiniteJump)
+UI:AddButton(Pages["Main"], "Speed x2", function() setSpeed(50) end)
+UI:AddButton(Pages["Main"], "Speed x5", function() setSpeed(120) end)
+UI:AddButton(Pages["Main"], "Toggle Fly", toggleFly)
+UI:AddButton(Pages["Main"], "Toggle NoClip", toggleNoClip)
+UI:AddButton(Pages["Main"], "Toggle God Mode", toggleGodMode)
+
+-- COMBAT
+UI:AddButton(Pages["Combat"], "Kill All", killAll)
+UI:AddButton(Pages["Combat"], "Steal Items", stealItems)
+UI:AddToggle(Pages["Combat"], "Wall Shoot", false, toggleWallShoot)
+UI:AddButton(Pages["Combat"], "Shoot Murder", shootMurder)
+UI:AddButton(Pages["Combat"], "Add Gun Button", addGunButton)
+
+-- VISUALS
+UI:AddButton(Pages["Visuals"], "Update ESP", updateESP)
+UI:AddToggle(Pages["Visuals"], "ESP On/Off", true, function(state)
+    if not state then
+        for _, obj in pairs(ESPObjects) do obj:Destroy() end
+        ESPObjects = {}
+    else
+        updateESP()
+    end
+end)
+
+-- MOVEMENT (можно добавить дублирующие кнопки)
+UI:AddButton(Pages["Movement"], "Speed x2", function() setSpeed(50) end)
+UI:AddButton(Pages["Movement"], "Speed x5", function() setSpeed(120) end)
+UI:AddButton(Pages["Movement"], "Toggle Fly", toggleFly)
+UI:AddButton(Pages["Movement"], "Toggle NoClip", toggleNoClip)
+
+-- PLAYER
+UI:AddButton(Pages["Player"], "Toggle God Mode", toggleGodMode)
+UI:AddButton(Pages["Player"], "Steal Items", stealItems)
+
+-- MISC
+UI:AddButton(Pages["Misc"], "Toggle Auto Farm", toggleAutoFarm)
+UI:AddButton(Pages["Misc"], "Bypass AntiCheat", bypassAntiCheat)
+
+-- ===============================
+-- ОТДЕЛЬНОЕ ОКНО FUN 1v1
+-- ===============================
+
+local function createFunWindow()
+    local funGui = Instance.new("ScreenGui")
+    funGui.Name = "FunGui"
+    funGui.ResetOnSpawn = false
+    funGui.Parent = PlayerGui
+
+    local funFrame = Instance.new("Frame")
+    funFrame.Size = UDim2.new(0, 600, 0, 400)
+    funFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
+    funFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
+    funFrame.BorderSizePixel = 0
+    funFrame.Parent = funGui
+    Instance.new("UICorner", funFrame).CornerRadius = UDim.new(0, 12)
+
+    local top = Instance.new("Frame")
+    top.Size = UDim2.new(1, 0, 0, 35)
+    top.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    top.BorderSizePixel = 0
+    top.Parent = funFrame
+    Instance.new("UICorner", top).CornerRadius = UDim.new(0, 12)
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(0.6, 0, 1, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "Fun 1v1"
+    title.TextColor3 = Color3.new(1, 1, 1)
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 18
+    title.Parent = top
+
+    -- Кнопка сворачивания
+    local minimizeBtn = Instance.new("TextButton")
+    minimizeBtn.Size = UDim2.new(0, 30, 0, 30)
+    minimizeBtn.Position = UDim2.new(1, -35, 0, 2)
+    minimizeBtn.Text = "−"
+    minimizeBtn.TextColor3 = Color3.new(1, 1, 1)
+    minimizeBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    minimizeBtn.Font = Enum.Font.GothamBold
+    minimizeBtn.TextSize = 20
+    minimizeBtn.Parent = top
+    Instance.new("UICorner", minimizeBtn).CornerRadius = UDim.new(1, 0)
+
+    local isMinimized = false
+    minimizeBtn.MouseButton1Click:Connect(function()
+        isMinimized = not isMinimized
+        if isMinimized then
+            funFrame.Size = UDim2.new(0, 600, 0, 40)
+            minimizeBtn.Text = "+"
+        else
+            funFrame.Size = UDim2.new(0, 600, 0, 400)
+            minimizeBtn.Text = "−"
+        end
+    end)
+
+    -- Кнопка furdjehub (вызов основного GUI)
+    local furdjeBtn = Instance.new("TextButton")
+    furdjeBtn.Size = UDim2.new(0, 100, 0, 30)
+    furdjeBtn.Position = UDim2.new(1, -110, 0, 2)
+    furdjeBtn.Text = "furdjehub"
+    furdjeBtn.TextColor3 = Color3.new(1, 1, 1)
+    furdjeBtn.BackgroundColor3 = Color3.fromRGB(140, 90, 255)
+    furdjeBtn.Font = Enum.Font.GothamBold
+    furdjeBtn.TextSize = 14
+    furdjeBtn.Parent = top
+    Instance.new("UICorner", furdjeBtn).CornerRadius = UDim.new(0, 6)
+    furdjeBtn.MouseButton1Click:Connect(function()
+        local mainGui = PlayerGui:FindFirstChild("ModernHub")
+        if mainGui then
+            mainGui.Enabled = true
+            local mainFrame = mainGui:FindFirstChildOfClass("Frame")
+            if mainFrame then
+                mainFrame.Size = UDim2.new(0, 760, 0, 450)
+            end
+        else
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Terfiscript1/KitagawaHub/refs/heads/main/kitagawahub"))()
+        end
+    end)
+
+    -- Контент окна (скролл)
+    local content = Instance.new("ScrollingFrame")
+    content.Size = UDim2.new(1, -10, 1, -50)
+    content.Position = UDim2.new(0, 5, 0, 40)
+    content.CanvasSize = UDim2.new(0, 0, 0, 0)
+    content.ScrollBarThickness = 4
+    content.BackgroundTransparency = 1
+    content.Parent = funFrame
+
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 6)
+    layout.Parent = content
+
+    local function addFunButton(text, callback)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(1, -10, 0, 40)
+        btn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+        btn.Text = text
+        btn.TextColor3 = Color3.new(1, 1, 1)
+        btn.Font = Enum.Font.GothamBold
+        btn.TextSize = 16
+        btn.Parent = content
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+        btn.MouseButton1Click:Connect(callback)
+        task.wait(0.05)
+        content.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+    end
+
+    -- Добавляем кнопки в Fun
+    addFunButton("Teleport to Base", function() teleportTo(Vector3.new(0, 10, 0)) end)
+    addFunButton("Teleport to Spawn", function() teleportTo(Vector3.new(0, 5, 0)) end)
+    addFunButton("Toggle Infinite Jump", toggleInfiniteJump)
+    addFunButton("Toggle Fly", toggleFly)
+    addFunButton("Toggle NoClip", toggleNoClip)
+    addFunButton("Toggle God Mode", toggleGodMode)
+    addFunButton("Kill All", killAll)
+    addFunButton("Steal Items", stealItems)
+    addFunButton("Toggle Auto Farm", toggleAutoFarm)
+    addFunButton("Toggle Wall Shoot", toggleWallShoot)
+    addFunButton("Update ESP", updateESP)
+    addFunButton("Shoot Murder", shootMurder)
+    addFunButton("Add Gun Button", addGunButton)
+
+    task.wait(0.1)
+    content.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+end
+
+-- ===============================
+-- ЗАПУСК
+-- ===============================
+
+-- Обход античита при старте
+bypassAntiCheat()
+
+-- Запуск ESP (по умолчанию включено)
+updateESP()
+
+-- Создаём окно Fun 1v1
+createFunWindow()
+
+print("Modern Hub + Fun 1v1 + все функции KitagawaHub загружены!")
 Top.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		Dragging = true
