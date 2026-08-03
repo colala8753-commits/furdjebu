@@ -1,111 +1,433 @@
--- MURDERER VS SHERIFFS DUELS HUB [NO RELOAD + INFINITE AMMO]
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-local root = character:WaitForChild("HumanoidRootPart")
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local Camera = workspace.CurrentCamera
-local mouse = player:GetMouse()
 
-for _, v in pairs(player.PlayerGui:GetChildren()) do
-    if v.Name == "MvSHub" then
-        v:Destroy()
-    end
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ModernHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
+
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 760, 0, 450)
+Main.Position = UDim2.new(0.5, -380, 0.5, -225)
+Main.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
+Main.BorderSizePixel = 0
+Main.Parent = ScreenGui
+
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 14)
+
+local Top = Instance.new("Frame")
+Top.Size = UDim2.new(1, 0, 0, 40)
+Top.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+Top.BorderSizePixel = 0
+Top.Parent = Main
+
+Instance.new("UICorner", Top).CornerRadius = UDim.new(0, 14)
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 1, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "Modern Hub"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+Title.Parent = Top
+
+local Sidebar = Instance.new("Frame")
+Sidebar.Size = UDim2.new(0, 160, 1, -40)
+Sidebar.Position = UDim2.new(0, 0, 0, 40)
+Sidebar.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
+Sidebar.BorderSizePixel = 0
+Sidebar.Parent = Main
+
+local Content = Instance.new("Frame")
+Content.Size = UDim2.new(1, -170, 1, -50)
+Content.Position = UDim2.new(0, 170, 0, 45)
+Content.BackgroundTransparency = 1
+Content.Parent = Main
+
+local Layout = Instance.new("UIListLayout")
+Layout.Padding = UDim.new(0, 8)
+Layout.Parent = Sidebar
+
+local Tabs = {
+	"Main",
+	"Combat",
+	"Visuals",
+	"Movement",
+	"Player",
+	"Misc"
+}
+
+local Pages = {}
+
+for _, name in ipairs(Tabs) do
+	local Button = Instance.new("TextButton")
+	Button.Size = UDim2.new(1, -10, 0, 40)
+	Button.Position = UDim2.new(0, 5, 0, 0)
+	Button.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+	Button.Text = name
+	Button.TextColor3 = Color3.new(1, 1, 1)
+	Button.Font = Enum.Font.GothamBold
+	Button.TextSize = 16
+	Button.Parent = Sidebar
+
+	Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 8)
+
+	local Page = Instance.new("ScrollingFrame")
+	Page.Size = UDim2.new(1, 0, 1, 0)
+	Page.CanvasSize = UDim2.new(0, 0, 0, 0)
+	Page.ScrollBarThickness = 4
+	Page.Visible = false
+	Page.BackgroundTransparency = 1
+	Page.Parent = Content
+
+	local List = Instance.new("UIListLayout")
+	List.Padding = UDim.new(0, 6)
+	List.Parent = Page
+
+	Pages[name] = Page
+
+	Button.MouseButton1Click:Connect(function()
+		for _, p in pairs(Pages) do
+			p.Visible = false
+		end
+		Page.Visible = true
+	end)
 end
 
--- ПЕРЕМЕННЫЕ
-local noclipEnabled = false
-local infJumpEnabled = false
-local speedValue = 16
-local jumpValue = 50
-local espEnabled = false
-local aimbotEnabled = false
-local autoBlockEnabled = false
-local quickSwordEnabled = false
-local teleportToEnemyEnabled = false
-local noReloadEnabled = false
-local earlyMoveEnabled = false
-local noclipConnection = nil
-local infJumpConnection = nil
-local espUpdateConnection = nil
-local espHighlights = {}
-local aimbotConnection = nil
-local autoBlockConnection = nil
-local quickSwordConnection = nil
-local teleportToEnemyConnection = nil
-local noReloadConnection = nil
-local earlyMoveConnection = nil
-local espUpdateCounter = 0
+Pages["Main"].Visible = true
 
--- ===== БЕЗОПАСНЫЙ ОБХОД АНТИЧИТА =====
-local function bypassAntiCheat()
-    for _, v in pairs(getgc(true)) do
-        if type(v) == "table" then
-            if rawget(v, "IsRunning") then
-                rawset(v, "IsRunning", false)
-            end
-        end
-    end
+-- Перетаскивание окна
+local Dragging = false
+local DragStart
+local StartPos
+
+Top.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		Dragging = true
+		DragStart = input.Position
+		StartPos = Main.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				Dragging = false
+			end
+		end)
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if Dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local Delta = input.Position - DragStart
+		Main.Position = UDim2.new(
+			StartPos.X.Scale,
+			StartPos.X.Offset + Delta.X,
+			StartPos.Y.Scale,
+			StartPos.Y.Offset + Delta.Y
+		)
+	end
+end)
+
+----------------------------------------------------
+-- UI Library
+----------------------------------------------------
+
+local UI = {}
+
+local Purple = Color3.fromRGB(140, 90, 255)
+
+local function ResizeCanvas(Page)
+	local Layout = Page:FindFirstChildOfClass("UIListLayout")
+	if Layout then
+		Page.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 10)
+	end
 end
 
--- ===== ПРОВЕРКА ВИДИМОСТИ =====
-local function isVisible(targetPart)
-    if not targetPart or not Camera then return false end
-    
-    local origin = Camera.CFrame.Position
-    local target = targetPart.Position
-    
-    local ray = Ray.new(origin, (target - origin).Unit * (origin - target).Magnitude)
-    local hit, position = workspace:FindPartOnRay(ray, character)
-    
-    if hit and hit:IsDescendantOf(targetPart.Parent) then
-        return true
-    elseif not hit then
-        return true
-    end
-    return false
+local function CreateContainer(Page)
+	local Frame = Instance.new("Frame")
+	Frame.Size = UDim2.new(1, -10, 0, 45)
+	Frame.BackgroundColor3 = Color3.fromRGB(38, 38, 48)
+	Frame.BorderSizePixel = 0
+	Frame.Parent = Page
+
+	local Corner = Instance.new("UICorner")
+	Corner.CornerRadius = UDim.new(0, 8)
+	Corner.Parent = Frame
+
+	return Frame
 end
 
--- GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "MvSHub"
-screenGui.Parent = player:WaitForChild("PlayerGui")
-screenGui.ResetOnSpawn = false
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+function UI:AddButton(Page, Text, Callback)
+	local Holder = CreateContainer(Page)
 
-local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 450)
-window.Position = UDim2.new(0.5, -300, 0.5, -225)
-window.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-window.BackgroundTransparency = 0
-window.BorderSizePixel = 0
-window.Parent = screenGui
-window.Visible = true
-window.Active = true
-window.Selectable = false
+	local Button = Instance.new("TextButton")
+	Button.Size = UDim2.new(1, -10, 1, -10)
+	Button.Position = UDim2.new(0, 5, 0, 5)
+	Button.BackgroundColor3 = Purple
+	Button.Text = Text
+	Button.Font = Enum.Font.GothamBold
+	Button.TextSize = 15
+	Button.TextColor3 = Color3.new(1, 1, 1)
+	Button.Parent = Holder
 
-local windowCorner = Instance.new("UICorner")
-windowCorner.CornerRadius = UDim.new(0, 10)
-windowCorner.Parent = window
+	Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 8)
 
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 40)
-titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = window
+	Button.MouseButton1Click:Connect(function()
+		TweenService:Create(
+			Button,
+			TweenInfo.new(0.08),
+			{Size = UDim2.new(1, -20, 1, -20)}
+		):Play()
 
-local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 10)
-titleCorner.Parent = titleBar
+		task.wait(0.08)
 
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, -120, 1, 0)
-titleText.Position = UDim2.new(0, 15, 0, 0)
-titleText.Text = "⚔️ MvS Ultimate Hub"
-titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleText.TextXAlignment = Enum.TextXAlignment.Left
-titleText.TextSize = 16
+		TweenService:Create(
+			Button,
+			TweenInfo.new(0.08),
+			{Size = UDim2.new(1, -10, 1, -10)}
+		):Play()
+
+		if Callback then
+			Callback()
+		end
+	end)
+
+	ResizeCanvas(Page)
+end
+
+function UI:AddToggle(Page, Text, Default, Callback)
+	local Enabled = Default
+
+	local Holder = CreateContainer(Page)
+
+	local Label = Instance.new("TextLabel")
+	Label.BackgroundTransparency = 1
+	Label.Size = UDim2.new(0.7, 0, 1, 0)
+	Label.Text = Text
+	Label.Font = Enum.Font.Gotham
+	Label.TextSize = 15
+	Label.TextColor3 = Color3.new(1, 1, 1)
+	Label.Parent = Holder
+
+	local Toggle = Instance.new("TextButton")
+	Toggle.Size = UDim2.new(0, 70, 0, 30)
+	Toggle.Position = UDim2.new(1, -80, 0.5, -15)
+	Toggle.Text = ""
+	Toggle.BorderSizePixel = 0
+	Toggle.Parent = Holder
+
+	Instance.new("UICorner", Toggle).CornerRadius = UDim.new(1, 0)
+
+	local Circle = Instance.new("Frame")
+	Circle.Size = UDim2.new(0, 24, 0, 24)
+	Circle.Position = UDim2.new(0, 3, 0.5, -12)
+	Circle.Parent = Toggle
+	Circle.BorderSizePixel = 0
+	Circle.BackgroundColor3 = Color3.new(1, 1, 1)
+
+	Instance.new("UICorner", Circle).CornerRadius = UDim.new(1, 0)
+
+	local function Refresh()
+		if Enabled then
+			Toggle.BackgroundColor3 = Purple
+			TweenService:Create(
+				Circle,
+				TweenInfo.new(0.2),
+				{Position = UDim2.new(1, -27, 0.5, -12)}
+			):Play()
+		else
+			Toggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+			TweenService:Create(
+				Circle,
+				TweenInfo.new(0.2),
+				{Position = UDim2.new(0, 3, 0.5, -12)}
+			):Play()
+		end
+
+		if Callback then
+			Callback(Enabled)
+		end
+	end
+
+	Refresh()
+
+	Toggle.MouseButton1Click:Connect(function()
+		Enabled = not Enabled
+		Refresh()
+	end)
+
+	ResizeCanvas(Page)
+end
+
+--------------------------------------------------
+-- Slider
+--------------------------------------------------
+
+function UI:AddSlider(Page, Text, Min, Max, Default, Callback)
+	local Value = Default or Min
+
+	local Holder = CreateContainer(Page)
+	Holder.Size = UDim2.new(1, -10, 0, 60)
+
+	local Label = Instance.new("TextLabel")
+	Label.Size = UDim2.new(1, -10, 0, 20)
+	Label.Position = UDim2.new(0, 5, 0, 5)
+	Label.BackgroundTransparency = 1
+	Label.Text = Text .. " : " .. Value
+	Label.TextColor3 = Color3.new(1, 1, 1)
+	Label.Font = Enum.Font.Gotham
+	Label.TextSize = 14
+	Label.Parent = Holder
+
+	local Bar = Instance.new("Frame")
+	Bar.Size = UDim2.new(1, -20, 0, 6)
+	Bar.Position = UDim2.new(0, 10, 0, 40)
+	Bar.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+	Bar.Parent = Holder
+	Instance.new("UICorner", Bar)
+
+	local Fill = Instance.new("Frame")
+	Fill.Size = UDim2.new((Value - Min) / (Max - Min), 0, 1, 0)
+	Fill.BackgroundColor3 = Purple
+	Fill.Parent = Bar
+	Instance.new("UICorner", Fill)
+
+	local Drag = false
+
+	Bar.InputBegan:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.MouseButton1 then
+			Drag = true
+		end
+	end)
+
+	UserInputService.InputEnded:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.MouseButton1 then
+			Drag = false
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(i)
+		if Drag and i.UserInputType == Enum.UserInputType.MouseMovement then
+			local Percent = math.clamp(
+				(i.Position.X - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X,
+				0, 1
+			)
+
+			Value = math.floor(Min + (Max - Min) * Percent)
+
+			Fill.Size = UDim2.new(Percent, 0, 1, 0)
+			Label.Text = Text .. " : " .. Value
+
+			if Callback then
+				Callback(Value)
+			end
+		end
+	end)
+
+	ResizeCanvas(Page)
+end
+
+--------------------------------------------------
+-- TextBox
+--------------------------------------------------
+
+function UI:AddTextbox(Page, Text, Callback)
+	local Holder = CreateContainer(Page)
+
+	local Box = Instance.new("TextBox")
+	Box.Size = UDim2.new(1, -10, 1, -10)
+	Box.Position = UDim2.new(0, 5, 0, 5)
+	Box.PlaceholderText = Text
+	Box.Text = ""
+	Box.ClearTextOnFocus = false
+	Box.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+	Box.TextColor3 = Color3.new(1, 1, 1)
+	Box.Font = Enum.Font.Gotham
+	Box.TextSize = 14
+	Box.Parent = Holder
+
+	Instance.new("UICorner", Box)
+
+	Box.FocusLost:Connect(function()
+		if Callback then
+			Callback(Box.Text)
+		end
+	end)
+
+	ResizeCanvas(Page)
+end
+
+--------------------------------------------------
+-- Dropdown
+--------------------------------------------------
+
+function UI:AddDropdown(Page, Text, List, Callback)
+	local Holder = CreateContainer(Page)
+
+	local Button = Instance.new("TextButton")
+	Button.Size = UDim2.new(1, -10, 1, -10)
+	Button.Position = UDim2.new(0, 5, 0, 5)
+	Button.BackgroundColor3 = Purple
+	Button.Text = Text
+	Button.TextColor3 = Color3.new(1, 1, 1)
+	Button.Font = Enum.Font.GothamBold
+	Button.TextSize = 14
+	Button.Parent = Holder
+
+	Instance.new("UICorner", Button)
+
+	Button.MouseButton1Click:Connect(function()
+		for _, v in ipairs(List) do
+			print("Выбрано:", v)
+
+			if Callback then
+				Callback(v)
+			end
+		end
+	end)
+
+	ResizeCanvas(Page)
+end
+
+----------------------------------------------------
+-- Пример использования
+----------------------------------------------------
+
+UI:AddButton(Pages["Main"], "Привет", function()
+	print("Кнопка нажата")
+end)
+
+UI:AddToggle(Pages["Main"], "Музыка", false, function(state)
+	print("Музыка:", state)
+end)
+
+UI:AddButton(Pages["Player"], "Получить предмет", function()
+	print("Выдать предмет игроку")
+end)
+
+UI:AddToggle(Pages["Visuals"], "Показать эффекты", true, function(state)
+	print("Эффекты:", state)
+end)
+
+UI:AddSlider(Pages["Player"], "WalkSpeed", 16, 100, 16, function(v)
+	print(v)
+end)
+
+UI:AddTextbox(Pages["Main"], "Введите текст", function(text)
+	print(text)
+end)
+
+UI:AddDropdown(Pages["Visuals"], "Цвет", {
+	"Красный",
+	"Зеленый",
+	"Синий"
+}, function(item)
+	print(item)
+end)titleText.TextSize = 16
 titleText.Font = Enum.Font.GothamBold
 titleText.BackgroundTransparency = 1
 titleText.Parent = titleBar
