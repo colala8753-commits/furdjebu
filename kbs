@@ -52,6 +52,10 @@ do
 			InfJumpToggle = "Infinity Jump",
 			FlyToggle = "Fly (Джойстик/WASD)",
 			FlySpeedLabel = "Скорость полета: %d",
+			MiscTab = "Misc",
+			AutoRebirthToggle = "Авто Перерождение",
+			AutoBuyTrailToggle = "Авто Покупка Лучшего Трейла",
+			AutoEquipTrailToggle = "Авто Экипировка Лучшего Трейла",
 			Themes = {"Синий Космос","Фиолетовый Кибер","Кислотный Лайм","Пылкая Роза","Янтарный Неон","Белый Фантом"}
 		},
 		EN = {
@@ -82,6 +86,10 @@ do
 			InfJumpToggle = "Infinity Jump",
 			FlyToggle = "Fly (Joystick/WASD)",
 			FlySpeedLabel = "Fly Speed: %d",
+			MiscTab = "Misc",
+			AutoRebirthToggle = "Auto Rebirth",
+			AutoBuyTrailToggle = "Auto Buy Best Trail",
+			AutoEquipTrailToggle = "Auto Equip Best Trail",
 			Themes = {"Blue Space","Purple Cyber","Acid Lime","Fiery Rose","Amber Neon","White Phantom"}
 		}
 	}
@@ -105,6 +113,10 @@ do
 	local flyEnabled = false
 	local flySpeed = 50
 	local flyBV, flyBG, flyLoop
+	local autoRebirthEnabled = false
+	local autoBuyTrailEnabled = false
+	local autoEquipTrailEnabled = false
+	local TrailPriority = {"Green Trail", "Blue Trail", "Purple Trail", "Red Trail", "Rainbow Trail", "Galaxy Trail", "Choco Trail"}
 	local checkModelEnabled = false
 	local checkModelConnection = nil
 	local mouse = LocalPlayer:GetMouse()
@@ -356,6 +368,101 @@ do
 			if hum then hum.PlatformStand = false end
 		end
 	end
+
+	-- ====================== MISC LOGIC ======================
+	local function tryRebirth()
+		local pg = LocalPlayer:FindFirstChild("PlayerGui")
+		if pg then
+			for _, gui in pairs(pg:GetDescendants()) do
+				if gui:IsA("TextButton") or gui:IsA("ImageButton") then
+					local txt = string.lower(tostring(gui.Text or gui.Name or ""))
+					if string.find(txt, "rebirth") or string.find(txt, "реб") or string.find(txt, "перерожд") then
+						pcall(function() gui:Activate() end)
+						return true
+					end
+				end
+			end
+		end
+		local rs = game:GetService("ReplicatedStorage")
+		local candidates = {
+			rs:FindFirstChild("Rebirth"),
+			rs:FindFirstChild("RebirthEvent"),
+			rs:FindFirstChild("DoRebirth"),
+			rs:FindFirstChild("Remotes") and rs.Remotes:FindFirstChild("Rebirth"),
+			rs:FindFirstChild("Events") and rs.Events:FindFirstChild("Rebirth"),
+		}
+		for _, r in pairs(candidates) do
+			if r then
+				pcall(function()
+					if r:IsA("RemoteEvent") then r:FireServer()
+					elseif r:IsA("RemoteFunction") then r:InvokeServer() end
+				end)
+				return true
+			end
+		end
+		return false
+	end
+
+	local function tryBuyTrail(name)
+		local rs = game:GetService("ReplicatedStorage")
+		local candidates = {
+			rs:FindFirstChild("BuyTrail"),
+			rs:FindFirstChild("PurchaseTrail"),
+			rs:FindFirstChild("Buy"),
+			rs:FindFirstChild("Remotes") and rs.Remotes:FindFirstChild("BuyTrail"),
+			rs:FindFirstChild("Remotes") and rs.Remotes:FindFirstChild("Purchase"),
+		}
+		for _, r in pairs(candidates) do
+			if r then pcall(function() r:FireServer(name) end) return true end
+		end
+		return false
+	end
+
+	local function tryEquipTrail(name)
+		local rs = game:GetService("ReplicatedStorage")
+		local candidates = {
+			rs:FindFirstChild("EquipTrail"),
+			rs:FindFirstChild("Equip"),
+			rs:FindFirstChild("Remotes") and rs.Remotes:FindFirstChild("EquipTrail"),
+			rs:FindFirstChild("Remotes") and rs.Remotes:FindFirstChild("Equip"),
+		}
+		for _, r in pairs(candidates) do
+			if r then pcall(function() r:FireServer(name) end) return true end
+		end
+		return false
+	end
+
+	task.spawn(function()
+		while true do
+			if autoRebirthEnabled then tryRebirth() end
+			task.wait(1.8)
+		end
+	end)
+
+	task.spawn(function()
+		while true do
+			if autoBuyTrailEnabled then
+				for i = 1, #TrailPriority do
+					tryBuyTrail(TrailPriority[i])
+					task.wait(0.55)
+				end
+			end
+			task.wait(4)
+		end
+	end)
+
+	task.spawn(function()
+		while true do
+			if autoEquipTrailEnabled then
+				for i = #TrailPriority, 1, -1 do
+					tryEquipTrail(TrailPriority[i])
+					task.wait(0.45)
+				end
+			end
+			task.wait(5)
+		end
+	end)
+
 
 	-- ===================== UI =====================
 	local UI_SCALE = 0.8
@@ -764,6 +871,12 @@ do
 	ThemePage.Size = UDim2.new(1, 0, 1, 0)
 	ThemePage.Visible = false
 
+	local MiscPage = Instance.new("Frame")
+	MiscPage.Parent = ContentArea
+	MiscPage.BackgroundTransparency = 1
+	MiscPage.Size = UDim2.new(1, 0, 1, 0)
+	MiscPage.Visible = false
+
 	local AdminPage = Instance.new("Frame")
 	AdminPage.Parent = ContentArea
 	AdminPage.BackgroundTransparency = 1
@@ -797,6 +910,7 @@ do
 			AutoFarmPage.Visible = (page == AutoFarmPage)
 			MovementPage.Visible = (page == MovementPage)
 			ThemePage.Visible = (page == ThemePage)
+			MiscPage.Visible = (page == MiscPage)
 			AdminPage.Visible = (page == AdminPage)
 		end)
 		table.insert(tabButtons, btn)
@@ -806,6 +920,7 @@ do
 	local autoFarmTabBtn = createTabButton("AutoFarm", AutoFarmPage)
 	local movementTabBtn = createTabButton("Moovement", MovementPage)
 	local themeTabBtn = createTabButton("Theme", ThemePage)
+	local miscTabBtn = createTabButton("Misc", MiscPage)
 	local adminTabBtn = createTabButton("AdminPanel", AdminPage)
 	autoFarmTabBtn.BackgroundColor3 = accentColor
 	autoFarmTabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -896,6 +1011,69 @@ do
 	createThemeRow(Color3.fromRGB(245, 158, 11), Color3.fromRGB(160, 80, 0))
 	createThemeRow(Color3.fromRGB(220, 220, 230), Color3.fromRGB(100, 100, 110))
 	ThemeScroll.CanvasSize = UDim2.new(0, 0, 0, ThemeList.AbsoluteContentSize.Y + 40)
+
+	-- ====================== MISC PAGE ======================
+	local MiscScroll = Instance.new("ScrollingFrame")
+	MiscScroll.Parent = MiscPage
+	MiscScroll.BackgroundTransparency = 1
+	MiscScroll.Size = UDim2.new(1, 0, 1, 0)
+	MiscScroll.ScrollBarThickness = 0
+	MiscScroll.CanvasSize = UDim2.new(0, 0, 0, 280)
+
+	local function createMiscToggle(parent, yPos, labelKey, getState, setState)
+		local Frame = Instance.new("Frame")
+		Frame.Parent = parent
+		Frame.BackgroundColor3 = Color3.fromRGB(16, 16, 23)
+		Frame.BackgroundTransparency = 0.15
+		Frame.Position = UDim2.new(0, 0, 0, yPos)
+		Frame.Size = UDim2.new(0.96, 0, 0, 56)
+		Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 10)
+
+		local Label = Instance.new("TextLabel")
+		Label.Parent = Frame
+		Label.BackgroundTransparency = 1
+		Label.Position = UDim2.new(0, 16, 0, 0)
+		Label.Size = UDim2.new(0.7, 0, 1, 0)
+		Label.Font = Enum.Font.GothamBold
+		Label.Text = L(labelKey)
+		Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+		Label.TextSize = 15
+		Label.TextXAlignment = Enum.TextXAlignment.Left
+		Label.Name = "Label"
+
+		local SwitchBG = Instance.new("TextButton")
+		SwitchBG.Parent = Frame
+		SwitchBG.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+		SwitchBG.Position = UDim2.new(1, -65, 0.5, -14)
+		SwitchBG.Size = UDim2.new(0, 50, 0, 28)
+		SwitchBG.Text = ""
+		Instance.new("UICorner", SwitchBG).CornerRadius = UDim.new(0, 14)
+
+		local SwitchDot = Instance.new("Frame")
+		SwitchDot.Parent = SwitchBG
+		SwitchDot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		SwitchDot.Position = UDim2.new(0, 3, 0.5, -11)
+		SwitchDot.Size = UDim2.new(0, 22, 0, 22)
+		Instance.new("UICorner", SwitchDot).CornerRadius = UDim.new(0, 11)
+
+		SwitchBG.MouseButton1Click:Connect(function()
+			local newState = not getState()
+			setState(newState)
+			if newState then
+				TweenService:Create(SwitchBG, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(34, 197, 94)}):Play()
+				TweenService:Create(SwitchDot, TweenInfo.new(0.2), {Position = UDim2.new(0, 25, 0.5, -11)}):Play()
+			else
+				TweenService:Create(SwitchBG, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 55)}):Play()
+				TweenService:Create(SwitchDot, TweenInfo.new(0.2), {Position = UDim2.new(0, 3, 0.5, -11)}):Play()
+			end
+		end)
+		return Label
+	end
+
+	local rebirthLabel = createMiscToggle(MiscScroll, 10, "AutoRebirthToggle", function() return autoRebirthEnabled end, function(v) autoRebirthEnabled = v end)
+	local buyTrailLabel = createMiscToggle(MiscScroll, 78, "AutoBuyTrailToggle", function() return autoBuyTrailEnabled end, function(v) autoBuyTrailEnabled = v end)
+	local equipTrailLabel = createMiscToggle(MiscScroll, 146, "AutoEquipTrailToggle", function() return autoEquipTrailEnabled end, function(v) autoEquipTrailEnabled = v end)
+
 
 	-- Movement page
 	local MoveLeftPanel = Instance.new("ScrollingFrame")
@@ -1582,6 +1760,7 @@ do
 		autoFarmTabBtn.Text = L("AutoFarmTab")
 		movementTabBtn.Text = L("MovementTab")
 		themeTabBtn.Text = L("ThemeTab")
+		miscTabBtn.Text = L("MiscTab")
 		adminTabBtn.Text = L("AdminTab")
 		ToggleLabel.Text = L("AutoFarmToggle")
 		InfJumpLabel.Text = L("InfJumpToggle")
