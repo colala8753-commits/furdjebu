@@ -1,111 +1,279 @@
--- ============================================================
--- ПОЛНЫЙ СКРИПТ (Modern Hub + Fun 1v1 + все функции KitagawaHub)
--- ============================================================
+-- FurdjeHub | Beautiful Tabbed GUI
+-- Size: 600x400 | Toggle button included
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
+local CoreGui = game:GetService("CoreGui")
 
-local Player = Players.LocalPlayer
-local PlayerGui = Player:WaitForChild("PlayerGui")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
 
--- ===============================
--- ОСНОВНОЕ GUI (Modern Hub)
--- ===============================
+-- Clean up old GUI if exists
+if CoreGui:FindFirstChild("FurdjeHub") then
+    CoreGui.FurdjeHub:Destroy()
+end
 
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ModernHub"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = PlayerGui
+local FurdjeHub = Instance.new("ScreenGui")
+FurdjeHub.Name = "FurdjeHub"
+FurdjeHub.ResetOnSpawn = false
+FurdjeHub.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+FurdjeHub.Parent = CoreGui
 
+-- ========== TOGGLE BUTTON ==========
+local ToggleBtn = Instance.new("TextButton")
+ToggleBtn.Name = "Toggle"
+ToggleBtn.Size = UDim2.new(0, 140, 0, 36)
+ToggleBtn.Position = UDim2.new(0, 20, 0.5, -18)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+ToggleBtn.BorderSizePixel = 0
+ToggleBtn.Text = "FurdjeHub"
+ToggleBtn.Font = Enum.Font.GothamBold
+ToggleBtn.TextSize = 15
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleBtn.AutoButtonColor = false
+ToggleBtn.Parent = FurdjeHub
+
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(0, 8)
+ToggleCorner.Parent = ToggleBtn
+
+local ToggleStroke = Instance.new("UIStroke")
+ToggleStroke.Color = Color3.fromRGB(120, 80, 255)
+ToggleStroke.Thickness = 1.5
+ToggleStroke.Parent = ToggleBtn
+
+-- ========== MAIN FRAME ==========
 local Main = Instance.new("Frame")
-Main.Size = UDim2.new(0, 760, 0, 450)
-Main.Position = UDim2.new(0.5, -380, 0.5, -225)
-Main.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
+Main.Name = "Main"
+Main.Size = UDim2.new(0, 600, 0, 400)
+Main.Position = UDim2.new(0.5, -300, 0.5, -200)
+Main.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
 Main.BorderSizePixel = 0
-Main.Parent = ScreenGui
-Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 14)
+Main.Visible = false
+Main.ClipsDescendants = true
+Main.Parent = FurdjeHub
 
-local Top = Instance.new("Frame")
-Top.Size = UDim2.new(1, 0, 0, 40)
-Top.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
-Top.BorderSizePixel = 0
-Top.Parent = Main
-Instance.new("UICorner", Top).CornerRadius = UDim.new(0, 14)
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 12)
+MainCorner.Parent = Main
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(90, 60, 200)
+MainStroke.Thickness = 1.5
+MainStroke.Parent = Main
+
+-- Soft shadow
+local Shadow = Instance.new("ImageLabel")
+Shadow.Name = "Shadow"
+Shadow.Size = UDim2.new(1, 40, 1, 40)
+Shadow.Position = UDim2.new(0, -20, 0, -20)
+Shadow.BackgroundTransparency = 1
+Shadow.Image = "rbxassetid://6014261993"
+Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+Shadow.ImageTransparency = 0.55
+Shadow.ScaleType = Enum.ScaleType.Slice
+Shadow.SliceCenter = Rect.new(49, 49, 450, 450)
+Shadow.ZIndex = 0
+Shadow.Parent = Main
+
+-- ========== TITLE BAR ==========
+local TitleBar = Instance.new("Frame")
+TitleBar.Name = "TitleBar"
+TitleBar.Size = UDim2.new(1, 0, 0, 42)
+TitleBar.BackgroundColor3 = Color3.fromRGB(22, 22, 34)
+TitleBar.BorderSizePixel = 0
+TitleBar.Parent = Main
+
+local TitleCorner = Instance.new("UICorner")
+TitleCorner.CornerRadius = UDim.new(0, 12)
+TitleCorner.Parent = TitleBar
+
+-- Fix bottom corners of title
+local TitleFix = Instance.new("Frame")
+TitleFix.Size = UDim2.new(1, 0, 0, 15)
+TitleFix.Position = UDim2.new(0, 0, 1, -15)
+TitleFix.BackgroundColor3 = Color3.fromRGB(22, 22, 34)
+TitleFix.BorderSizePixel = 0
+TitleFix.Parent = TitleBar
 
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 1, 0)
+Title.Name = "Title"
+Title.Size = UDim2.new(1, -50, 1, 0)
+Title.Position = UDim2.new(0, 16, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "Modern Hub"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Text = "FurdjeHub"
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 18
-Title.Parent = Top
+Title.TextColor3 = Color3.fromRGB(200, 180, 255)
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = TitleBar
 
-local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.new(0, 160, 1, -40)
-Sidebar.Position = UDim2.new(0, 0, 0, 40)
-Sidebar.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
-Sidebar.BorderSizePixel = 0
-Sidebar.Parent = Main
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Name = "Close"
+CloseBtn.Size = UDim2.new(0, 32, 0, 32)
+CloseBtn.Position = UDim2.new(1, -38, 0.5, -16)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(40, 30, 55)
+CloseBtn.BorderSizePixel = 0
+CloseBtn.Text = "×"
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 20
+CloseBtn.TextColor3 = Color3.fromRGB(255, 120, 120)
+CloseBtn.AutoButtonColor = false
+CloseBtn.Parent = TitleBar
 
-local Content = Instance.new("Frame")
-Content.Size = UDim2.new(1, -170, 1, -50)
-Content.Position = UDim2.new(0, 170, 0, 45)
-Content.BackgroundTransparency = 1
-Content.Parent = Main
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 6)
+CloseCorner.Parent = CloseBtn
 
-local Layout = Instance.new("UIListLayout")
-Layout.Padding = UDim.new(0, 8)
-Layout.Parent = Sidebar
+-- ========== TAB BUTTONS ==========
+local TabContainer = Instance.new("Frame")
+TabContainer.Name = "Tabs"
+TabContainer.Size = UDim2.new(1, -20, 0, 36)
+TabContainer.Position = UDim2.new(0, 10, 0, 50)
+TabContainer.BackgroundTransparency = 1
+TabContainer.Parent = Main
 
--- Вкладки
-local Tabs = {
-    "Main",
-    "Combat",
-    "Visuals",
-    "Movement",
-    "Player",
-    "Misc"
-}
+local TabLayout = Instance.new("UIListLayout")
+TabLayout.FillDirection = Enum.FillDirection.Horizontal
+TabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+TabLayout.Padding = UDim.new(0, 6)
+TabLayout.Parent = TabContainer
 
+local Tabs = {"Main", "Combat", "Visuals", "Misc", "Fun"}
+local TabButtons = {}
 local Pages = {}
 
+local function CreateTabButton(name)
+    local btn = Instance.new("TextButton")
+    btn.Name = name
+    btn.Size = UDim2.new(0, 105, 0, 32)
+    btn.BackgroundColor3 = Color3.fromRGB(30, 28, 45)
+    btn.BorderSizePixel = 0
+    btn.Text = name
+    btn.Font = Enum.Font.GothamSemibold
+    btn.TextSize = 13
+    btn.TextColor3 = Color3.fromRGB(160, 150, 180)
+    btn.AutoButtonColor = false
+    btn.Parent = TabContainer
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 7)
+    corner.Parent = btn
+
+    return btn
+end
+
 for _, name in ipairs(Tabs) do
-    local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, -10, 0, 40)
-    Button.Position = UDim2.new(0, 5, 0, 0)
-    Button.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
-    Button.Text = name
-    Button.TextColor3 = Color3.new(1, 1, 1)
-    Button.Font = Enum.Font.GothamBold
-    Button.TextSize = 16
-    Button.Parent = Sidebar
-    Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 8)
+    TabButtons[name] = CreateTabButton(name)
+end
 
-    local Page = Instance.new("ScrollingFrame")
-    Page.Size = UDim2.new(1, 0, 1, 0)
-    Page.CanvasSize = UDim2.new(0, 0, 0, 0)
-    Page.ScrollBarThickness = 4
-    Page.Visible = false
-    Page.BackgroundTransparency = 1
-    Page.Parent = Content
+-- ========== PAGES ==========
+local PageContainer = Instance.new("Frame")
+PageContainer.Name = "Pages"
+PageContainer.Size = UDim2.new(1, -20, 1, -100)
+PageContainer.Position = UDim2.new(0, 10, 0, 95)
+PageContainer.BackgroundTransparency = 1
+PageContainer.ClipsDescendants = true
+PageContainer.Parent = Main
 
-    local List = Instance.new("UIListLayout")
-    List.Padding = UDim.new(0, 6)
-    List.Parent = Page
+local function CreatePage(name)
+    local page = Instance.new("ScrollingFrame")
+    page.Name = name
+    page.Size = UDim2.new(1, 0, 1, 0)
+    page.BackgroundTransparency = 1
+    page.BorderSizePixel = 0
+    page.ScrollBarThickness = 4
+    page.ScrollBarImageColor3 = Color3.fromRGB(120, 80, 255)
+    page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    page.Visible = false
+    page.Parent = PageContainer
 
-    Pages[name] = Page
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 8)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Parent = page
 
-    Button.MouseButton1Click:Connect(function()
-        for _, p in pairs(Pages) do
-            p.Visible = false
-        end
-        Page.Visible = true
-    end)
+    local padding = Instance.new("UIPadding")
+    padding.PaddingTop = UDim.new(0, 4)
+    padding.PaddingBottom = UDim.new(0, 10)
+    padding.PaddingLeft = UDim.new(0, 4)
+    padding.PaddingRight = UDim.new(0, 4)
+    padding.Parent = page
+
+    return page
+end
+
+for _, name in ipairs(Tabs) do
+    Pages[name] = CreatePage(name)
+end
+
+-- Helper: Section label
+local function AddSection(page, text)
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 0, 22)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 14
+    label.TextColor3 = Color3.fromRGB(170, 140, 255)
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = page
+    return label
+end
+
+-- Helper: Toggle button
+local function AddToggle(page, text, default, callback)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 0, 34)
+    frame.BackgroundColor3 = Color3.fromRGB(28, 26, 40)
+    frame.BorderSizePixel = 0
+    frame.Parent = page
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 7)
+    corner.Parent = frame
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -60, 1, 0)
+    label.Position = UDim2.new(0, 12, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.Font = Enum.Font.Gotham
+    label.TextSize = 13
+    label.TextColor3 = Color3.fromRGB(220, 220, 235)
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = frame
+
+    local toggle = Instance.new("TextButton")
+    toggle.Size = UDim2.new(0, 42, 0, 22)
+    toggle.Position = UDim2.new(1, -52, 0.5, -11)
+    toggle.BackgroundColor3 = default and Color3.fromRGB(110, 70, 220) or Color3.fromRGB(50, 48, 65)
+    toggle.BorderSizePixel = 0
+    toggle.Text = ""
+    toggle.AutoButtonColor = false
+    toggle.Parent = frame
+
+    local tCorner = Instance.new("UICorner")
+    tCorner.CornerRadius = UDim.new(1, 0)
+    tCorner.Parent = toggle
+
+    local circle = Instance.new("Frame")
+    circle.Size = UDim2.new(0, 16, 0, 16)
+    circle.Position = default and UDim2.new(1, -19, 0.5, -8) or UDim2.new(0, 3, 0.5, -8)
+    circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    circle.BorderSizePixel = 0
+    circle.Parent = toggle
+
+    local cCorner = Instance.new("UICorner")
+    cCorner.CornerRadius = UDim.new(1, 0)
+    cCorner.Parent = circle
+
+    local state = default
+    toggle.MouseButton1Click:Connect(function()
+        state = not state
+        local goal    end)
 end
 
 Pages["Main"].Visible = true
