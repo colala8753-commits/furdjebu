@@ -266,21 +266,22 @@ do
 		end)
 	end
 
-	-- flyTo: по маршруту точка за точкой
+	-- flyTo: по маршруту без остановок на точках
 	local function flyTo(targetPos, farmId)
 		local char = LocalPlayer.Character
 		if not char then return false end
 		local hrp = char:FindFirstChild("HumanoidRootPart")
 		if not hrp then return false end
 
-		clearFarmBV(char)
-
-		local bv = Instance.new("BodyVelocity")
-		bv.Name = "FurdjeFarmBV"
-		bv.MaxForce = Vector3.new(100000, 100000, 100000)
-		bv.P = 1250
-		bv.Velocity = Vector3.zero
-		bv.Parent = hrp
+		-- не удаляем BV если уже есть — переиспользуем для плавности
+		local bv = hrp:FindFirstChild("FurdjeFarmBV")
+		if not bv then
+			bv = Instance.new("BodyVelocity")
+			bv.Name = "FurdjeFarmBV"
+			bv.MaxForce = Vector3.new(100000, 100000, 100000)
+			bv.P = 1250
+			bv.Parent = hrp
+		end
 
 		local reached = false
 		pcall(function()
@@ -289,26 +290,16 @@ do
 					break
 				end
 				local distance = (hrp.Position - targetPos).Magnitude
-				if distance <= 5 then
+				if distance <= 8 then
 					reached = true
-					bv.Velocity = Vector3.zero
+					-- НЕ останавливаем Velocity — сразу идём к следующей точке
 				else
 					local direction = (targetPos - hrp.Position)
-					local speed = currentSpeed
-					if distance < 25 then
-						speed = math.max(18, currentSpeed * (distance / 25))
-					end
-					bv.Velocity = direction.Unit * speed
+					bv.Velocity = direction.Unit * currentSpeed
 				end
-				task.wait(0.03)
+				task.wait(0.02)
 			end
 		end)
-
-		if bv and bv.Parent then pcall(function() bv:Destroy() end) end
-		pcall(function()
-			if hrp and hrp.Parent then hrp.AssemblyLinearVelocity = Vector3.zero end
-		end)
-		task.wait(0.08)
 		return reached
 	end
 
@@ -433,15 +424,33 @@ do
 	end
 
 	-- ====================== CONFIG ======================
+	local savedMaterials = {} -- для отката Material
+
 	local function removeAllTextures()
 		task.spawn(function()
 			local count = 0
+			-- удалить Texture / Decal
 			for _, v in pairs(workspace:GetDescendants()) do
 				if v:IsA("Texture") or v:IsA("Decal") then
 					pcall(function() v:Destroy() end)
+				elseif v:IsA("BasePart") and not v:IsA("Terrain") then
+					-- сделать серым (Plastic без текстур)
+					pcall(function()
+						if not savedMaterials[v] then
+							savedMaterials[v] = {Mat = v.Material, Color = v.Color}
+						end
+						v.Material = Enum.Material.SmoothPlastic
+						v.Color = Color3.fromRGB(160, 160, 160)
+					end)
 				end
 				count = count + 1
-				if count % 400 == 0 then task.wait() end
+				if count % 300 == 0 then task.wait() end
+			end
+			-- убрать MeshPart текстуры / SurfaceAppearance
+			for _, v in pairs(workspace:GetDescendants()) do
+				if v:IsA("SurfaceAppearance") or v:IsA("Texture") or v:IsA("Decal") then
+					pcall(function() v:Destroy() end)
+				end
 			end
 		end)
 	end
@@ -452,15 +461,40 @@ do
 			removeAllTextures()
 			if not textureConnection then
 				textureConnection = workspace.DescendantAdded:Connect(function(desc)
-					if removeTexturesEnabled and (desc:IsA("Texture") or desc:IsA("Decal")) then
-						task.defer(function()
-							if desc and desc.Parent then pcall(function() desc:Destroy() end) end
-						end)
-					end
+					if not removeTexturesEnabled then return end
+					task.defer(function()
+						if not desc or not desc.Parent then return end
+						if desc:IsA("Texture") or desc:IsA("Decal") or desc:IsA("SurfaceAppearance") then
+							pcall(function() desc:Destroy() end)
+						elseif desc:IsA("BasePart") and not desc:IsA("Terrain") then
+							pcall(function()
+								if not savedMaterials[desc] then
+									savedMaterials[desc] = {Mat = desc.Material, Color = desc.Color}
+								end
+								desc.Material = Enum.Material.SmoothPlastic
+								desc.Color = Color3.fromRGB(160, 160, 160)
+							end)
+						end
+					end)
 				end)
 			end
 		else
 			if textureConnection then textureConnection:Disconnect() textureConnection = nil end
+			-- откат материалов
+			task.spawn(function()
+				local count = 0
+				for part, data in pairs(savedMaterials) do
+					if part and part.Parent then
+						pcall(function()
+							part.Material = data.Mat
+							part.Color = data.Color
+						end)
+					end
+					count = count + 1
+					if count % 300 == 0 then task.wait() end
+				end
+				savedMaterials = {}
+			end)
 		end
 	end
 
@@ -469,23 +503,47 @@ do
 		pcall(function()
 			local lighting = game:GetService("Lighting")
 			if state then
-				settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+				pcall(function() settings().Rendering.QualityLevel = Enum.QualityLevel.Level01 end)
 				lighting.GlobalShadows = false
 				lighting.FogEnd = 9e9
+				lighting.Brightness = 2
+				lighting.EnvironmentDiffuseScale = 0
+				lighting.EnvironmentSpecularScale = 0
 				for _, v in pairs(lighting:GetChildren()) do
-					if v:IsA("BloomEffect") or v:IsA("BlurEffect") or v:IsA("SunRaysEffect") or v:IsA("ColorCorrectionEffect") or v:IsA("DepthOfFieldEffect") then
-						v.Enabled = false
+					if v:IsA("BloomEffect") or v:IsA("BlurEffect") or v:IsA("SunRaysEffect")
+						or v:IsA("ColorCorrectionEffect") or v:IsA("DepthOfFieldEffect")
+						or v:IsA("Atmosphere") or v:IsA("Clouds") or v:IsA("Sky") then
+						pcall(function() v:Destroy() end)
+					end
+				end
+				-- отключить 3D звук / частицы
+				for _, v in pairs(workspace:GetDescendants()) do
+					if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Beam") or v:IsA("Fire") or v:IsA("Smoke") or v:IsA("Sparkles") then
+						pcall(function() v.Enabled = false end)
 					end
 				end
 			else
-				settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
+				pcall(function() settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic end)
 			end
 		end)
 	end
 
 	local function setNoShadows(state)
 		noShadowsEnabled = state
-		pcall(function() game:GetService("Lighting").GlobalShadows = not state end)
+		pcall(function()
+			local lighting = game:GetService("Lighting")
+			lighting.GlobalShadows = not state
+			if state then
+				lighting.ShadowSoftness = 0
+				pcall(function()
+					for _, v in pairs(workspace:GetDescendants()) do
+						if v:IsA("BasePart") then
+							v.CastShadow = false
+						end
+					end
+				end)
+			end
+		end)
 	end
 
 	local function setFpsBoost(state)
@@ -496,14 +554,26 @@ do
 			setNoShadows(true)
 			pcall(function()
 				local t = workspace:FindFirstChildOfClass("Terrain")
-				if t then t.WaterWaveSize = 0 t.WaterWaveSpeed = 0 t.WaterReflectance = 0 t.WaterTransparency = 1 end
+				if t then
+					t.WaterWaveSize = 0
+					t.WaterWaveSpeed = 0
+					t.WaterReflectance = 0
+					t.WaterTransparency = 1
+				end
+				-- максимальный FPS boost
+				settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+				settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level01
+				local lighting = game:GetService("Lighting")
+				lighting.GlobalShadows = false
+				lighting.FogEnd = 9e9
+				lighting.Brightness = 2
 			end)
 		end
 	end
 
+	-- при старте лёгкая оптимизация (не полный remove textures)
 	task.spawn(function()
 		task.wait(1)
-		removeAllTextures()
 		pcall(function()
 			settings().Rendering.QualityLevel = Enum.QualityLevel.Level02
 			game:GetService("Lighting").GlobalShadows = false
@@ -678,7 +748,8 @@ do
 			if not isMinimized then ShadowFrame.Visible = true end
 			TweenService:Create(MainScale, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Scale = UI_SCALE}):Play()
 			TweenService:Create(ShadowScale, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Scale = UI_SCALE}):Play()
-		else			local closeTween = TweenService:Create(MainScale, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Scale = 0.2})
+		else
+			local closeTween = TweenService:Create(MainScale, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Scale = 0.2})
 			TweenService:Create(ShadowScale, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Scale = 0.2}):Play()
 			closeTween:Play()
 			closeTween.Completed:Connect(function()
@@ -1162,7 +1233,20 @@ do
 	MiscScroll.ScrollBarThickness = 0
 	MiscScroll.CanvasSize = UDim2.new(0, 0, 0, 420)
 
-	local function createConfigToggle(parent, yPos, labelKey, getState, setState, onToggle)
+	local configSwitches = {} -- для восстановления UI тумблеров
+
+	local function setSwitchVisual(sw, state)
+		if not sw then return end
+		if state then
+			sw.BG.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
+			sw.Dot.Position = UDim2.new(0, 25, 0.5, -11)
+		else
+			sw.BG.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+			sw.Dot.Position = UDim2.new(0, 3, 0.5, -11)
+		end
+	end
+
+	local function createConfigToggle(parent, yPos, labelKey, key, getState, setState, onToggle)
 		local Frame = Instance.new("Frame")
 		Frame.Parent = parent
 		Frame.BackgroundColor3 = Color3.fromRGB(16, 16, 23)
@@ -1197,24 +1281,25 @@ do
 		SwitchDot.Size = UDim2.new(0, 22, 0, 22)
 		Instance.new("UICorner", SwitchDot).CornerRadius = UDim.new(0, 11)
 
+		configSwitches[key] = {BG = SwitchBG, Dot = SwitchDot}
+
+		-- если уже включено (из конфига) — сразу зелёный
+		if getState() then
+			setSwitchVisual(configSwitches[key], true)
+		end
+
 		SwitchBG.MouseButton1Click:Connect(function()
 			local newState = not getState()
 			setState(newState)
 			if onToggle then onToggle(newState) end
-			if newState then
-				TweenService:Create(SwitchBG, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(34, 197, 94)}):Play()
-				TweenService:Create(SwitchDot, TweenInfo.new(0.2), {Position = UDim2.new(0, 25, 0.5, -11)}):Play()
-			else
-				TweenService:Create(SwitchBG, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 55)}):Play()
-				TweenService:Create(SwitchDot, TweenInfo.new(0.2), {Position = UDim2.new(0, 3, 0.5, -11)}):Play()
-			end
+			setSwitchVisual(configSwitches[key], newState)
 		end)
 	end
 
-	createConfigToggle(MiscScroll, 10, "RemoveTexturesToggle", function() return removeTexturesEnabled end, function(v) removeTexturesEnabled = v end, setRemoveTextures)
-	createConfigToggle(MiscScroll, 78, "LowGraphicsToggle", function() return lowGraphicsEnabled end, function(v) lowGraphicsEnabled = v end, setLowGraphics)
-	createConfigToggle(MiscScroll, 146, "NoShadowsToggle", function() return noShadowsEnabled end, function(v) noShadowsEnabled = v end, setNoShadows)
-	createConfigToggle(MiscScroll, 214, "FpsBoostToggle", function() return fpsBoostEnabled end, function(v) fpsBoostEnabled = v end, setFpsBoost)
+	createConfigToggle(MiscScroll, 10, "RemoveTexturesToggle", "textures", function() return removeTexturesEnabled end, function(v) removeTexturesEnabled = v end, setRemoveTextures)
+	createConfigToggle(MiscScroll, 78, "LowGraphicsToggle", "graphics", function() return lowGraphicsEnabled end, function(v) lowGraphicsEnabled = v end, setLowGraphics)
+	createConfigToggle(MiscScroll, 146, "NoShadowsToggle", "shadows", function() return noShadowsEnabled end, function(v) noShadowsEnabled = v end, setNoShadows)
+	createConfigToggle(MiscScroll, 214, "FpsBoostToggle", "fps", function() return fpsBoostEnabled end, function(v) fpsBoostEnabled = v end, setFpsBoost)
 
 	local ConfigStatusLabel = Instance.new("TextLabel")
 	ConfigStatusLabel.Parent = MiscScroll
@@ -1287,6 +1372,26 @@ do
 				TweenService:Create(FlySpeedFill, TweenInfo.new(0.15), {Size = UDim2.new(math.clamp(flySpeed / 300, 0, 1), 0, 1, 0)}):Play()
 			end
 			if BbnosInfoLabel then BbnosInfoLabel.Visible = (currentWorld == "Bbnos World") end
+			-- восстановить тумблеры Config
+			if configSwitches then
+				setSwitchVisual(configSwitches["textures"], removeTexturesEnabled)
+				setSwitchVisual(configSwitches["graphics"], lowGraphicsEnabled)
+				setSwitchVisual(configSwitches["shadows"], noShadowsEnabled)
+				setSwitchVisual(configSwitches["fps"], fpsBoostEnabled)
+			end
+			-- InfJump / Fly визуал
+			if InfJumpSwitchBG and InfJumpSwitchDot then
+				if infJumpEnabled then
+					InfJumpSwitchBG.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
+					InfJumpSwitchDot.Position = UDim2.new(0, 25, 0.5, -11)
+				end
+			end
+			if FlySwitchBG and FlySwitchDot then
+				if flyEnabled then
+					FlySwitchBG.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
+					FlySwitchDot.Position = UDim2.new(0, 25, 0.5, -11)
+				end
+			end
 		end)
 	end
 
