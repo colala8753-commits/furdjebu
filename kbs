@@ -168,10 +168,6 @@ do
 			["+800m wins"] = {Vector3.new(-1434.9,-159.7,-875.9), Vector3.new(-1430.2,-158.8,-837.1), Vector3.new(-1427.6,-125.2,-730.4), Vector3.new(-1427,-69.9,-538.6), Vector3.new(-1455.2,-69.9,-493.3), Vector3.new(-1455.9,-70.4,-444.3), Vector3.new(-1456.7,-58.5,-393), Vector3.new(-1458.4,-57.4,-266.1), Vector3.new(-1456.8,-57.4,-186.8), Vector3.new(-1452.9,-57.6,7.6), Vector3.new(-1451.4,-48.6,84.7), Vector3.new(-1451.4,83,84.7), Vector3.new(-1475.2,92.3,95.5), Vector3.new(-1475.2,212.8,95.6), Vector3.new(-1472.1,214.6,143.2), Vector3.new(-1469.4,222.8,178.5), Vector3.new(-1464.9,223,229.5), Vector3.new(-1463.9,215,260), Vector3.new(-1480.8,212.6,332.1)},
 			["+1.25b wins"] = {Vector3.new(-1434.1,-159.6,-879), Vector3.new(-1431.8,-157.7,-834.2), Vector3.new(-1430.5,-125.6,-732.2), Vector3.new(-1427.6,-69.8,-540.1), Vector3.new(-1454.8,-69.8,-495.1), Vector3.new(-1454.8,-70.3,-444.5), Vector3.new(-1455.3,-58.9,-395), Vector3.new(-1454.4,-57.5,4.5), Vector3.new(-1454.5,-55.8,84.8), Vector3.new(-1454.5,84.8,84.8), Vector3.new(-1475,102.7,96), Vector3.new(-1475,212,96), Vector3.new(-1473.6,214.7,141.2), Vector3.new(-1457.4,222.5,176.7), Vector3.new(-1455.8,223.3,228.9), Vector3.new(-1455.8,214.7,270.6), Vector3.new(-1455.8,214.5,627.8), Vector3.new(-1455.8,365.5,627.8), Vector3.new(-1434.2,359.7,490.7), Vector3.new(-1336,360.8,494.3), Vector3.new(-1246.3,328.8,517.1), Vector3.new(-1236,323.2,600.3), Vector3.new(-1220.6,342.9,810.9), Vector3.new(-1361.8,363,834.8), Vector3.new(-1403.6,373.5,724.7), Vector3.new(-1403.6,545.5,724.7), Vector3.new(-1431.3,530.6,759.6)}
 		},
-		["Bbnos World"] = {
-			["+25k cash"] = {Vector3.new(-129.9,59.1,-236.7), Vector3.new(184.7,59.2,-234), Vector3.new(317.6,59.2,-318.6), Vector3.new(415,59.2,-233.6), Vector3.new(488.4,62.7,-234.2), Vector3.new(1086.1,167.3,-703.8), Vector3.new(1074.7,167.3,772.4), Vector3.new(307.9,167.3,775), Vector3.new(-461.4,167.3,774.6), Vector3.new(-488.5,171.3,775.4), Vector3.new(-172.2,307.4,-897.1), Vector3.new(546.5,307.4,-896.3), Vector3.new(549,307.4,-968), Vector3.new(673.3,307.4,-964.5), Vector3.new(672,307.4,-899.3), Vector3.new(743,307.4,-897.9), Vector3.new(1561.5,307.4,-895.7), Vector3.new(1562.6,306.3,-105.2), Vector3.new(1831,306.3,-102.5), Vector3.new(1829.7,309.1,168.9), Vector3.new(1827.3,812.2,169.5), Vector3.new(1821.8,810.4,947.2), Vector3.new(1662.9,810.4,942.6), Vector3.new(1577.5,810.4,917.7), Vector3.new(1557.9,817.9,908.8), Vector3.new(1440,810.4,861.5), Vector3.new(1403.8,810.4,858.5), Vector3.new(1376.6,817.6,857.1), Vector3.new(1184.3,810.3,854.8), Vector3.new(1088.1,810.3,853.3), Vector3.new(944.4,807.3,851.2), Vector3.new(930.9,810.3,852.2), Vector3.new(912.7,810.3,921.8), Vector3.new(862.8,810.4,952.3), Vector3.new(807.2,812,903.5)},
-			["+50k cash"] = {Vector3.new(759.5,810.4,948.4), Vector3.new(716.1,810.4,946.7), Vector3.new(719.7,810.4,572.4), Vector3.new(584.8,810.4,566.2), Vector3.new(587.7,810.4,464.5), Vector3.new(390.5,810.4,465), Vector3.new(394.7,810.4,729.3), Vector3.new(510.2,810.4,732.8), Vector3.new(506.6,810.4,848), Vector3.new(309.8,810.4,845.7), Vector3.new(308.6,810.4,939.3), Vector3.new(120.7,810.4,947.6), Vector3.new(103.5,812.5,946.4)}
-		}
 	}
 
 	local distSortOrder = {
@@ -181,7 +177,6 @@ do
 		["+10m wins"] = 10, ["+15m wins"] = 11, ["+25m wins"] = 12,
 		["+40m wins"] = 13, ["+60m wins"] = 14,
 		["+300m wins"] = 15, ["+500m wins"] = 16, ["+800m wins"] = 17, ["+1.25b wins"] = 18,
-		["+25k cash"] = 19, ["+50k cash"] = 20
 	}
 
 	local function isObstacleName(name)
@@ -266,14 +261,12 @@ do
 		end)
 	end
 
-	-- flyTo: по маршруту без остановок на точках
 	local function flyTo(targetPos, farmId)
 		local char = LocalPlayer.Character
 		if not char then return false end
 		local hrp = char:FindFirstChild("HumanoidRootPart")
 		if not hrp then return false end
 
-		-- не удаляем BV если уже есть — переиспользуем для плавности
 		local bv = hrp:FindFirstChild("FurdjeFarmBV")
 		if not bv then
 			bv = Instance.new("BodyVelocity")
@@ -292,7 +285,6 @@ do
 				local distance = (hrp.Position - targetPos).Magnitude
 				if distance <= 8 then
 					reached = true
-					-- НЕ останавливаем Velocity — сразу идём к следующей точке
 				else
 					local direction = (targetPos - hrp.Position)
 					bv.Velocity = direction.Unit * currentSpeed
@@ -306,34 +298,31 @@ do
 	local function startAutoFarmLoop()
 		currentFarmId = currentFarmId + 1
 		local myId = currentFarmId
+		local farmWorld = currentWorld
+		local farmDistance = currentDistance
 
 		task.spawn(function()
 			while autoFarmActive and myId == currentFarmId do
+				if currentWorld ~= farmWorld then
+					break
+				end
+
 				local char = LocalPlayer.Character
 				if not char or not char:FindFirstChild("HumanoidRootPart") then
 					break
 				end
 
-				local worldData = Waypoints[currentWorld]
-				local currentWaypoints = worldData and worldData[currentDistance]
+				local worldData = Waypoints[farmWorld]
+				local currentWaypoints = worldData and worldData[farmDistance]
 
 				if currentWaypoints and #currentWaypoints > 0 then
 					setNoClip(true)
 
-					if currentWorld == "Bbnos World" and currentDistance == "+50k cash" then
-						pcall(function()
-							game:GetService("ReplicatedStorage").Remotes.RequestCheckpointTp:FireServer(12, "wins")
-						end)
-						task.wait(0.5)
-					end
-
 					for i, waypoint in ipairs(currentWaypoints) do
 						if not autoFarmActive or myId ~= currentFarmId then break end
+						if currentWorld ~= farmWorld then break end
 						if LocalPlayer.Character ~= char then break end
 						flyTo(waypoint, myId)
-						if currentWorld == "Bbnos World" and currentDistance == "+50k cash" and i == #currentWaypoints then
-							task.wait(1)
-						end
 					end
 				else
 					task.wait(1)
@@ -351,7 +340,6 @@ do
 		end)
 	end
 
-	-- Смерть: сразу гасим старый маршрут
 	LocalPlayer.CharacterRemoving:Connect(function(char)
 		if autoFarmActive then
 			currentFarmId = currentFarmId + 1
@@ -359,7 +347,6 @@ do
 		end
 	end)
 
-	-- Респавн: маршрут с первой точки
 	LocalPlayer.CharacterAdded:Connect(function(char)
 		if not autoFarmActive then return end
 		local hrp = char:WaitForChild("HumanoidRootPart", 10)
@@ -423,18 +410,15 @@ do
 		end
 	end
 
-	-- ====================== CONFIG ======================
-	local savedMaterials = {} -- для отката Material
+	local savedMaterials = {}
 
 	local function removeAllTextures()
 		task.spawn(function()
 			local count = 0
-			-- удалить Texture / Decal
 			for _, v in pairs(workspace:GetDescendants()) do
 				if v:IsA("Texture") or v:IsA("Decal") then
 					pcall(function() v:Destroy() end)
 				elseif v:IsA("BasePart") and not v:IsA("Terrain") then
-					-- сделать серым (Plastic без текстур)
 					pcall(function()
 						if not savedMaterials[v] then
 							savedMaterials[v] = {Mat = v.Material, Color = v.Color}
@@ -446,7 +430,6 @@ do
 				count = count + 1
 				if count % 300 == 0 then task.wait() end
 			end
-			-- убрать MeshPart текстуры / SurfaceAppearance
 			for _, v in pairs(workspace:GetDescendants()) do
 				if v:IsA("SurfaceAppearance") or v:IsA("Texture") or v:IsA("Decal") then
 					pcall(function() v:Destroy() end)
@@ -480,7 +463,6 @@ do
 			end
 		else
 			if textureConnection then textureConnection:Disconnect() textureConnection = nil end
-			-- откат материалов
 			task.spawn(function()
 				local count = 0
 				for part, data in pairs(savedMaterials) do
@@ -496,6 +478,43 @@ do
 				savedMaterials = {}
 			end)
 		end
+	end
+
+	local function isKeycapName(name)
+		if not name then return false end
+		local n = string.lower(name)
+		if n == "mechanical keyboard key" then return true end
+		if n == "keyboard key" then return true end
+		if n == "keycap" then return true end
+		if n == "cherry mx keycap" then return true end
+		if n == "mechanical keycap" then return true end
+		if string.find(n, "keycap") then return true end
+		if string.find(n, "keyboard key") then return true end
+		if string.find(n, "mechanical keyboard") then return true end
+		if string.find(n, "cherry mx") then return true end
+		if string.find(n, "key_cap") then return true end
+		if string.find(n, "blackkey") then return true end
+		if string.find(n, "goldenkey") or string.find(n, "goldkey") then return true end
+		if string.find(n, "droppedkey") then return true end
+		if string.find(n, "keypickup") then return true end
+		return false
+	end
+
+	local keycapConnection = nil
+
+	local function removeAllKeycaps()
+		task.spawn(function()
+			local count = 0
+			for _, v in pairs(workspace:GetDescendants()) do
+				if isKeycapName(v.Name) then
+					pcall(function() v:Destroy() end)
+				elseif (v:IsA("BasePart") or v:IsA("MeshPart") or v:IsA("UnionOperation") or v:IsA("Part")) and isKeycapName(v.Name) then
+					pcall(function() v:Destroy() end)
+				end
+				count = count + 1
+				if count % 300 == 0 then task.wait() end
+			end
+		end)
 	end
 
 	local function setLowGraphics(state)
@@ -516,14 +535,40 @@ do
 						pcall(function() v:Destroy() end)
 					end
 				end
-				-- отключить 3D звук / частицы
 				for _, v in pairs(workspace:GetDescendants()) do
 					if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Beam") or v:IsA("Fire") or v:IsA("Smoke") or v:IsA("Sparkles") then
 						pcall(function() v.Enabled = false end)
 					end
 				end
+				removeAllKeycaps()
+				if not keycapConnection then
+					keycapConnection = workspace.DescendantAdded:Connect(function(desc)
+						if not lowGraphicsEnabled then return end
+						task.defer(function()
+							if not desc or not desc.Parent then return end
+							local nm = desc.Name
+							local parentNm = desc.Parent and desc.Parent.Name or ""
+							if isKeycapName(nm) or isKeycapName(parentNm) then
+								if desc:IsA("BasePart") or desc:IsA("MeshPart") or desc:IsA("Part") then
+									local model = desc:FindFirstAncestorOfClass("Model")
+									if model and isKeycapName(model.Name) then
+										pcall(function() model:Destroy() end)
+									else
+										pcall(function() desc:Destroy() end)
+									end
+								else
+									pcall(function() desc:Destroy() end)
+								end
+							end
+						end)
+					end)
+				end
 			else
 				pcall(function() settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic end)
+				if keycapConnection then
+					keycapConnection:Disconnect()
+					keycapConnection = nil
+				end
 			end
 		end)
 	end
@@ -560,7 +605,6 @@ do
 					t.WaterReflectance = 0
 					t.WaterTransparency = 1
 				end
-				-- максимальный FPS boost
 				settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
 				settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level01
 				local lighting = game:GetService("Lighting")
@@ -571,7 +615,6 @@ do
 		end
 	end
 
-	-- при старте лёгкая оптимизация (не полный remove textures)
 	task.spawn(function()
 		task.wait(1)
 		pcall(function()
@@ -671,7 +714,6 @@ do
 		pcall(loadConfig)
 	end)
 
-	-- ===================== UI =====================
 	local UI_SCALE = 0.8
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = "FurdjeHub"
@@ -835,7 +877,6 @@ do
 		end
 	end)
 
-	-- Language selection
 	local LangFrame = Instance.new("Frame")
 	LangFrame.Name = "LangFrame"
 	LangFrame.Parent = ScreenGui
@@ -902,7 +943,6 @@ do
 	buildLangButton("RU", "Русский", 65, "RU")
 	buildLangButton("EN", "English", 205, "EN")
 
-	-- Drag MainFrame
 	local dragging, dragInput, dragStart, startPos
 	MainFrame.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -930,7 +970,6 @@ do
 		end
 	end)
 
-	-- Top controls
 	local TopControls = Instance.new("Frame")
 	TopControls.Parent = MainFrame
 	TopControls.BackgroundTransparency = 1
@@ -983,7 +1022,6 @@ do
 		end
 	end)
 
-	-- Sidebar
 	local Sidebar = Instance.new("Frame")
 	Sidebar.Parent = MainFrame
 	Sidebar.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
@@ -1138,7 +1176,6 @@ do
 	autoFarmTabBtn.BackgroundColor3 = accentColor
 	autoFarmTabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 
-	-- Theme page
 	local ThemeScroll = Instance.new("ScrollingFrame")
 	ThemeScroll.Parent = ThemePage
 	ThemeScroll.BackgroundTransparency = 1
@@ -1225,7 +1262,6 @@ do
 	createThemeRow(Color3.fromRGB(220, 220, 230), Color3.fromRGB(100, 100, 110))
 	ThemeScroll.CanvasSize = UDim2.new(0, 0, 0, ThemeList.AbsoluteContentSize.Y + 40)
 
-	-- ====================== CONFIG PAGE ======================
 	local MiscScroll = Instance.new("ScrollingFrame")
 	MiscScroll.Parent = MiscPage
 	MiscScroll.BackgroundTransparency = 1
@@ -1233,7 +1269,7 @@ do
 	MiscScroll.ScrollBarThickness = 0
 	MiscScroll.CanvasSize = UDim2.new(0, 0, 0, 420)
 
-	local configSwitches = {} -- для восстановления UI тумблеров
+	local configSwitches = {}
 
 	local function setSwitchVisual(sw, state)
 		if not sw then return end
@@ -1283,7 +1319,6 @@ do
 
 		configSwitches[key] = {BG = SwitchBG, Dot = SwitchDot}
 
-		-- если уже включено (из конфига) — сразу зелёный
 		if getState() then
 			setSwitchVisual(configSwitches[key], true)
 		end
@@ -1364,22 +1399,19 @@ do
 			if DropdownBtn and currentDistance then DropdownBtn.Text = "   " .. currentDistance .. " v" end
 			local maxSpd = 110
 			if currentWorld == "2 World" then maxSpd = 190
-			elseif currentWorld == "Bbnos World" then maxSpd = 300 end
+			elseif currentWorld == "3 World" then maxSpd = 250 end
 			if SliderFillAuto then
 				TweenService:Create(SliderFillAuto, TweenInfo.new(0.15), {Size = UDim2.new(math.clamp(currentSpeed / maxSpd, 0, 1), 0, 1, 0)}):Play()
 			end
 			if FlySpeedFill then
 				TweenService:Create(FlySpeedFill, TweenInfo.new(0.15), {Size = UDim2.new(math.clamp(flySpeed / 300, 0, 1), 0, 1, 0)}):Play()
 			end
-			if BbnosInfoLabel then BbnosInfoLabel.Visible = (currentWorld == "Bbnos World") end
-			-- восстановить тумблеры Config
 			if configSwitches then
 				setSwitchVisual(configSwitches["textures"], removeTexturesEnabled)
 				setSwitchVisual(configSwitches["graphics"], lowGraphicsEnabled)
 				setSwitchVisual(configSwitches["shadows"], noShadowsEnabled)
 				setSwitchVisual(configSwitches["fps"], fpsBoostEnabled)
 			end
-			-- InfJump / Fly визуал
 			if InfJumpSwitchBG and InfJumpSwitchDot then
 				if infJumpEnabled then
 					InfJumpSwitchBG.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
@@ -1395,8 +1427,6 @@ do
 		end)
 	end
 
-
-	-- Movement page
 	local MoveLeftPanel = Instance.new("ScrollingFrame")
 	MoveLeftPanel.Parent = MovementPage
 	MoveLeftPanel.BackgroundTransparency = 1
@@ -1550,7 +1580,6 @@ do
 		end
 	end)
 
-	-- AutoFarm page
 	local LeftPanel = Instance.new("Frame")
 	LeftPanel.Parent = AutoFarmPage
 	LeftPanel.BackgroundTransparency = 1
@@ -1572,18 +1601,6 @@ do
 	WorldsFrame.Position = UDim2.new(0, 0, 0, 26)
 	WorldsFrame.Size = UDim2.new(1, 0, 0, 44)
 	Instance.new("UICorner", WorldsFrame).CornerRadius = UDim.new(0, 10)
-
-	local BbnosInfoLabel = Instance.new("TextLabel")
-	BbnosInfoLabel.Parent = LeftPanel
-	BbnosInfoLabel.BackgroundTransparency = 1
-	BbnosInfoLabel.Position = UDim2.new(0, 0, 0, 310)
-	BbnosInfoLabel.Size = UDim2.new(1, 0, 0, 50)
-	BbnosInfoLabel.Font = Enum.Font.GothamSemibold
-	BbnosInfoLabel.Text = "Что бы использовать +50k cash фарм вам нужно сначала нафармить 50k денег а после включать функцию"
-	BbnosInfoLabel.TextColor3 = Color3.fromRGB(240, 80, 80)
-	BbnosInfoLabel.TextSize = 11
-	BbnosInfoLabel.TextWrapped = true
-	BbnosInfoLabel.Visible = false
 
 	local worldButtons = {}
 	local DropdownList = Instance.new("ScrollingFrame")
@@ -1658,9 +1675,15 @@ do
 			Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
 		end
 		btn.MouseButton1Click:Connect(function()
+			local wasFarming = autoFarmActive
+			if wasFarming then
+				autoFarmActive = false
+				currentFarmId = currentFarmId + 1
+				clearFarmBV()
+				setNoClip(false)
+			end
 			currentWorld = text
 			WorldLabel.Text = string.format(L("WorldLabel"), text)
-			BbnosInfoLabel.Visible = (text == "Bbnos World")
 			for _, b in ipairs(worldButtons) do
 				b.BackgroundTransparency = 1
 				b.TextColor3 = Color3.fromRGB(140, 140, 160)
@@ -1671,18 +1694,21 @@ do
 			buildDistanceOptions()
 			local maxSpd = 110
 			if currentWorld == "2 World" then maxSpd = 190
-			elseif currentWorld == "Bbnos World" then maxSpd = 300 end
+			elseif currentWorld == "3 World" then maxSpd = 250 end
 			if currentSpeed > maxSpd then currentSpeed = maxSpd end
 			SliderLabel.Text = string.format(L("SpeedLabel"), currentSpeed)
 			TweenService:Create(SliderFillAuto, TweenInfo.new(0.2), {Size = UDim2.new(currentSpeed / maxSpd, 0, 1, 0)}):Play()
+			if wasFarming and currentDistance then
+				autoFarmActive = true
+				startAutoFarmLoop()
+			end
 		end)
 		table.insert(worldButtons, btn)
 	end
 
-	createWorldBtn("1 World", 0, 0.25, 1)
-	createWorldBtn("2 World", 0.25, 0.25, 2)
-	createWorldBtn("3 World", 0.5, 0.25, 3)
-	createWorldBtn("Bbnos World", 0.75, 0.25, 4)
+	createWorldBtn("1 World", 0, 0.333, 1)
+	createWorldBtn("2 World", 0.333, 0.333, 2)
+	createWorldBtn("3 World", 0.666, 0.333, 3)
 
 	local ToggleFrame = Instance.new("Frame")
 	ToggleFrame.Parent = LeftPanel
@@ -1768,7 +1794,7 @@ do
 		local fraction = math.clamp((input.Position.X - SliderTrack.AbsolutePosition.X) / SliderTrack.AbsoluteSize.X, 0, 1)
 		local maxSpd = 110
 		if currentWorld == "2 World" then maxSpd = 190
-		elseif currentWorld == "Bbnos World" then maxSpd = 300 end
+		elseif currentWorld == "3 World" then maxSpd = 250 end
 		currentSpeed = math.floor(fraction * maxSpd)
 		SliderLabel.Text = string.format(L("SpeedLabel"), currentSpeed)
 		TweenService:Create(SliderFillAuto, TweenInfo.new(0.05), {Size = UDim2.new(fraction, 0, 1, 0)}):Play()
@@ -1842,7 +1868,6 @@ do
 		DropdownList.Visible = not DropdownList.Visible
 	end)
 
-	-- Admin page
 	local LockFrame = Instance.new("Frame")
 	LockFrame.Parent = AdminPage
 	LockFrame.BackgroundTransparency = 1
