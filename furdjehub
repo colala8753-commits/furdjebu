@@ -33,7 +33,7 @@ local Modes = {
     {
         Name = "🌱 Grow a Garden 2",
         Description = "Grow a Garden 2",
-        Script = "",
+        Script = "loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/gag2"))()",
         Game = "garden"
     },
     {
