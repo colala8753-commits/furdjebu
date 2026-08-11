@@ -1,15 +1,12 @@
-
 --[[
-    MM2 Trade Value Overlay
-    Supreme Values style
-    Не создаёт свой ScreenGui — только добавляет текст внутрь окна трейда
+    MM2 Trade Value Overlay (Mobile + PC)
+    Supreme Values - Expanded Godlies
 ]]
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local RunService = game:GetService("RunService")
 
--- ====================== VALUES (Supreme Values \~ Aug 2026) ======================
+-- ====================== VALUES ======================
 local Values = {
     -- ========== ANCIENTS ==========
     ["Nik's Scythe"] = 999999999,
@@ -24,19 +21,16 @@ local Values = {
     ["Elderwood Scythe"] = 38,
     ["Swirly Axe"] = 38,
     ["Hallowscythe"] = 30,
-    ["Logchopper"] = 18,
+    ["Logchopper"] = 18,          -- со скрина
     ["Icewing"] = 13,
 
     -- ========== CHROMAS ==========
-    ["Chroma Traveler's Gun"] = 220000,
-    ["C. Traveler's Gun"] = 220000,
+    ["Chroma Traveler's Gun"] = 220000, ["C. Traveler's Gun"] = 220000,
     ["Chroma Evergun"] = 75000,
     ["Chroma Evergreen"] = 48000,
     ["Chroma Bauble"] = 34000,
-    ["Chroma Vampire's Gun"] = 29000,
-    ["C. Vampire's Gun"] = 29000,
-    ["Chroma Constellation"] = 27000,
-    ["C. Constellation"] = 27000,
+    ["Chroma Vampire's Gun"] = 29000, ["C. Vampire's Gun"] = 29000,
+    ["Chroma Constellation"] = 27000, ["C. Constellation"] = 27000,
     ["Chroma Alienbeam"] = 24000,
     ["Chroma Sunrise"] = 13250,
     ["Chroma Raygun"] = 12750,
@@ -62,7 +56,7 @@ local Values = {
     ["C. Elderwood Blade"] = 37,
     ["Chroma Deathshard"] = 35,
 
-    -- ========== GODLIES ==========
+    -- ========== GODLIES (расширенный список) ==========
     ["Traveler's Gun"] = 5600,
     ["Evergun"] = 3450,
     ["Constellation"] = 2700,
@@ -106,6 +100,170 @@ local Values = {
     ["Bat"] = 120,
     ["Pearlshine"] = 85,
     ["Pearl"] = 80,
+    ["Candy"] = 80,
+    ["Heartblade"] = 65,
+    ["Luger"] = 40,
+    ["Red Luger"] = 37,
+    ["Phantom"] = 35,
+    ["Spectre"] = 35,
+    ["Candleflame"] = 33,
+    ["Darkbringer"] = 33,
+    ["Elderwood Blade"] = 33,
+    ["Elderwood Revolver"] = 33,
+    ["Iceblaster"] = 33,
+    ["Lightbringer"] = 33,
+    ["Makeshift"] = 33,
+    ["Sugar"] = 32,
+    ["Ornament"] = 30,
+    ["Green Luger"] = 23,
+    ["Amerilaser"] = 22,
+    ["Laser"] = 22,
+    ["Hallowgun"] = 20,
+    ["Nightblade"] = 20,
+    ["Shark"] = 20,
+    ["Heat"] = 15,
+    ["Eternalcane"] = 13,
+    ["Prismatic"] = 7,
+    ["Snowflake"] = 5,
+    ["Iceflake"] = 15,
+    ["Corrupt"] = 425,
+
+    -- Дополнительные Godlies / низкие тиры
+    ["Seer"] = 5,
+    ["Red Seer"] = 5,
+    ["Blue Seer"] = 5,
+    ["Purple Seer"] = 5,
+    ["Orange Seer"] = 5,
+    ["Yellow Seer"] = 5,
+    ["Flames"] = 5,
+    ["Cookieblade"] = 5,
+    ["Peppermint"] = 5,
+    ["Eggblade"] = 5,
+    ["Deathshard"] = 13,
+    ["Nebula"] = 13,
+    ["Bioblade"] = 10,
+    ["Virtual"] = 10,
+    ["Slasher"] = 8,
+    ["Fang"] = 8,
+    ["Tides"] = 8,
+    ["Ripper"] = 7,
+    ["Saw"] = 6,
+    ["Gingerblade"] = 6,
+    ["Cookiecane"] = 5,
+    ["Chroma Slasher"] = 33,
+    ["Chroma Gingerblade"] = 28,
+    ["Chroma Saw"] = 25,
+}
+
+-- ====================== HELPERS ======================
+local function getValue(name)
+    if not name or name == "" then return 0 end
+    name = name:gsub("%s+", " "):match("^%s*(.-)%s*$")
+    return Values[name] or Values[name:lower()] or 0
+end
+
+local function formatNum(n)
+    if n >= 1000000 then return string.format("%.1fM", n/1000000)
+    elseif n >= 1000 then return string.format("%.1fk", n/1000)
+    end
+    return tostring(math.floor(n + 0.5))
+end
+
+-- ====================== MAIN ======================
+local function getSideItems(sideFrame)
+    local items = {}
+    if not sideFrame then return items end
+
+    for _, desc in ipairs(sideFrame:GetDescendants()) do
+        if desc:IsA("TextLabel") or desc:IsA("TextButton") then
+            local t = desc.Text
+            if t and #t > 1 and #t < 40 then
+                local clean = t:gsub("%s+", " "):match("^%s*(.-)%s*$")
+                if not clean:find("OFFER") and not clean:find("Tap") and not clean:find("remove")
+                   and not clean:find("wait") and not clean:find("Decline") and not clean:find("Add")
+                   and not clean:find("%d") and not clean:find("Please") then
+                    if getValue(clean) > 0 then
+                        table.insert(items, clean)
+                    end
+                end
+            end
+        end
+    end
+    return items
+end
+
+local function update()
+    local pg = LocalPlayer:FindFirstChild("PlayerGui")
+    if not pg then return end
+
+    local yourFrame, theirFrame, mainTrade = nil, nil, nil
+
+    for _, v in ipairs(pg:GetDescendants()) do
+        if v:IsA("TextLabel") or v:IsA("TextButton") then
+            local txt = v.Text:upper()
+            if txt:find("YOUR OFFER") then
+                yourFrame = v.Parent
+                mainTrade = v:FindFirstAncestorOfClass("Frame") or v:FindFirstAncestorOfClass("ScrollingFrame")
+            elseif txt:find("THEIR OFFER") then
+                theirFrame = v.Parent
+            end
+        end
+    end
+
+    if not yourFrame and not theirFrame then return end
+
+    local yourItems = getSideItems(yourFrame)
+    local theirItems = getSideItems(theirFrame)
+
+    local youVal, themVal = 0, 0
+    for _, n in ipairs(yourItems) do youVal += getValue(n) end
+    for _, n in ipairs(theirItems) do themVal += getValue(n) end
+
+    local diff = youVal - themVal
+    local percent = 0
+    if themVal > 0 then
+        percent = math.floor((diff / themVal) * 100 + 0.5)
+    elseif youVal > 0 then
+        percent = 100
+    end
+
+    local text = string.format("YOU %s  |  THEM %s  |  %s%d  %d%%",
+        formatNum(youVal), formatNum(themVal),
+        diff >= 0 and "+" or "", diff, percent)
+
+    local parent = mainTrade or yourFrame or theirFrame
+    if not parent then return end
+
+    local label = parent:FindFirstChild("ValueOverlay")
+    if not label then
+        label = Instance.new("TextLabel")
+        label.Name = "ValueOverlay"
+        label.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+        label.BackgroundTransparency = 0.25
+        label.BorderSizePixel = 0
+        label.Size = UDim2.new(1, -8, 0, 32)
+        label.Position = UDim2.new(0, 4, 1, -38)
+        label.Font = Enum.Font.GothamBold
+        label.TextSize = 16
+        label.TextColor3 = Color3.fromRGB(255, 255, 255)
+        label.TextStrokeTransparency = 0.4
+        label.TextStrokeColor3 = Color3.new(0,0,0)
+        label.ZIndex = 100
+        label.Parent = parent
+    end
+
+    label.Text = text
+    label.Visible = true
+end
+
+task.spawn(function()
+    while true do
+        pcall(update)
+        task.wait(0.3)
+    end
+end)
+
+print("[MM2 Value] Expanded Godlies version loaded")    ["Pearl"] = 80,
     ["Candy"] = 80,
     ["Heartblade"] = 65,
     ["Luger"] = 40,
