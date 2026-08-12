@@ -1,14 +1,27 @@
--- FURDJEHUB - LAUNCHER [Универсальный загрузчик режимов]
-local player = game.Players.LocalPlayer
+-- FURDJEHUB - LAUNCHER v2.2 (исправленная версия)
+local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+
+local player = Players.LocalPlayer
 
 -- Удаляем старые GUI
-for _, v in pairs(player.PlayerGui:GetChildren()) do
-    if v.Name == "FurdjehubLauncher" or v.Name == "FurdjehubLauncher2" then
-        v:Destroy()
+pcall(function()
+    for _, v in pairs(CoreGui:GetChildren()) do
+        if v.Name == "FurdjehubLauncher2" then
+            v:Destroy()
+        end
     end
-end
+end)
+
+pcall(function()
+    for _, v in pairs(player:WaitForChild("PlayerGui"):GetChildren()) do
+        if v.Name == "FurdjehubLauncher2" then
+            v:Destroy()
+        end
+    end
+end)
 
 -- ===== РЕЖИМЫ =====
 local Modes = {
@@ -16,47 +29,48 @@ local Modes = {
         Name = "🔪 MM2",
         Description = "Murder Mystery 2",
         Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mm2.lua"))()',
-        Game = "mm2"
     },
     {
         Name = "🔫 RIVALS",
         Description = "RIVALS",
         Script = "",
-        Game = "rivals"
     },
     {
         Name = "⚔️ Murderers VS Sheriffs",
         Description = "Murderers VS Sheriffs Duels",
         Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mvs"))()',
-        Game = "mvs"
     },
     {
         Name = "🌱 Grow a Garden 2",
         Description = "Grow a Garden 2",
         Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/gag2"))()',
-        Game = "garden"
     },
     {
         Name = "⌨️ +1 Speed Keyboard",
         Description = "Candy & Chocolate Escape",
         Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/kbs"))()',
-        Game = "speedkeyboard"
     }
 }
 
-local loadedScript = nil
-local isScriptRunning = false
-
--- ===== УВЕДОМЛЕНИЯ =====
 local function showNotification(text, color)
     color = color or Color3.fromRGB(0, 170, 90)
+    
     local notif = Instance.new("ScreenGui")
-    notif.Name = "Notification"
-    notif.Parent = player:WaitForChild("PlayerGui")
+    notif.Name = "FurdjeNotif"
+    notif.IgnoreGuiInset = true
+    notif.ResetOnSpawn = false
+    
+    -- Пробуем CoreGui
+    local success = pcall(function()
+        notif.Parent = CoreGui
+    end)
+    if not success then
+        notif.Parent = player:WaitForChild("PlayerGui")
+    end
     
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 320, 0, 52)
-    frame.Position = UDim2.new(0.5, -160, 0.12, 0)
+    frame.Size = UDim2.new(0, 340, 0, 50)
+    frame.Position = UDim2.new(0.5, -170, 0.1, 0)
     frame.BackgroundColor3 = color
     frame.BorderSizePixel = 0
     frame.Parent = notif
@@ -66,46 +80,255 @@ local function showNotification(text, color)
     corner.Parent = frame
     
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -16, 1, 0)
-    label.Position = UDim2.new(0, 8, 0, 0)
+    label.Size = UDim2.new(1, -20, 1, 0)
+    label.Position = UDim2.new(0, 10, 0, 0)
+    label.BackgroundTransparency = 1
     label.Text = text
     label.TextColor3 = Color3.fromRGB(255, 255, 255)
     label.TextSize = 15
     label.Font = Enum.Font.GothamBold
-    label.BackgroundTransparency = 1
     label.Parent = frame
     
-    -- Анимация появления
-    frame.BackgroundTransparency = 1
-    label.TextTransparency = 1
-    TweenService:Create(frame, TweenInfo.new(0.25), {BackgroundTransparency = 0}):Play()
-    TweenService:Create(label, TweenInfo.new(0.25), {TextTransparency = 0}):Play()
-    
-    task.delay(2.3, function()
-        TweenService:Create(frame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
-        TweenService:Create(label, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-        task.wait(0.35)
+    task.delay(2.5, function()
         notif:Destroy()
     end)
 end
 
--- ===== ФУНКЦИЯ ЗАГРУЗКИ =====
 local function loadScript(scriptCode)
-    if isScriptRunning then
-        pcall(function()
-            loadedScript = nil
-        end)
-        isScriptRunning = false
-    end
-    
     if scriptCode and scriptCode \~= "" then
         local success, err = pcall(function()
-            local func = loadstring(scriptCode)
-            if func then
-                loadedScript = func
-                func()
-                isScriptRunning = true
-                print("✅ Скрипт успешно загружен!")
+            loadstring(scriptCode)()
+        end)
+        if not success then
+            warn("Ошибка загрузки:", err)
+            showNotification("❌ Ошибка загрузки скрипта!", Color3.fromRGB(200, 50, 50))
+        else
+            print("✅ Скрипт загружен")
+        end
+    else
+        showNotification("⚠️ Скрипт для этого режима не добавлен", Color3.fromRGB(200, 140, 40))
+    end
+end
+
+-- ===== СОЗДАНИЕ GUI =====
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FurdjehubLauncher2"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.DisplayOrder = 999
+
+-- Важно: сначала пробуем CoreGui
+local parentSuccess = pcall(function()
+    screenGui.Parent = CoreGui
+end)
+
+if not parentSuccess then
+    screenGui.Parent = player:WaitForChild("PlayerGui")
+    print("⚠ Положил в PlayerGui")
+else
+    print("✅ Положил в CoreGui")
+end
+
+-- Главное окно
+local window = Instance.new("Frame")
+window.Name = "MainWindow"
+window.Size = UDim2.new(0, 600, 0, 400)
+window.Position = UDim2.new(0.5, -300, 0.5, -200)
+window.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
+window.BorderSizePixel = 0
+window.Visible = true
+window.Parent = screenGui
+
+local windowCorner = Instance.new("UICorner")
+windowCorner.CornerRadius = UDim.new(0, 14)
+windowCorner.Parent = window
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(60, 60, 95)
+stroke.Thickness = 1.5
+stroke.Parent = window
+
+-- Заголовок
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 48)
+titleBar.BackgroundColor3 = Color3.fromRGB(26, 26, 42)
+titleBar.BorderSizePixel = 0
+titleBar.Parent = window
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 14)
+titleCorner.Parent = titleBar
+
+local titleFix = Instance.new("Frame")
+titleFix.Size = UDim2.new(1, 0, 0, 20)
+titleFix.Position = UDim2.new(0, 0, 1, -20)
+titleFix.BackgroundColor3 = Color3.fromRGB(26, 26, 42)
+titleFix.BorderSizePixel = 0
+titleFix.Parent = titleBar
+
+local titleText = Instance.new("TextLabel")
+titleText.Size = UDim2.new(1, -60, 1, 0)
+titleText.Position = UDim2.new(0, 18, 0, 0)
+titleText.BackgroundTransparency = 1
+titleText.Text = "⚡ FURDJEHUB"
+titleText.TextColor3 = Color3.fromRGB(255, 210, 70)
+titleText.TextSize = 20
+titleText.Font = Enum.Font.GothamBold
+titleText.TextXAlignment = Enum.TextXAlignment.Left
+titleText.Parent = titleBar
+
+-- Кнопка закрытия
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 34, 0, 34)
+closeBtn.Position = UDim2.new(1, -42, 0.5, -17)
+closeBtn.BackgroundColor3 = Color3.fromRGB(190, 45, 45)
+closeBtn.Text = "✕"
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.TextSize = 16
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.AutoButtonColor = false
+closeBtn.Parent = titleBar
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 8)
+closeCorner.Parent = closeBtn
+
+closeBtn.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+-- Плавающая кнопка (чтобы можно было открыть обратно)
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 46, 0, 46)
+toggleBtn.Position = UDim2.new(0, 15, 0, 15)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(26, 26, 42)
+toggleBtn.Text = "⚡"
+toggleBtn.TextColor3 = Color3.fromRGB(255, 220, 80)
+toggleBtn.TextSize = 20
+toggleBtn.Font = Enum.Font.GothamBold
+toggleBtn.AutoButtonColor = false
+toggleBtn.Parent = screenGui
+
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(0, 12)
+toggleCorner.Parent = toggleBtn
+
+local toggleStroke = Instance.new("UIStroke")
+toggleStroke.Color = Color3.fromRGB(80, 80, 120)
+toggleStroke.Thickness = 1.5
+toggleStroke.Parent = toggleBtn
+
+toggleBtn.MouseButton1Click:Connect(function()
+    window.Visible = not window.Visible
+end)
+
+-- Перетаскивание
+local dragging, dragStart, startPos
+titleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = window.Position
+    end
+end)
+
+titleBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        window.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- Контент
+local content = Instance.new("Frame")
+content.Size = UDim2.new(1, -24, 1, -70)
+content.Position = UDim2.new(0, 12, 0, 56)
+content.BackgroundTransparency = 1
+content.Parent = window
+
+local yPos = 0
+
+for i, mode in ipairs(Modes) do
+    local btn = Instance.new("Frame")
+    btn.Size = UDim2.new(1, 0, 0, 54)
+    btn.Position = UDim2.new(0, 0, 0, yPos)
+    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 48)
+    btn.BorderSizePixel = 0
+    btn.Parent = content
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 10)
+    btnCorner.Parent = btn
+    
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, -130, 0, 26)
+    nameLabel.Position = UDim2.new(0, 14, 0, 6)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = mode.Name
+    nameLabel.TextColor3 = Color3.fromRGB(240, 240, 255)
+    nameLabel.TextSize = 15
+    nameLabel.Font = Enum.Font.GothamBold
+    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    nameLabel.Parent = btn
+    
+    local descLabel = Instance.new("TextLabel")
+    descLabel.Size = UDim2.new(1, -130, 0, 18)
+    descLabel.Position = UDim2.new(0, 14, 0, 30)
+    descLabel.BackgroundTransparency = 1
+    descLabel.Text = mode.Description
+    descLabel.TextColor3 = Color3.fromRGB(140, 145, 175)
+    descLabel.TextSize = 12
+    descLabel.Font = Enum.Font.Gotham
+    descLabel.TextXAlignment = Enum.TextXAlignment.Left
+    descLabel.Parent = btn
+    
+    local launchBtn = Instance.new("TextButton")
+    launchBtn.Size = UDim2.new(0, 96, 0, 32)
+    launchBtn.Position = UDim2.new(1, -110, 0.5, -16)
+    launchBtn.BackgroundColor3 = Color3.fromRGB(0, 155, 80)
+    launchBtn.Text = "▶  ЗАПУСК"
+    launchBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    launchBtn.TextSize = 13
+    launchBtn.Font = Enum.Font.GothamBold
+    launchBtn.AutoButtonColor = false
+    launchBtn.Parent = btn
+    
+    local launchCorner = Instance.new("UICorner")
+    launchCorner.CornerRadius = UDim.new(0, 8)
+    launchCorner.Parent = launchBtn
+    
+    launchBtn.MouseButton1Click:Connect(function()
+        if mode.Script and mode.Script \~= "" then
+            screenGui:Destroy()
+            loadScript(mode.Script)
+        else
+            showNotification("⚠️ Скрипт для " .. mode.Name .. " не добавлен", Color3.fromRGB(200, 140, 40))
+        end
+    end)
+    
+    yPos = yPos + 62
+end
+
+-- Футер
+local footer = Instance.new("TextLabel")
+footer.Size = UDim2.new(1, -24, 0, 20)
+footer.Position = UDim2.new(0, 12, 1, -28)
+footer.BackgroundTransparency = 1
+footer.Text = "FURDJEHUB v2.2  •  Выбери режим и нажми ЗАПУСК"
+footer.TextColor3 = Color3.fromRGB(95, 100, 130)
+footer.TextSize = 12
+footer.Font = Enum.Font.Gotham
+footer.Parent = window
+
+print("⚡ FURDJEHUB Launcher v2.2 загружен!")
+print("Окно должно быть видно в центре экрана")                print("✅ Скрипт успешно загружен!")
             else
                 error("Не удалось скомпилировать скрипт")
             end
