@@ -1,21 +1,22 @@
--- Проверяем, что игрок существует
+-- Создаем GUI с максимальной видимостью
 local player = game.Players.LocalPlayer
-if not player then
-    wait(1)
-    player = game.Players.LocalPlayer
-end
+local guiService = game:GetService("GuiService")
 
--- Создаем GUI с гарантией отображения
+-- Удаляем старый GUI если есть
+local oldGui = player.PlayerGui:FindFirstChild("FurdjehubLoader")
+if oldGui then oldGui:Destroy() end
+
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "FurdjehubLoader"
-ScreenGui.ResetOnSpawn = false -- Не удалять при респавне
-ScreenGui.Parent = player:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.Parent = player.PlayerGui
 
--- Фоновое окно
+-- Главное окно с эффектом свечения
 local Frame = Instance.new("Frame")
 Frame.Size = UDim2.new(0, 600, 0, 450)
 Frame.Position = UDim2.new(0.5, -300, 0.5, -225)
-Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 Frame.BackgroundTransparency = 0
 Frame.BorderSizePixel = 0
 Frame.ClipsDescendants = true
@@ -23,49 +24,96 @@ Frame.Active = true
 Frame.Draggable = true
 Frame.Parent = ScreenGui
 
--- Скругление углов фрейма
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 20)
-UICorner.Parent = Frame
+-- Тень
+local Shadow = Instance.new("Frame")
+Shadow.Size = UDim2.new(1, 10, 1, 10)
+Shadow.Position = UDim2.new(0, -5, 0, -5)
+Shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Shadow.BackgroundTransparency = 0.5
+Shadow.BorderSizePixel = 0
+Shadow.Parent = Frame
 
--- Заголовок
+local ShadowCorner = Instance.new("UICorner")
+ShadowCorner.CornerRadius = UDim.new(0, 25)
+ShadowCorner.Parent = Shadow
+
+-- Основной фон
+local MainBg = Instance.new("Frame")
+MainBg.Size = UDim2.new(1, 0, 1, 0)
+MainBg.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
+MainBg.BackgroundTransparency = 0
+MainBg.BorderSizePixel = 0
+MainBg.Parent = Frame
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 20)
+MainCorner.Parent = MainBg
+
+-- Градиентный эффект
+local Gradient = Instance.new("UIGradient")
+Gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(30, 30, 50)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 35))
+})
+Gradient.Parent = MainBg
+
+-- Заголовок с подсветкой
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Size = UDim2.new(1, 0, 0, 55)
 Title.Position = UDim2.new(0, 0, 0, 0)
-Title.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+Title.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
 Title.BackgroundTransparency = 0
 Title.BorderSizePixel = 0
 Title.Text = "furdjehub loader"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.TextSize = 24
+Title.TextSize = 28
 Title.TextScaled = true
 Title.Font = Enum.Font.GothamBold
 Title.Parent = Frame
 
--- Скругление заголовка
 local TitleCorner = Instance.new("UICorner")
 TitleCorner.CornerRadius = UDim.new(0, 20)
 TitleCorner.Parent = Title
 
--- Функция создания кнопки режима
-local function CreateModeButton(yPos, modeName, scriptUrl, color)
-    -- Фрейм режима
+-- Линия под заголовком
+local Line = Instance.new("Frame")
+Line.Size = UDim2.new(0.9, 0, 0, 2)
+Line.Position = UDim2.new(0.05, 0, 0, 55)
+Line.BackgroundColor3 = Color3.fromRGB(100, 100, 150)
+Line.BackgroundTransparency = 0.3
+Line.BorderSizePixel = 0
+Line.Parent = Frame
+
+-- Функция создания кнопки режима с анимацией
+local function CreateModeButton(yPos, modeName, scriptUrl, color, icon)
     local ModeFrame = Instance.new("Frame")
-    ModeFrame.Size = UDim2.new(0, 520, 0, 70)
-    ModeFrame.Position = UDim2.new(0.5, -260, 0, yPos)
-    ModeFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    ModeFrame.Size = UDim2.new(0, 530, 0, 75)
+    ModeFrame.Position = UDim2.new(0.5, -265, 0, yPos)
+    ModeFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
     ModeFrame.BackgroundTransparency = 0
     ModeFrame.BorderSizePixel = 0
+    ModeFrame.ClipsDescendants = true
     ModeFrame.Parent = Frame
     
     local ModeCorner = Instance.new("UICorner")
-    ModeCorner.CornerRadius = UDim.new(0, 15)
+    ModeCorner.CornerRadius = UDim.new(0, 12)
     ModeCorner.Parent = ModeFrame
+    
+    -- Иконка режима
+    local Icon = Instance.new("TextLabel")
+    Icon.Size = UDim2.new(0, 40, 1, 0)
+    Icon.Position = UDim2.new(0, 10, 0, 0)
+    Icon.BackgroundTransparency = 1
+    Icon.Text = icon or "▶"
+    Icon.TextColor3 = Color3.fromRGB(200, 200, 255)
+    Icon.TextSize = 24
+    Icon.Font = Enum.Font.GothamBold
+    Icon.Parent = ModeFrame
     
     -- Название режима
     local ModeLabel = Instance.new("TextLabel")
-    ModeLabel.Size = UDim2.new(0, 350, 1, 0)
-    ModeLabel.Position = UDim2.new(0, 15, 0, 0)
+    ModeLabel.Size = UDim2.new(0, 320, 1, 0)
+    ModeLabel.Position = UDim2.new(0, 60, 0, 0)
     ModeLabel.BackgroundTransparency = 1
     ModeLabel.Text = modeName
     ModeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -76,36 +124,145 @@ local function CreateModeButton(yPos, modeName, scriptUrl, color)
     
     -- Кнопка "Играть"
     local PlayButton = Instance.new("TextButton")
-    PlayButton.Size = UDim2.new(0, 120, 0, 45)
-    PlayButton.Position = UDim2.new(1, -135, 0.5, -22.5)
+    PlayButton.Size = UDim2.new(0, 130, 0, 50)
+    PlayButton.Position = UDim2.new(1, -145, 0.5, -25)
     PlayButton.BackgroundColor3 = color
     PlayButton.BorderSizePixel = 0
-    PlayButton.Text = "Играть"
+    PlayButton.Text = "▶ ИГРАТЬ"
     PlayButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    PlayButton.TextSize = 18
+    PlayButton.TextSize = 16
     PlayButton.Font = Enum.Font.GothamBold
     PlayButton.Parent = ModeFrame
     
     local ButtonCorner = Instance.new("UICorner")
-    ButtonCorner.CornerRadius = UDim.new(0, 10)
+    ButtonCorner.CornerRadius = UDim.new(0, 8)
     ButtonCorner.Parent = PlayButton
     
-    -- Эффект наведения
+    -- Эффект свечения кнопки
+    local Glow = Instance.new("Frame")
+    Glow.Size = UDim2.new(1, 0, 1, 0)
+    Glow.Position = UDim2.new(0, 0, 0, 0)
+    Glow.BackgroundColor3 = color
+    Glow.BackgroundTransparency = 0.7
+    Glow.BorderSizePixel = 0
+    Glow.ZIndex = 0
+    Glow.Parent = PlayButton
+    
+    local GlowCorner = Instance.new("UICorner")
+    GlowCorner.CornerRadius = UDim.new(0, 8)
+    GlowCorner.Parent = Glow
+    
+    -- Анимация наведения
+    local tweenService = game:GetService("TweenService")
+    
     PlayButton.MouseEnter:Connect(function()
-        PlayButton.BackgroundColor3 = Color3.fromRGB(
-            math.min(color.R * 255 + 30, 255),
-            math.min(color.G * 255 + 30, 255),
-            math.min(color.B * 255 + 30, 255)
-        )
+        tweenService:Create(PlayButton, TweenInfo.new(0.2), {
+            BackgroundColor3 = Color3.fromRGB(
+                math.min(color.R * 255 + 40, 255),
+                math.min(color.G * 255 + 40, 255),
+                math.min(color.B * 255 + 40, 255)
+            )
+        }):Play()
+        tweenService:Create(ModeFrame, TweenInfo.new(0.2), {
+            BackgroundColor3 = Color3.fromRGB(45, 45, 70)
+        }):Play()
     end)
     
     PlayButton.MouseLeave:Connect(function()
-        PlayButton.BackgroundColor3 = color
+        tweenService:Create(PlayButton, TweenInfo.new(0.2), {
+            BackgroundColor3 = color
+        }):Play()
+        tweenService:Create(ModeFrame, TweenInfo.new(0.2), {
+            BackgroundColor3 = Color3.fromRGB(35, 35, 55)
+        }):Play()
     end)
     
-    -- Обработчик нажатия
+    -- Обработчик нажатия с уведомлением
     PlayButton.MouseButton1Click:Connect(function()
-        loadstring(game:HttpGet(scriptUrl))()
+        local success, err = pcall(function()
+            loadstring(game:HttpGet(scriptUrl))()
+        end)
+        if not success then
+            warn("Ошибка загрузки: " .. tostring(err))
+        end
+    end)
+end
+
+-- Создаем три режима с иконками
+CreateModeButton(75, "Murder Mystery 2", "https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mm2.lua", Color3.fromRGB(220, 50, 50), "🔪")
+CreateModeButton(165, "+1 Speed Keyboard Escape", "https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/kbs", Color3.fromRGB(50, 150, 220), "⌨️")
+CreateModeButton(255, "Murder vs Sheriff Duels", "https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mvs", Color3.fromRGB(50, 200, 100), "⚔️")
+
+-- Кнопка закрытия
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 35, 0, 35)
+CloseButton.Position = UDim2.new(1, -45, 0, 10)
+CloseButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+CloseButton.BorderSizePixel = 0
+CloseButton.Text = "✕"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 20
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Parent = Frame
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(1, 0)
+CloseCorner.Parent = CloseButton
+
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- Добавляем кнопку сворачивания
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.Size = UDim2.new(0, 35, 0, 35)
+MinimizeButton.Position = UDim2.new(1, -90, 0, 10)
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+MinimizeButton.BorderSizePixel = 0
+MinimizeButton.Text = "−"
+MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeButton.TextSize = 24
+MinimizeButton.Font = Enum.Font.GothamBold
+MinimizeButton.Parent = Frame
+
+local MinCorner = Instance.new("UICorner")
+MinCorner.CornerRadius = UDim.new(1, 0)
+MinCorner.Parent = MinimizeButton
+
+local minimized = false
+MinimizeButton.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    if minimized then
+        Frame.Size = UDim2.new(0, 600, 0, 55)
+        MinimizeButton.Text = "+"
+    else
+        Frame.Size = UDim2.new(0, 600, 0, 450)
+        MinimizeButton.Text = "−"
+    end
+end)
+
+-- Анимация появления
+Frame.BackgroundTransparency = 1
+for _, child in ipairs(Frame:GetChildren()) do
+    if child:IsA("Frame") and child ~= Shadow then
+        child.BackgroundTransparency = 1
+    end
+end
+
+tweenService:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {
+    BackgroundTransparency = 0
+}):Play()
+
+wait(0.1)
+for _, child in ipairs(Frame:GetChildren()) do
+    if child:IsA("Frame") and child ~= Shadow then
+        tweenService:Create(child, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+            BackgroundTransparency = 0
+        }):Play()
+    end
+end
+
+print("✅ Furdjehub Loader успешно загружен!")        loadstring(game:HttpGet(scriptUrl))()
     end)
 end
 
