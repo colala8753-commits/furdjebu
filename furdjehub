@@ -1,15 +1,26 @@
--- Создаем GUI
+-- Проверяем, что игрок существует
+local player = game.Players.LocalPlayer
+if not player then
+    wait(1)
+    player = game.Players.LocalPlayer
+end
+
+-- Создаем GUI с гарантией отображения
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.Name = "FurdjehubLoader"
+ScreenGui.ResetOnSpawn = false -- Не удалять при респавне
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
 
 -- Фоновое окно
 local Frame = Instance.new("Frame")
 Frame.Size = UDim2.new(0, 600, 0, 450)
 Frame.Position = UDim2.new(0.5, -300, 0.5, -225)
 Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-Frame.BackgroundTransparency = 0.1
+Frame.BackgroundTransparency = 0
 Frame.BorderSizePixel = 0
 Frame.ClipsDescendants = true
+Frame.Active = true
+Frame.Draggable = true
 Frame.Parent = ScreenGui
 
 -- Скругление углов фрейма
@@ -22,7 +33,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 50)
 Title.Position = UDim2.new(0, 0, 0, 0)
 Title.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-Title.BackgroundTransparency = 0.2
+Title.BackgroundTransparency = 0
 Title.BorderSizePixel = 0
 Title.Text = "furdjehub loader"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -43,7 +54,7 @@ local function CreateModeButton(yPos, modeName, scriptUrl, color)
     ModeFrame.Size = UDim2.new(0, 520, 0, 70)
     ModeFrame.Position = UDim2.new(0.5, -260, 0, yPos)
     ModeFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
-    ModeFrame.BackgroundTransparency = 0.3
+    ModeFrame.BackgroundTransparency = 0
     ModeFrame.BorderSizePixel = 0
     ModeFrame.Parent = Frame
     
@@ -51,7 +62,7 @@ local function CreateModeButton(yPos, modeName, scriptUrl, color)
     ModeCorner.CornerRadius = UDim.new(0, 15)
     ModeCorner.Parent = ModeFrame
     
-    -- Название режима (только название, без скрипта)
+    -- Название режима
     local ModeLabel = Instance.new("TextLabel")
     ModeLabel.Size = UDim2.new(0, 350, 1, 0)
     ModeLabel.Position = UDim2.new(0, 15, 0, 0)
@@ -92,13 +103,13 @@ local function CreateModeButton(yPos, modeName, scriptUrl, color)
         PlayButton.BackgroundColor3 = color
     end)
     
-    -- Обработчик нажатия (запускает скрипт, но не показывает его в GUI)
+    -- Обработчик нажатия
     PlayButton.MouseButton1Click:Connect(function()
         loadstring(game:HttpGet(scriptUrl))()
     end)
 end
 
--- Создаем три режима (только названия)
+-- Создаем три режима
 CreateModeButton(70, "Murder Mystery 2", "https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mm2.lua", Color3.fromRGB(220, 50, 50))
 CreateModeButton(160, "+1 Speed Keyboard Escape", "https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/kbs", Color3.fromRGB(50, 150, 220))
 CreateModeButton(250, "Murder vs Sheriff Duels", "https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mvs", Color3.fromRGB(50, 200, 100))
@@ -106,6 +117,24 @@ CreateModeButton(250, "Murder vs Sheriff Duels", "https://raw.githubusercontent.
 -- Кнопка закрытия
 local CloseButton = Instance.new("TextButton")
 CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -40, 0, 10)
+CloseButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+CloseButton.BorderSizePixel = 0
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 18
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Parent = Frame
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(1, 0)
+CloseCorner.Parent = CloseButton
+
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+print("GUI загружен!") -- Для отладкиCloseButton.Size = UDim2.new(0, 30, 0, 30)
 CloseButton.Position = UDim2.new(1, -40, 0, 10)
 CloseButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 CloseButton.BorderSizePixel = 0
