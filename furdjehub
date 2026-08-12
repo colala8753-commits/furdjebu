@@ -1,111 +1,135 @@
--- FURDJEHUB - LAUNCHER [Универсальный загрузчик режимов]
-local player = game.Players.LocalPlayer
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
+-- Создаем GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
--- Удаляем старые GUI
-for _, v in pairs(player.PlayerGui:GetChildren()) do
-    if v.Name == "FurdjehubLauncher" or v.Name == "FurdjehubLauncher2" then
-        v:Destroy()
-    end
+-- Фоновое окно
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 600, 0, 450)
+Frame.Position = UDim2.new(0.5, -300, 0.5, -225)
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+Frame.BackgroundTransparency = 0.1
+Frame.BorderSizePixel = 0
+Frame.ClipsDescendants = true
+Frame.Parent = ScreenGui
+
+-- Скругление углов фрейма
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 20)
+UICorner.Parent = Frame
+
+-- Заголовок
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Position = UDim2.new(0, 0, 0, 0)
+Title.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+Title.BackgroundTransparency = 0.2
+Title.BorderSizePixel = 0
+Title.Text = "furdjehub loader"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 24
+Title.TextScaled = true
+Title.Font = Enum.Font.GothamBold
+Title.Parent = Frame
+
+-- Скругление заголовка
+local TitleCorner = Instance.new("UICorner")
+TitleCorner.CornerRadius = UDim.new(0, 20)
+TitleCorner.Parent = Title
+
+-- Функция создания кнопки режима
+local function CreateModeButton(yPos, modeName, scriptUrl, color)
+    -- Фрейм режима
+    local ModeFrame = Instance.new("Frame")
+    ModeFrame.Size = UDim2.new(0, 520, 0, 70)
+    ModeFrame.Position = UDim2.new(0.5, -260, 0, yPos)
+    ModeFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    ModeFrame.BackgroundTransparency = 0.3
+    ModeFrame.BorderSizePixel = 0
+    ModeFrame.Parent = Frame
+    
+    local ModeCorner = Instance.new("UICorner")
+    ModeCorner.CornerRadius = UDim.new(0, 15)
+    ModeCorner.Parent = ModeFrame
+    
+    -- Название режима (только название, без скрипта)
+    local ModeLabel = Instance.new("TextLabel")
+    ModeLabel.Size = UDim2.new(0, 350, 1, 0)
+    ModeLabel.Position = UDim2.new(0, 15, 0, 0)
+    ModeLabel.BackgroundTransparency = 1
+    ModeLabel.Text = modeName
+    ModeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ModeLabel.TextSize = 20
+    ModeLabel.TextXAlignment = Enum.TextXAlignment.Left
+    ModeLabel.Font = Enum.Font.Gotham
+    ModeLabel.Parent = ModeFrame
+    
+    -- Кнопка "Играть"
+    local PlayButton = Instance.new("TextButton")
+    PlayButton.Size = UDim2.new(0, 120, 0, 45)
+    PlayButton.Position = UDim2.new(1, -135, 0.5, -22.5)
+    PlayButton.BackgroundColor3 = color
+    PlayButton.BorderSizePixel = 0
+    PlayButton.Text = "Играть"
+    PlayButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    PlayButton.TextSize = 18
+    PlayButton.Font = Enum.Font.GothamBold
+    PlayButton.Parent = ModeFrame
+    
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 10)
+    ButtonCorner.Parent = PlayButton
+    
+    -- Эффект наведения
+    PlayButton.MouseEnter:Connect(function()
+        PlayButton.BackgroundColor3 = Color3.fromRGB(
+            math.min(color.R * 255 + 30, 255),
+            math.min(color.G * 255 + 30, 255),
+            math.min(color.B * 255 + 30, 255)
+        )
+    end)
+    
+    PlayButton.MouseLeave:Connect(function()
+        PlayButton.BackgroundColor3 = color
+    end)
+    
+    -- Обработчик нажатия (запускает скрипт, но не показывает его в GUI)
+    PlayButton.MouseButton1Click:Connect(function()
+        loadstring(game:HttpGet(scriptUrl))()
+    end)
 end
 
--- ===== РЕЖИМЫ (ОБНОВЛЕНЫ ССЫЛКИ ДЛЯ MVS И KBS) =====
-local Modes = {
-    {
-        Name = "🔪 MM2",
-        Description = "Murder Mystery 2",
-        Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mm2.lua"))()',
-        Game = "mm2"
-    },
-    {
-        Name = "🔫 RIVALS",
-        Description = "RIVALS",
-        Script = "",
-        Game = "rivals"
-    },
-    {
-        Name = "⚔️ Murderers VS Sheriffs Duels",
-        Description = "Murderers VS Sheriffs Duels",
-        Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mvs"))()',
-        Game = "mvs"
-    },
-    {
-        Name = "🌱 Grow a Garden 2",
-        Description = "Grow a Garden 2",
-        Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/gag2"))()',
-        Game = "garden"
-    },
-    {
-        Name = "⌨️ +1 Speed Keyboard",
-        Description = "+1 Speed Keyboard Escape | Candy & Chocolate",
-        Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/kbs"))()',
-        Game = "speedkeyboard"
-    }
-}
+-- Создаем три режима (только названия)
+CreateModeButton(70, "Murder Mystery 2", "https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mm2.lua", Color3.fromRGB(220, 50, 50))
+CreateModeButton(160, "+1 Speed Keyboard Escape", "https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/kbs", Color3.fromRGB(50, 150, 220))
+CreateModeButton(250, "Murder vs Sheriff Duels", "https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mvs", Color3.fromRGB(50, 200, 100))
 
--- Переменная для хранения загруженного скрипта
-local loadedScript = nil
-local isScriptRunning = false
+-- Кнопка закрытия
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -40, 0, 10)
+CloseButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+CloseButton.BorderSizePixel = 0
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 18
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Parent = Frame
 
--- ===== ФУНКЦИЯ ЗАГРУЗКИ СКРИПТА =====
-local function loadScript(scriptCode)
-    if isScriptRunning then
-        pcall(function()
-            if loadedScript then
-                loadedScript = nil
-            end
-        end)
-        isScriptRunning = false
-    end
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(1, 0)
+CloseCorner.Parent = CloseButton
 
-    if scriptCode and scriptCode ~= "" then
-        local success, err = pcall(function()
-            local func = loadstring(scriptCode)
-            if func then
-                loadedScript = func
-                func()
-                isScriptRunning = true
-                print("✅ Скрипт успешно загружен!")
-            else
-                error("Не удалось скомпилировать скрипт")
-            end
-        end)
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
 
-        if not success then
-            warn("❌ Ошибка загрузки скрипта: " .. tostring(err))
-            showNotification("❌ Ошибка загрузки скрипта!", Color3.fromRGB(200, 40, 40))
-        end
-    else
-        showNotification("⚠️ Скрипт для этого режима не добавлен", Color3.fromRGB(200, 150, 40))
-    end
-end
-
--- ===== УВЕДОМЛЕНИЯ =====
-local function showNotification(text, color)
-    color = color or Color3.fromRGB(0, 150, 70)
-    local notif = Instance.new("ScreenGui")
-    notif.Name = "Notification"
-    notif.Parent = player:WaitForChild("PlayerGui")
-
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 400, 0, 60)
-    frame.Position = UDim2.new(0.5, -200, 0.5, -30)
-    frame.BackgroundColor3 = color
-    frame.Parent = notif
-
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 10)
-    corner.Parent = frame
-
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 1, 0)
-    label.Text = text
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    label.TextSize = 16
-    label.Font = Enum.Font.GothamBold
-    label.BackgroundTransparency = 1
-    label.Parent = frame
+-- Анимация появления
+Frame.BackgroundTransparency = 1
+game:GetService("TweenService"):Create(
+    Frame,
+    TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+    {BackgroundTransparency = 0.1}
+):Play()    label.Parent = frame
 
     task.wait(2.5)
     notif:Destroy()
